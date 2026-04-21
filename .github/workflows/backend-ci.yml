@@ -1,0 +1,56 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "api/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "api/**"
+      - ".github/workflows/backend-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.mod
+
+      - name: Check formatting
+        run: |
+          unformatted="$(find . -name '*.go' -type f | xargs gofmt -l)"
+          if [ -n "$unformatted" ]; then
+            echo "Unformatted files:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Run vet
+        run: go vet ./...
+
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.mod
+
+      - name: Build
+        run: go build ./cmd/api
