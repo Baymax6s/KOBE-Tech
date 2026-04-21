@@ -1,24 +1,15 @@
-# README
+## 最小構成
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+- `cmd/api/main.go` で `.env` を読んで HTTP サーバを起動
+- `internal/server/router.go` でパスごとのハンドラを定義
+- まだ未実装の API は 501 を返す
 
-Things you may want to cover:
+## 起動
 
-* Ruby version
+```bash
+cp .env.example .env
+make db-up
+make run
+```
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+API はデフォルトで `http://localhost:8080` で起動します。
