@@ -1,6 +1,7 @@
 # KOBE Tech Frontend
 
-Vue 3 + Vite のフロントエンドです。`src` は `page / components / api` を中心にした簡素な構成です。
+Vue 3 + Vite のフロントエンドです。`src` は `features / components` を中心にした簡素な構成です。
+apiSchemaは自動生成されます。
 
 ## Setup
 
