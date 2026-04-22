@@ -24,3 +24,11 @@ npm install
 ```sh
 npm run dev
 ```
+
+### Generate API Types
+
+OpenAPIファイルから、TypeScriptクライアントを生成します。
+
+```sh
+npm run generate:api
+```
