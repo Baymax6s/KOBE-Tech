@@ -25,7 +25,7 @@ type createArticleRequest struct {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		loginRequest			true	"Login request"
-//	@Success		501		{object}	notImplementedResponse
+//	@Failure		501		{object}	notImplementedResponse
 //	@Router			/api/v1/auth/login [post]
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	writeNotImplemented(w, "login", "internal/auth/{handler,service,repository}.go")
@@ -39,7 +39,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		createArticleRequest	true	"Create article request"
-//	@Success		501		{object}	notImplementedResponse
+//	@Failure		501		{object}	notImplementedResponse
 //	@Router			/api/v1/articles [post]
 func createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	writeNotImplemented(w, "create article", "internal/article/{handler,service,repository}.go")

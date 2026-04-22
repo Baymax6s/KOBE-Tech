@@ -29,7 +29,6 @@ definitions:
         example: internal/auth/{handler,service,repository}.go
         type: string
     type: object
-host: localhost:8080
 info:
   contact: {}
   description: KOBE-Tech API documentation generated from Go annotations.
@@ -80,6 +79,4 @@ paths:
       summary: Login
       tags:
       - auth
-schemes:
-- http
 swagger: "2.0"

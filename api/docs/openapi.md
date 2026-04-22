@@ -18,7 +18,7 @@ make run
 
 - `.github/workflows/preview.yml` が `api/swagger` を GitHub Pages preview に公開し、PR コメントを毎回作り直します
 - `.github/workflows/cleanup.yml` が PR close 時に preview を削除します
-- 構成は `~/github/optical-backend` の preview-pages ベースに合わせています
+- preview 公開と PR close 時の cleanup は、このリポジトリ内の workflow 設定に沿って運用しています
 
 ## ローカル生成
 

@@ -13,7 +13,7 @@ build: swagger
 
 swagger:
 	@command -v $(SWAG) >/dev/null 2>&1 || (echo "swag is required. install with: go install github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION)" && exit 1)
-	$(SWAG) init -q -g main.go -d ./cmd/api,./internal --parseInternal -o ./swagger --ot json,yaml
+	$(SWAG) init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
 	mv ./swagger/swagger.yaml ./swagger/openapi.yml
 
 swagger-check: swagger

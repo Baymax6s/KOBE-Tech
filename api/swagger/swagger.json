@@ -1,7 +1,4 @@
 {
-    "schemes": [
-        "http"
-    ],
     "swagger": "2.0",
     "info": {
         "description": "KOBE-Tech API documentation generated from Go annotations.",
@@ -9,7 +6,6 @@
         "contact": {},
         "version": "0.1.0"
     },
-    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
         "/api/v1/articles": {
