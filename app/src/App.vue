@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import RecordListPage from '@/page/record-list/RecordListPage.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <RecordListPage />
+  <RouterView />
 </template>
