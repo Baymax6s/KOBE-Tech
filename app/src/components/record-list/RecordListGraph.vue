@@ -1,9 +1,23 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import type { StudyRecord } from '@/api/record-list/fetchRecordList'
 
-defineProps<{
+const props = defineProps<{
   records: StudyRecord[]
 }>()
+
+const maxStudyMinutes = computed(() =>
+  props.records.reduce((max, record) => Math.max(max, record.studyMinutes), 0),
+)
+
+const barWidth = (studyMinutes: number) => {
+  if (maxStudyMinutes.value === 0) {
+    return '0%'
+  }
+
+  return `${Math.max(0, Math.min((studyMinutes / maxStudyMinutes.value) * 100, 100))}%`
+}
 </script>
 
 <template>
@@ -13,17 +27,17 @@ defineProps<{
         <p class="eyebrow">graph</p>
         <h2>学習時間の推移</h2>
       </div>
-      <p class="caption">直近 {{ records.length }} 日</p>
+      <p class="caption">直近 {{ props.records.length }} 日</p>
     </div>
 
     <div class="bars">
-      <div v-for="record in records" :key="record.id" class="bar-row">
+      <div v-for="record in props.records" :key="record.id" class="bar-row">
         <div class="bar-meta">
           <span>{{ record.date.slice(5) }}</span>
           <strong>{{ record.studyMinutes }}m</strong>
         </div>
         <div class="track">
-          <div class="bar" :style="{ width: `${(record.studyMinutes / 120) * 100}%` }" />
+          <div class="bar" :style="{ width: barWidth(record.studyMinutes) }" />
         </div>
       </div>
     </div>
@@ -96,7 +110,6 @@ h2 {
 
 .bar {
   height: 100%;
-  min-width: 8%;
   border-radius: inherit;
   background: linear-gradient(90deg, #d86d46, #264a60);
 }
