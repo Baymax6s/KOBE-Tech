@@ -8,19 +8,19 @@ import (
 func NewHandler() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /api/v1/auth/login", notImplemented("login", "internal/auth/{handler,service,repository}.go"))
-	mux.HandleFunc("POST /api/v1/articles", notImplemented("create article", "internal/article/{handler,service,repository}.go"))
+	registerSwaggerRoutes(mux)
+
+	mux.HandleFunc("POST /api/v1/auth/login", loginHandler)
+	mux.HandleFunc("POST /api/v1/articles", createArticleHandler)
 
 	return mux
 }
 
-func notImplemented(feature, nextStep string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusNotImplemented, map[string]string{
-			"message":   feature + " is not implemented yet",
-			"next_step": nextStep,
-		})
-	}
+func writeNotImplemented(w http.ResponseWriter, feature, nextStep string) {
+	writeJSON(w, http.StatusNotImplemented, notImplementedResponse{
+		Message:  feature + " is not implemented yet",
+		NextStep: nextStep,
+	})
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {
