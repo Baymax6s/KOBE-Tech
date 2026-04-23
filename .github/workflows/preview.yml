@@ -34,7 +34,9 @@ jobs:
 
       - name: Generate Swagger
         working-directory: api
-        run: make swagger
+        run: |
+          swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+          mv ./swagger/swagger.yaml ./swagger/openapi.yml
 
       - name: Preview Pages
         uses: rajyan/preview-pages@v1

@@ -1,36 +1,56 @@
-## 最小構成
-
-- `cmd/api/main.go` で `.env` を読んで HTTP サーバを起動
-- `internal/server/router.go` でパスごとのハンドラを定義
-- まだ未実装の API は 501 を返す
-- `swagger/openapi.yml` と `swagger/index.html` で Swagger UI / OpenAPI を管理
-- OpenAPI は Go の Swagger コメントから自動生成する
-
 ## 前提条件
 
 以下のツールがインストールされている必要があります（[Docker Desktop](https://www.docker.com/products/docker-desktop/) を入れると Docker / Docker Compose がまとめて揃います）。
 
 ```bash
-go version 
-make --version         # コマンドのショートカット実行
-air -v                 # goのホットリロード
-docker -v              # postgresの前提
-docker compose version # postgresの前提
+go version
+air -v
+docker -v
+docker compose version
+swag --version
 ```
 
-## 起動
+## 環境構築
 
 ```bash
 cp .env.example .env
-make db-up
+docker compose up -d postgres
+swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+mv ./swagger/swagger.yaml ./swagger/openapi.yml
 air
 ```
 
-API はデフォルトで `http://localhost:8080` で起動します。
+## 起動
+```sh
+docker compose up -d
+air
+```
 
-## Swagger / OpenAPI
+## コマンド一覧
 
-- Swagger UI: `http://localhost:8080/swagger/`
-- OpenAPI 定義: `swagger/openapi.yml`
-- JSON 定義: `swagger/swagger.json`
-- 運用メモ: `docs/openapi.md`
+Swagger を生成する:
+
+```bash
+swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+mv ./swagger/swagger.yaml ./swagger/openapi.yml
+```
+
+DB を起動 / 停止する:
+
+```bash
+docker compose up -d postgres
+docker compose down
+```
+
+マイグレーションを適用 / 巻き戻しする:
+
+```bash
+docker compose --profile tools run --rm migrate up
+docker compose --profile tools run --rm migrate down 1
+```
+
+マイグレーションファイルを作成する:
+
+```bash
+docker compose --profile tools run --rm migrate create -ext sql -dir /migrations -seq create_users
+```

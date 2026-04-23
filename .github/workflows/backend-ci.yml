@@ -31,7 +31,10 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Check Swagger generation
-        run: make swagger-check
+        run: |
+          swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+          mv ./swagger/swagger.yaml ./swagger/openapi.yml
+          git diff --exit-code -- swagger/openapi.yml swagger/swagger.json
 
       - name: Check formatting
         run: |
@@ -64,4 +67,6 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Build
-        run: make build
+        run: |
+          mkdir -p bin
+          go build -o bin/api ./cmd/api
