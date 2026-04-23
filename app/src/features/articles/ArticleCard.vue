@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { useDateFormat } from '@vueuse/core'
-
-interface Article {
-  id: number
-  title: string
-  created_at: string
-}
+import type { Article } from './types'
 
 const props = defineProps<{ article: Article }>()
 
-const formattedDate = useDateFormat(props.article.created_at, 'YYYY/MM/DD')
+const formattedDate = useDateFormat(() => props.article.created_at, 'YYYY/MM/DD')
 </script>
 
 <template>

@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import ArticleCard from './ArticleCard.vue'
-
-// TODO: スキーマ生成後は api/generated/apiSchema.ts の型に差し替える
-interface Article {
-  id: number
-  title: string
-  created_at: string
-}
+import type { Article } from './types'
 
 const articles = ref<Article[]>([])
 const loading = ref(false)
