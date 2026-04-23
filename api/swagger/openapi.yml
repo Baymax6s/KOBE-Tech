@@ -5,6 +5,15 @@ definitions:
       message:
         type: string
     type: object
+  server.createArticleRequest:
+    properties:
+      content:
+        example: Article content
+        type: string
+      title:
+        example: First article
+        type: string
+    type: object
   server.articleJSONResponse:
     properties:
       content:
@@ -49,6 +58,39 @@ paths:
           schema:
             $ref: '#/definitions/server.articleErrorResponse'
       summary: List articles
+      tags:
+      - articles
+    post:
+      consumes:
+      - application/json
+      description: Create article API.
+      parameters:
+      - description: Create article request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.createArticleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.articleJSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+      summary: Create article
       tags:
       - articles
 schemes:
