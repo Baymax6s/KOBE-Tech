@@ -1,0 +1,43 @@
+name: preview
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  pull-requests: write
+  contents: write
+
+concurrency:
+  group: preview-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: api/go.mod
+          cache-dependency-path: api/go.mod
+
+      - name: Install swag
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.16.4
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Generate Swagger
+        working-directory: api
+        run: make swagger
+
+      - name: Preview Pages
+        uses: rajyan/preview-pages@v1
+        with:
+          source-dir: api/swagger
+          pr-comment: "recreate"

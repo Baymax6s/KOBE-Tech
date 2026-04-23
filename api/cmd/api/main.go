@@ -11,6 +11,10 @@ import (
 	"github.com/Baymax6s/KOBE-Tech/api/internal/server"
 )
 
+// @title KOBE-Tech API
+// @version 0.1.0
+// @description KOBE-Tech API documentation generated from Go annotations.
+// @BasePath /
 func main() {
 	if err := loadEnvFile(".env"); err != nil && !errors.Is(err, os.ErrNotExist) {
 		log.Fatalf("load .env: %v", err)
