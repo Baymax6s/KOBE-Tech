@@ -12,7 +12,7 @@ import (
 
 type ErrorResponse struct {
 	Message string `json:"message"`
-}
+} // @name server.articleErrorResponse
 
 type ArticleJSON struct {
 	ID        int64     `json:"id"`
@@ -21,11 +21,11 @@ type ArticleJSON struct {
 	UserID    int64     `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
+} // @name server.articleJSONResponse
 
 type ListArticlesJSONResponse struct {
 	Articles []ArticleJSON `json:"articles"`
-}
+} // @name server.listArticlesResponse
 
 type Handler struct {
 	repo *Repository

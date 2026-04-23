@@ -1,6 +1,11 @@
 basePath: /
 definitions:
-  get_list_article.ArticleJSON:
+  server.articleErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.articleJSONResponse:
     properties:
       content:
         type: string
@@ -15,43 +20,11 @@ definitions:
       user_id:
         type: integer
     type: object
-  get_list_article.ErrorResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  get_list_article.ListArticlesJSONResponse:
+  server.listArticlesResponse:
     properties:
       articles:
         items:
-          $ref: '#/definitions/get_list_article.ArticleJSON'
-        type: array
-    type: object
-  internal_get_list_article.ArticleJSON:
-    properties:
-      content:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      title:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: integer
-    type: object
-  internal_get_list_article.ErrorResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  internal_get_list_article.ListArticlesJSONResponse:
-    properties:
-      articles:
-        items:
-          $ref: '#/definitions/internal_get_list_article.ArticleJSON'
+          $ref: '#/definitions/server.articleJSONResponse'
         type: array
     type: object
 info:
@@ -69,11 +42,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_get_list_article.ListArticlesJSONResponse'
+            $ref: '#/definitions/server.listArticlesResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internal_get_list_article.ErrorResponse'
+            $ref: '#/definitions/server.articleErrorResponse'
       summary: List articles
       tags:
       - articles

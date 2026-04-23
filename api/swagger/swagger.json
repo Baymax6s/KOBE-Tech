@@ -22,13 +22,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_get_list_article.ListArticlesJSONResponse"
+                            "$ref": "#/definitions/server.listArticlesResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internal_get_list_article.ErrorResponse"
+                            "$ref": "#/definitions/server.articleErrorResponse"
                         }
                     }
                 }
@@ -36,7 +36,15 @@
         }
     },
     "definitions": {
-        "get_list_article.ArticleJSON": {
+        "server.articleErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.articleJSONResponse": {
             "type": "object",
             "properties": {
                 "content": {
@@ -59,63 +67,13 @@
                 }
             }
         },
-        "get_list_article.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "get_list_article.ListArticlesJSONResponse": {
+        "server.listArticlesResponse": {
             "type": "object",
             "properties": {
                 "articles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/get_list_article.ArticleJSON"
-                    }
-                }
-            }
-        },
-        "internal_get_list_article.ArticleJSON": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_get_list_article.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_get_list_article.ListArticlesJSONResponse": {
-            "type": "object",
-            "properties": {
-                "articles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/internal_get_list_article.ArticleJSON"
+                        "$ref": "#/definitions/server.articleJSONResponse"
                     }
                 }
             }
