@@ -13,6 +13,10 @@ func NewHandler(db *sql.DB) http.Handler {
 	articleHandler := article.NewHandler(article.NewRepository(db))
 
 	router := gin.Default()
+	router.Use(corsMiddleware())
+	router.OPTIONS("/*path", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
 
 	registerSwaggerRoutes(router)
 
