@@ -8,8 +8,9 @@
 ## 確認方法
 
 ```bash
-make swagger
-make run
+swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+mv ./swagger/swagger.yaml ./swagger/openapi.yml
+go run ./cmd/api
 ```
 
 ブラウザで `http://localhost:8080/swagger/` を開くと Swagger UI を確認できます。
@@ -24,7 +25,8 @@ make run
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@v1.16.4
-make swagger
+swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```
 
-`make build` と `make run` は自動で `make swagger` を先に実行します。
+`go build` と `go run` は Swagger を自動生成しないため、Swagger コメントを更新したときは先に再生成してください。
