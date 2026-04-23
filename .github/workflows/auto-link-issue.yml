@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   link-issue:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Extract issue number and update PR
@@ -16,31 +17,31 @@ jobs:
         with:
           script: |
             const branchName = context.payload.pull_request.head.ref;
-            // branch名から数字を抽出 (例: feature/32 -> 32)
-            const match = branchName.match(/(\d+)/);
+            // branch名が `type/123` または `type/123-description` の形式の場合のみIssue番号を抽出する
+            const match = branchName.match(/^[^/]+\/(\d+)(?:[-/].*)?$/);
 
             if (!match) {
-              core.info(`No issue number found in branch name: ${branchName}`);
+              core.info(`No issue number found in supported branch name pattern: ${branchName}`);
               return;
             }
 
             const issueNumber = match[1];
             const body = context.payload.pull_request.body ?? "";
             const closeText = `Closes #${issueNumber}`;
-            const closePattern = new RegExp(
-              `\\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\\s+#${issueNumber}\\b`,
-              "i"
-            );
+            const closingKeywordPattern = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#\d+\b/i;
+            const emptyClosePlaceholderPattern = /(^|\n)Closes\s+#[ \t]*(?=\n|$)/i;
 
-            // すでに同じIssueへのクローズ指定がある場合は何もしない
-            if (closePattern.test(body)) {
-              core.info(`PR body already contains a closing keyword for #${issueNumber}`);
+            // すでにクローズ指定がある場合は追記しない
+            if (closingKeywordPattern.test(body)) {
+              core.info("PR body already contains a closing keyword");
               return;
             }
 
-            const newBody = body.trim()
-              ? `${body.trimEnd()}\n\n${closeText}`
-              : closeText;
+            const newBody = emptyClosePlaceholderPattern.test(body)
+              ? body.replace(emptyClosePlaceholderPattern, `$1${closeText}`)
+              : body.trim()
+                ? `${body.trimEnd()}\n\n${closeText}`
+                : closeText;
 
             await github.rest.pulls.update({
               owner: context.repo.owner,
