@@ -34,19 +34,12 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	const bearerPrefix = "Bearer "
-	if !strings.HasPrefix(authorization, bearerPrefix) {
+	parts := strings.Fields(strings.TrimSpace(authorization))
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "invalid authorization header"})
 		return
 	}
-
-	token := strings.TrimSpace(strings.TrimPrefix(authorization, bearerPrefix))
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "invalid authorization token"})
-		return
-	}
-
-	userID, err := h.validator.ValidateToken(token)
+	userID, err := h.validator.ValidateToken(parts[1])
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "invalid token"})
 		return
