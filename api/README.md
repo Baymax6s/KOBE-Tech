@@ -11,7 +11,7 @@
 ```bash
 cp .env.example .env
 make db-up
-make run
+air
 ```
 
 API はデフォルトで `http://localhost:8080` で起動します。
