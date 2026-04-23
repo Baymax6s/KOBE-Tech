@@ -7,34 +7,36 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	swaggerassets "github.com/Baymax6s/KOBE-Tech/api/swagger"
 )
 
-func registerSwaggerRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /swagger", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/swagger/", http.StatusMovedPermanently)
+func registerSwaggerRoutes(router gin.IRouter) {
+	router.GET("/swagger", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/swagger/")
 	})
-	mux.HandleFunc("GET /swagger/{$}", func(w http.ResponseWriter, r *http.Request) {
-		serveSwaggerFile(w, r, "index.html", "text/html; charset=utf-8")
+	router.GET("/swagger/", func(c *gin.Context) {
+		serveSwaggerFile(c, "index.html", "text/html; charset=utf-8")
 	})
-	mux.HandleFunc("GET /swagger/index.html", func(w http.ResponseWriter, r *http.Request) {
-		serveSwaggerFile(w, r, "index.html", "text/html; charset=utf-8")
+	router.GET("/swagger/index.html", func(c *gin.Context) {
+		serveSwaggerFile(c, "index.html", "text/html; charset=utf-8")
 	})
-	mux.HandleFunc("GET /swagger/openapi.yml", func(w http.ResponseWriter, r *http.Request) {
-		serveSwaggerFile(w, r, "openapi.yml", "application/yaml")
+	router.GET("/swagger/openapi.yml", func(c *gin.Context) {
+		serveSwaggerFile(c, "openapi.yml", "application/yaml")
 	})
-	mux.HandleFunc("GET /swagger/swagger.json", func(w http.ResponseWriter, r *http.Request) {
-		serveSwaggerFile(w, r, "swagger.json", "application/json; charset=utf-8")
+	router.GET("/swagger/swagger.json", func(c *gin.Context) {
+		serveSwaggerFile(c, "swagger.json", "application/json; charset=utf-8")
 	})
 }
 
-func serveSwaggerFile(w http.ResponseWriter, r *http.Request, name, contentType string) {
+func serveSwaggerFile(c *gin.Context, name, contentType string) {
 	body, err := fs.ReadFile(swaggerassets.Files, name)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("swagger asset %q could not be loaded", name), http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, fmt.Sprintf("swagger asset %q could not be loaded", name))
 		return
 	}
 
-	w.Header().Set("Content-Type", contentType)
-	http.ServeContent(w, r, name, time.Time{}, bytes.NewReader(body))
+	c.Header("Content-Type", contentType)
+	http.ServeContent(c.Writer, c.Request, name, time.Time{}, bytes.NewReader(body))
 }

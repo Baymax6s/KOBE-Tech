@@ -10,30 +10,37 @@
  * ---------------------------------------------------------------
  */
 
+export interface ServerArticleErrorResponse {
+  message?: string;
+}
+
+export interface ServerArticleJSONResponse {
+  content?: string;
+  created_at?: string;
+  id?: number;
+  title?: string;
+  updated_at?: string;
+  user_id?: number;
+}
+
 export interface ServerCreateArticleRequest {
-  /** @example "Article body" */
   body?: string;
-  /** @example "First article" */
   title?: string;
 }
 
+export interface ServerListArticlesResponse {
+  articles?: ServerArticleJSONResponse[];
+}
+
 export interface ServerLoginRequest {
-  /**
-   * @format email
-   * @example "user@example.com"
-   */
+  /** @format email */
   email?: string;
-  /**
-   * @format password
-   * @example "change-me"
-   */
+  /** @format password */
   password?: string;
 }
 
 export interface ServerNotImplementedResponse {
-  /** @example "feature is not implemented yet" */
   message?: string;
-  /** @example "internal/{domain}/{handler,service,repository}.go" */
   next_step?: string;
 }
 
@@ -225,19 +232,35 @@ export class Api<
 > extends HttpClient<SecurityDataType> {
   api = {
     /**
+     * @description Get article list API.
+     *
+     * @tags articles
+     * @name ArticlesList
+     * @summary List articles
+     * @request GET:/api/articles
+     */
+    articlesList: (params: RequestParams = {}) =>
+      this.request<ServerListArticlesResponse, ServerArticleErrorResponse>({
+        path: `/api/articles`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Create article API.
      *
      * @tags articles
-     * @name V1ArticlesCreate
+     * @name ArticlesCreate
      * @summary Create article
-     * @request POST:/api/v1/articles
+     * @request POST:/api/articles
      */
-    v1ArticlesCreate: (
+    articlesCreate: (
       request: ServerCreateArticleRequest,
       params: RequestParams = {},
     ) =>
       this.request<any, ServerNotImplementedResponse>({
-        path: `/api/v1/articles`,
+        path: `/api/articles`,
         method: "POST",
         body: request,
         type: ContentType.Json,
@@ -248,16 +271,16 @@ export class Api<
      * @description Login API.
      *
      * @tags auth
-     * @name V1AuthLoginCreate
+     * @name AuthLoginCreate
      * @summary Login
-     * @request POST:/api/v1/auth/login
+     * @request POST:/api/auth/login
      */
-    v1AuthLoginCreate: (
+    authLoginCreate: (
       request: ServerLoginRequest,
       params: RequestParams = {},
     ) =>
       this.request<any, ServerNotImplementedResponse>({
-        path: `/api/v1/auth/login`,
+        path: `/api/auth/login`,
         method: "POST",
         body: request,
         type: ContentType.Json,

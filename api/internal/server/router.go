@@ -1,30 +1,28 @@
 package server
 
 import (
-	"encoding/json"
+	"database/sql"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	article "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
 )
 
-func NewHandler() http.Handler {
-	mux := http.NewServeMux()
+func NewHandler(db *sql.DB) http.Handler {
+	articleHandler := article.NewHandler(article.NewRepository(db))
 
-	registerSwaggerRoutes(mux)
-
-	mux.HandleFunc("POST /api/v1/auth/login", loginHandler)
-	mux.HandleFunc("POST /api/v1/articles", createArticleHandler)
-
-	return mux
-}
-
-func writeNotImplemented(w http.ResponseWriter, feature, nextStep string) {
-	writeJSON(w, http.StatusNotImplemented, notImplementedResponse{
-		Message:  feature + " is not implemented yet",
-		NextStep: nextStep,
+	router := gin.Default()
+	router.Use(corsMiddleware())
+	router.OPTIONS("/*path", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
 	})
-}
 
-func writeJSON(w http.ResponseWriter, status int, payload any) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(payload)
+	registerSwaggerRoutes(router)
+
+	api := router.Group("/api")
+	// article
+	articleHandler.RegisterRoutes(api)
+
+	return router
 }

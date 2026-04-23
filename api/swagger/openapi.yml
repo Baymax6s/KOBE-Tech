@@ -1,82 +1,56 @@
 basePath: /
 definitions:
-  server.createArticleRequest:
-    properties:
-      body:
-        example: Article body
-        type: string
-      title:
-        example: First article
-        type: string
-    type: object
-  server.loginRequest:
-    properties:
-      email:
-        example: user@example.com
-        format: email
-        type: string
-      password:
-        example: change-me
-        format: password
-        type: string
-    type: object
-  server.notImplementedResponse:
+  server.articleErrorResponse:
     properties:
       message:
-        example: feature is not implemented yet
-        type: string
-      next_step:
-        example: internal/{domain}/{handler,service,repository}.go
         type: string
     type: object
+  server.articleJSONResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  server.listArticlesResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/server.articleJSONResponse'
+        type: array
+    type: object
+host: localhost:8080
 info:
   contact: {}
   description: KOBE-Tech API documentation generated from Go annotations.
   title: KOBE-Tech API
   version: 0.1.0
 paths:
-  /api/v1/articles:
-    post:
-      consumes:
-      - application/json
-      description: Create article API.
-      parameters:
-      - description: Create article request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/server.createArticleRequest'
+  /api/articles:
+    get:
+      description: Get article list API.
       produces:
       - application/json
       responses:
-        "501":
-          description: Not Implemented
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/server.notImplementedResponse'
-      summary: Create article
+            $ref: '#/definitions/server.listArticlesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+      summary: List articles
       tags:
       - articles
-  /api/v1/auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Login API.
-      parameters:
-      - description: Login request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/server.loginRequest'
-      produces:
-      - application/json
-      responses:
-        "501":
-          description: Not Implemented
-          schema:
-            $ref: '#/definitions/server.notImplementedResponse'
-      summary: Login
-      tags:
-      - auth
+schemes:
+- http
 swagger: "2.0"

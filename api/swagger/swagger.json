@@ -1,4 +1,7 @@
 {
+    "schemes": [
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "KOBE-Tech API documentation generated from Go annotations.",
@@ -6,71 +9,30 @@
         "contact": {},
         "version": "0.1.0"
     },
+    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
-        "/api/v1/articles": {
-            "post": {
-                "description": "Create article API.",
-                "consumes": [
-                    "application/json"
-                ],
+        "/api/articles": {
+            "get": {
+                "description": "Get article list API.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "articles"
                 ],
-                "summary": "Create article",
-                "parameters": [
-                    {
-                        "description": "Create article request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/server.createArticleRequest"
-                        }
-                    }
-                ],
+                "summary": "List articles",
                 "responses": {
-                    "501": {
-                        "description": "Not Implemented",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.notImplementedResponse"
+                            "$ref": "#/definitions/server.listArticlesResponse"
                         }
-                    }
-                }
-            }
-        },
-        "/api/v1/auth/login": {
-            "post": {
-                "description": "Login API.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Login",
-                "parameters": [
-                    {
-                        "description": "Login request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/server.loginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "501": {
-                        "description": "Not Implemented",
-                        "schema": {
-                            "$ref": "#/definitions/server.notImplementedResponse"
+                            "$ref": "#/definitions/server.articleErrorResponse"
                         }
                     }
                 }
@@ -78,44 +40,45 @@
         }
     },
     "definitions": {
-        "server.createArticleRequest": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string",
-                    "example": "Article body"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "First article"
-                }
-            }
-        },
-        "server.loginRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
-                },
-                "password": {
-                    "type": "string",
-                    "format": "password",
-                    "example": "change-me"
-                }
-            }
-        },
-        "server.notImplementedResponse": {
+        "server.articleErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string",
-                    "example": "feature is not implemented yet"
+                    "type": "string"
+                }
+            }
+        },
+        "server.articleJSONResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
                 },
-                "next_step": {
-                    "type": "string",
-                    "example": "internal/{domain}/{handler,service,repository}.go"
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.listArticlesResponse": {
+            "type": "object",
+            "properties": {
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.articleJSONResponse"
+                    }
                 }
             }
         }
