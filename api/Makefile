@@ -2,7 +2,7 @@ CMD_PATH := ./cmd/api
 SWAG ?= swag
 SWAG_VERSION ?= v1.16.4
 
-.PHONY: run build test fmt tidy swagger swagger-check db-up db-down db-logs migrate-up migrate-down
+.PHONY: run build test fmt tidy swagger swagger-check db-up db-down db-logs migrate-up migrate-down migrate-create
 
 run: swagger
 	go run $(CMD_PATH)
@@ -26,7 +26,11 @@ db-down:
 	docker compose down
 
 migrate-up:
-	docker compose run --rm --profile tools migrate up
+	docker compose --profile tools run --rm migrate up
 
 migrate-down:
-	docker compose run --rm --profile tools migrate down 1
+	docker compose --profile tools run --rm migrate down 1
+
+migrate-create:
+	@test -n "$(NAME)" || (echo "Usage: make migrate-create NAME=create_users" && exit 1)
+	docker compose --profile tools run --rm migrate create -ext sql -dir /migrations -seq $(NAME)
