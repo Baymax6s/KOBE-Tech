@@ -23,6 +23,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator) http.Handler {
 	registerSwaggerRoutes(router)
 
 	api := router.Group("/api")
+	// Article
 	listArticleHandler.RegisterRoutes(api)
 	postArticleHandler.RegisterRoutes(api)
 

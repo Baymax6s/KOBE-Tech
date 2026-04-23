@@ -98,19 +98,6 @@
                 }
             }
         },
-        "server.createArticleRequest": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "example": "Article content"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "First article"
-                }
-            }
-        },
         "server.articleJSONResponse": {
             "type": "object",
             "properties": {
@@ -131,6 +118,17 @@
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "server.createArticleRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },
