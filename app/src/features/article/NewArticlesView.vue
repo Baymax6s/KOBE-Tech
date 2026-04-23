@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 
+defineOptions({
+  name: 'NewArticleView'
+})
+
 const form = reactive({
   title: '',
   body: '',
@@ -77,7 +81,7 @@ const submit = () => {
 
 <style scoped>
 .form-wrapper {
-  display: contents;
+  display: block;
 }
 
 .form-fields {
