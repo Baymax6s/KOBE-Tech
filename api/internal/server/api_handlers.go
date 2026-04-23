@@ -1,6 +1,13 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
+)
+
+type listArticlesResponse = article.ListArticlesJSONResponse
+type articleErrorResponse = article.ErrorJSONResponse
 
 type notImplementedResponse struct {
 	Message  string `json:"message" example:"feature is not implemented yet"`
@@ -26,9 +33,22 @@ type createArticleRequest struct {
 //	@Produce		json
 //	@Param			request	body		loginRequest			true	"Login request"
 //	@Failure		501		{object}	notImplementedResponse
-//	@Router			/api/v1/auth/login [post]
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+//	@Router			/api/auth/login [post]
+func (s *apiServer) loginHandler(w http.ResponseWriter, r *http.Request) {
 	writeNotImplemented(w, "login", "internal/auth/{handler,service,repository}.go")
+}
+
+// listArticlesHandler godoc
+//
+//	@Summary		List articles
+//	@Description	Get article list API.
+//	@Tags			articles
+//	@Produce		json
+//	@Success		200	{object}	listArticlesResponse
+//	@Failure		500	{object}	articleErrorResponse
+//	@Router			/api/articles [get]
+func (s *apiServer) listArticlesHandler(w http.ResponseWriter, r *http.Request) {
+	s.articleHandler.ListArticles(w, r)
 }
 
 // createArticleHandler godoc
@@ -40,7 +60,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			request	body		createArticleRequest	true	"Create article request"
 //	@Failure		501		{object}	notImplementedResponse
-//	@Router			/api/v1/articles [post]
-func createArticleHandler(w http.ResponseWriter, r *http.Request) {
+//	@Router			/api/articles [post]
+func (s *apiServer) createArticleHandler(w http.ResponseWriter, r *http.Request) {
 	writeNotImplemented(w, "create article", "internal/article/{handler,service,repository}.go")
 }

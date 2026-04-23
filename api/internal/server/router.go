@@ -1,17 +1,29 @@
 package server
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
+
+	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
 )
 
-func NewHandler() http.Handler {
+type apiServer struct {
+	articleHandler *article.Handler
+}
+
+func NewHandler(db *sql.DB) http.Handler {
+	server := &apiServer{
+		articleHandler: article.NewHandler(article.NewRepository(db)),
+	}
+
 	mux := http.NewServeMux()
 
 	registerSwaggerRoutes(mux)
 
-	mux.HandleFunc("POST /api/v1/auth/login", loginHandler)
-	mux.HandleFunc("POST /api/v1/articles", createArticleHandler)
+	mux.HandleFunc("POST /api/auth/login", server.loginHandler)
+	mux.HandleFunc("GET /api/articles", server.listArticlesHandler)
+	mux.HandleFunc("POST /api/articles", server.createArticleHandler)
 
 	return mux
 }

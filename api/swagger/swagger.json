@@ -8,7 +8,31 @@
     },
     "basePath": "/",
     "paths": {
-        "/api/v1/articles": {
+        "/api/articles": {
+            "get": {
+                "description": "Get article list API.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "List articles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.listArticlesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.articleErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create article API.",
                 "consumes": [
@@ -42,7 +66,7 @@
                 }
             }
         },
-        "/api/v1/auth/login": {
+        "/api/auth/login": {
             "post": {
                 "description": "Login API.",
                 "consumes": [
@@ -78,6 +102,44 @@
         }
     },
     "definitions": {
+        "article.ArticleJSON": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "example": "Article body"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2026-04-24T00:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "title": {
+                    "type": "string",
+                    "example": "First article"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2026-04-24T00:00:00Z"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "server.articleErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "internal server error"
+                }
+            }
+        },
         "server.createArticleRequest": {
             "type": "object",
             "properties": {
@@ -88,6 +150,17 @@
                 "title": {
                     "type": "string",
                     "example": "First article"
+                }
+            }
+        },
+        "server.listArticlesResponse": {
+            "type": "object",
+            "properties": {
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/article.ArticleJSON"
+                    }
                 }
             }
         },

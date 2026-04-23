@@ -1,5 +1,32 @@
 basePath: /
 definitions:
+  article.ArticleJSON:
+    properties:
+      content:
+        example: Article body
+        type: string
+      created_at:
+        example: "2026-04-24T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      title:
+        example: First article
+        type: string
+      updated_at:
+        example: "2026-04-24T00:00:00Z"
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  server.articleErrorResponse:
+    properties:
+      message:
+        example: internal server error
+        type: string
+    type: object
   server.createArticleRequest:
     properties:
       body:
@@ -8,6 +35,13 @@ definitions:
       title:
         example: First article
         type: string
+    type: object
+  server.listArticlesResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/article.ArticleJSON'
+        type: array
     type: object
   server.loginRequest:
     properties:
@@ -35,7 +69,23 @@ info:
   title: KOBE-Tech API
   version: 0.1.0
 paths:
-  /api/v1/articles:
+  /api/articles:
+    get:
+      description: Get article list API.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.listArticlesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+      summary: List articles
+      tags:
+      - articles
     post:
       consumes:
       - application/json
@@ -57,7 +107,7 @@ paths:
       summary: Create article
       tags:
       - articles
-  /api/v1/auth/login:
+  /api/auth/login:
     post:
       consumes:
       - application/json
