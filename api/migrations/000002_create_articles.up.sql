@@ -7,3 +7,5 @@ CREATE TABLE articles (
     user_id INTEGER NOT NULL,
     CONSTRAINT fk_articles_user_id FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+CREATE INDEX idx_articles_user_id ON articles (user_id);
