@@ -5,6 +5,8 @@ on:
     paths:
       - "api/**"
       - ".github/workflows/backend-ci.yml"
+      - ".github/workflows/preview.yml"
+      - ".github/workflows/cleanup.yml"
 
 permissions:
   contents: read
@@ -22,6 +24,14 @@ jobs:
         with:
           go-version-file: api/go.mod
           cache-dependency-path: api/go.mod
+
+      - name: Install swag
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.16.4
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Check Swagger generation
+        run: make swagger-check
 
       - name: Check formatting
         run: |
@@ -48,5 +58,10 @@ jobs:
           go-version-file: api/go.mod
           cache-dependency-path: api/go.mod
 
+      - name: Install swag
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.16.4
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
       - name: Build
-        run: go build ./cmd/api
+        run: make build
