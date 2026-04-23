@@ -1,66 +1,53 @@
 basePath: /
 definitions:
-  article.ArticleJSON:
-    properties:
-      content:
-        example: Article body
-        type: string
-      created_at:
-        example: "2026-04-24T00:00:00Z"
-        type: string
-      id:
-        example: 1
-        type: integer
-      title:
-        example: First article
-        type: string
-      updated_at:
-        example: "2026-04-24T00:00:00Z"
-        type: string
-      user_id:
-        example: 1
-        type: integer
-    type: object
   server.articleErrorResponse:
     properties:
       message:
-        example: internal server error
         type: string
+    type: object
+  server.articleJSONResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
     type: object
   server.createArticleRequest:
     properties:
       body:
-        example: Article body
         type: string
       title:
-        example: First article
         type: string
     type: object
   server.listArticlesResponse:
     properties:
       articles:
         items:
-          $ref: '#/definitions/article.ArticleJSON'
+          $ref: '#/definitions/server.articleJSONResponse'
         type: array
     type: object
   server.loginRequest:
     properties:
       email:
-        example: user@example.com
         format: email
         type: string
       password:
-        example: change-me
         format: password
         type: string
     type: object
   server.notImplementedResponse:
     properties:
       message:
-        example: feature is not implemented yet
         type: string
       next_step:
-        example: internal/{domain}/{handler,service,repository}.go
         type: string
     type: object
 info:

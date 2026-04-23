@@ -1,27 +1,45 @@
 package server
 
 import (
+	"log"
 	"net/http"
+	"time"
 
-	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
+	"github.com/gin-gonic/gin"
 )
 
-type listArticlesResponse = article.ListArticlesJSONResponse
-type articleErrorResponse = article.ErrorJSONResponse
+type articleErrorResponse = messageResponse
+
+type articleJSONResponse struct {
+	ID        int64     `json:"id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	UserID    int64     `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type listArticlesResponse struct {
+	Articles []articleJSONResponse `json:"articles"`
+}
+
+type messageResponse struct {
+	Message string `json:"message"`
+}
 
 type notImplementedResponse struct {
-	Message  string `json:"message" example:"feature is not implemented yet"`
-	NextStep string `json:"next_step" example:"internal/{domain}/{handler,service,repository}.go"`
+	Message  string `json:"message"`
+	NextStep string `json:"next_step"`
 }
 
 type loginRequest struct {
-	Email    string `json:"email" format:"email" example:"user@example.com"`
-	Password string `json:"password" format:"password" example:"change-me"`
+	Email    string `json:"email" format:"email"`
+	Password string `json:"password" format:"password"`
 }
 
 type createArticleRequest struct {
-	Title string `json:"title" example:"First article"`
-	Body  string `json:"body" example:"Article body"`
+	Title string `json:"title"`
+	Body  string `json:"body"`
 }
 
 // loginHandler godoc
@@ -34,8 +52,8 @@ type createArticleRequest struct {
 //	@Param			request	body		loginRequest			true	"Login request"
 //	@Failure		501		{object}	notImplementedResponse
 //	@Router			/api/auth/login [post]
-func (s *apiServer) loginHandler(w http.ResponseWriter, r *http.Request) {
-	writeNotImplemented(w, "login", "internal/auth/{handler,service,repository}.go")
+func (s *apiServer) loginHandler(c *gin.Context) {
+	writeNotImplemented(c, "login", "internal/auth/{handler,service,repository}.go")
 }
 
 // listArticlesHandler godoc
@@ -47,8 +65,17 @@ func (s *apiServer) loginHandler(w http.ResponseWriter, r *http.Request) {
 //	@Success		200	{object}	listArticlesResponse
 //	@Failure		500	{object}	articleErrorResponse
 //	@Router			/api/articles [get]
-func (s *apiServer) listArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	s.articleHandler.ListArticles(w, r)
+func (s *apiServer) listArticlesHandler(c *gin.Context) {
+	response, err := s.articleHandler.ListArticles(c.Request.Context())
+	if err != nil {
+		log.Printf("list articles: %v", err)
+		writeJSON(c, http.StatusInternalServerError, messageResponse{
+			Message: "internal server error",
+		})
+		return
+	}
+
+	writeJSON(c, http.StatusOK, response)
 }
 
 // createArticleHandler godoc
@@ -61,6 +88,6 @@ func (s *apiServer) listArticlesHandler(w http.ResponseWriter, r *http.Request) 
 //	@Param			request	body		createArticleRequest	true	"Create article request"
 //	@Failure		501		{object}	notImplementedResponse
 //	@Router			/api/articles [post]
-func (s *apiServer) createArticleHandler(w http.ResponseWriter, r *http.Request) {
-	writeNotImplemented(w, "create article", "internal/article/{handler,service,repository}.go")
+func (s *apiServer) createArticleHandler(c *gin.Context) {
+	writeNotImplemented(c, "create article", "internal/article/{handler,service,repository}.go")
 }

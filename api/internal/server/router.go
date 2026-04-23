@@ -2,10 +2,11 @@ package server
 
 import (
 	"database/sql"
-	"encoding/json"
 	"net/http"
 
-	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
+	"github.com/gin-gonic/gin"
+
+	article "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
 )
 
 type apiServer struct {
@@ -17,26 +18,26 @@ func NewHandler(db *sql.DB) http.Handler {
 		articleHandler: article.NewHandler(article.NewRepository(db)),
 	}
 
-	mux := http.NewServeMux()
+	router := gin.Default()
 
-	registerSwaggerRoutes(mux)
+	registerSwaggerRoutes(router)
 
-	mux.HandleFunc("POST /api/auth/login", server.loginHandler)
-	mux.HandleFunc("GET /api/articles", server.listArticlesHandler)
-	mux.HandleFunc("POST /api/articles", server.createArticleHandler)
+	api := router.Group("/api")
+	auth := api.Group("/auth")
+	auth.POST("/login", server.loginHandler)
+	api.GET("/articles", server.listArticlesHandler)
+	api.POST("/articles", server.createArticleHandler)
 
-	return mux
+	return router
 }
 
-func writeNotImplemented(w http.ResponseWriter, feature, nextStep string) {
-	writeJSON(w, http.StatusNotImplemented, notImplementedResponse{
+func writeNotImplemented(c *gin.Context, feature, nextStep string) {
+	writeJSON(c, http.StatusNotImplemented, notImplementedResponse{
 		Message:  feature + " is not implemented yet",
 		NextStep: nextStep,
 	})
 }
 
-func writeJSON(w http.ResponseWriter, status int, payload any) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(payload)
+func writeJSON(c *gin.Context, status int, payload any) {
+	c.JSON(status, payload)
 }

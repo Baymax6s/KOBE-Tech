@@ -10,54 +10,37 @@
  * ---------------------------------------------------------------
  */
 
-export interface ArticleArticleJSON {
-  /** @example "Article body" */
-  content?: string;
-  /** @example "2026-04-24T00:00:00Z" */
-  created_at?: string;
-  /** @example 1 */
-  id?: number;
-  /** @example "First article" */
-  title?: string;
-  /** @example "2026-04-24T00:00:00Z" */
-  updated_at?: string;
-  /** @example 1 */
-  user_id?: number;
-}
-
 export interface ServerArticleErrorResponse {
-  /** @example "internal server error" */
   message?: string;
 }
 
+export interface ServerArticleJSONResponse {
+  content?: string;
+  created_at?: string;
+  id?: number;
+  title?: string;
+  updated_at?: string;
+  user_id?: number;
+}
+
 export interface ServerCreateArticleRequest {
-  /** @example "Article body" */
   body?: string;
-  /** @example "First article" */
   title?: string;
 }
 
 export interface ServerListArticlesResponse {
-  articles?: ArticleArticleJSON[];
+  articles?: ServerArticleJSONResponse[];
 }
 
 export interface ServerLoginRequest {
-  /**
-   * @format email
-   * @example "user@example.com"
-   */
+  /** @format email */
   email?: string;
-  /**
-   * @format password
-   * @example "change-me"
-   */
+  /** @format password */
   password?: string;
 }
 
 export interface ServerNotImplementedResponse {
-  /** @example "feature is not implemented yet" */
   message?: string;
-  /** @example "internal/{domain}/{handler,service,repository}.go" */
   next_step?: string;
 }
 

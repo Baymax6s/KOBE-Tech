@@ -102,41 +102,34 @@
         }
     },
     "definitions": {
-        "article.ArticleJSON": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "example": "Article body"
-                },
-                "created_at": {
-                    "type": "string",
-                    "example": "2026-04-24T00:00:00Z"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "title": {
-                    "type": "string",
-                    "example": "First article"
-                },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2026-04-24T00:00:00Z"
-                },
-                "user_id": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
         "server.articleErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string",
-                    "example": "internal server error"
+                    "type": "string"
+                }
+            }
+        },
+        "server.articleJSONResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -144,12 +137,10 @@
             "type": "object",
             "properties": {
                 "body": {
-                    "type": "string",
-                    "example": "Article body"
+                    "type": "string"
                 },
                 "title": {
-                    "type": "string",
-                    "example": "First article"
+                    "type": "string"
                 }
             }
         },
@@ -159,7 +150,7 @@
                 "articles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/article.ArticleJSON"
+                        "$ref": "#/definitions/server.articleJSONResponse"
                     }
                 }
             }
@@ -169,13 +160,11 @@
             "properties": {
                 "email": {
                     "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
+                    "format": "email"
                 },
                 "password": {
                     "type": "string",
-                    "format": "password",
-                    "example": "change-me"
+                    "format": "password"
                 }
             }
         },
@@ -183,12 +172,10 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string",
-                    "example": "feature is not implemented yet"
+                    "type": "string"
                 },
                 "next_step": {
-                    "type": "string",
-                    "example": "internal/{domain}/{handler,service,repository}.go"
+                    "type": "string"
                 }
             }
         }

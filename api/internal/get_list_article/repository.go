@@ -6,12 +6,6 @@ import (
 	"errors"
 )
 
-const listArticlesQuery = `
-SELECT id, title, content, user_id, created_at, updated_at
-FROM articles
-ORDER BY created_at DESC, id DESC
-`
-
 type Repository struct {
 	db *sql.DB
 }
@@ -24,8 +18,13 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 	if r == nil || r.db == nil {
 		return nil, errors.New("article repository is not configured")
 	}
+	query := `
+		SELECT id, title, content, user_id, created_at, updated_at
+		FROM articles
+		ORDER BY created_at DESC, id DESC
+	`
 
-	rows, err := r.db.QueryContext(ctx, listArticlesQuery)
+	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
