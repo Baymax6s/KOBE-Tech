@@ -27,6 +27,7 @@ definitions:
           $ref: '#/definitions/server.articleJSONResponse'
         type: array
     type: object
+host: localhost:8080
 info:
   contact: {}
   description: KOBE-Tech API documentation generated from Go annotations.
@@ -50,4 +51,6 @@ paths:
       summary: List articles
       tags:
       - articles
+schemes:
+- http
 swagger: "2.0"

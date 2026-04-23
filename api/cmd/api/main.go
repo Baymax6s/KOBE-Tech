@@ -18,6 +18,8 @@ import (
 // @title KOBE-Tech API
 // @version 0.1.0
 // @description KOBE-Tech API documentation generated from Go annotations.
+// @host localhost:8080
+// @schemes http
 // @BasePath /
 func main() {
 	if err := loadEnvFile(".env"); err != nil && !errors.Is(err, os.ErrNotExist) {
