@@ -6,6 +6,18 @@
 - `swagger/openapi.yml` と `swagger/index.html` で Swagger UI / OpenAPI を管理
 - OpenAPI は Go の Swagger コメントから自動生成する
 
+## 前提条件
+
+以下のツールがインストールされている必要があります（[Docker Desktop](https://www.docker.com/products/docker-desktop/) を入れると Docker / Docker Compose がまとめて揃います）。
+
+```bash
+go version 
+make --version         # コマンドのショートカット実行
+air -v                 # goのホットリロード
+docker -v              # postgresの前提
+docker compose version # postgresの前提
+```
+
 ## 起動
 
 ```bash
