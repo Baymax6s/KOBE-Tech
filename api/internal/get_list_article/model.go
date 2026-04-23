@@ -10,4 +10,3 @@ type Article struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
-
