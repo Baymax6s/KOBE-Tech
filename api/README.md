@@ -13,3 +13,13 @@ make run
 ```
 
 API はデフォルトで `http://localhost:8080` で起動します。
+
+## ホットリロード
+
+```bash
+cp .env.example .env
+make db-up
+make air
+```
+
+初回の `make air` では `api/bin/air` に `air` を自動インストールしてから起動します。
