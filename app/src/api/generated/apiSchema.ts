@@ -31,9 +31,9 @@ export interface ServerLoginRequest {
 }
 
 export interface ServerNotImplementedResponse {
-  /** @example "login is not implemented yet" */
+  /** @example "feature is not implemented yet" */
   message?: string;
-  /** @example "internal/auth/{handler,service,repository}.go" */
+  /** @example "internal/{domain}/{handler,service,repository}.go" */
   next_step?: string;
 }
 

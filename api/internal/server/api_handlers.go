@@ -3,8 +3,8 @@ package server
 import "net/http"
 
 type notImplementedResponse struct {
-	Message  string `json:"message" example:"login is not implemented yet"`
-	NextStep string `json:"next_step" example:"internal/auth/{handler,service,repository}.go"`
+	Message  string `json:"message" example:"feature is not implemented yet"`
+	NextStep string `json:"next_step" example:"internal/{domain}/{handler,service,repository}.go"`
 }
 
 type loginRequest struct {

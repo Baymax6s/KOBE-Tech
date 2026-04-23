@@ -23,10 +23,10 @@ definitions:
   server.notImplementedResponse:
     properties:
       message:
-        example: login is not implemented yet
+        example: feature is not implemented yet
         type: string
       next_step:
-        example: internal/auth/{handler,service,repository}.go
+        example: internal/{domain}/{handler,service,repository}.go
         type: string
     type: object
 info:

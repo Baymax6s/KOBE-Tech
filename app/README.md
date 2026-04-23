@@ -27,7 +27,8 @@ npm run dev
 
 ### Generate API Types
 
-OpenAPIファイルから、TypeScriptクライアントを生成します。
+`api/swagger/openapi.yml` から TypeScript クライアントを再生成します。
+backend 側の OpenAPI 定義を更新した直後であれば、先に `cd ../api && make swagger` を実行してください。
 
 ```sh
 npm run generate:api

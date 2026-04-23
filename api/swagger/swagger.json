@@ -111,11 +111,11 @@
             "properties": {
                 "message": {
                     "type": "string",
-                    "example": "login is not implemented yet"
+                    "example": "feature is not implemented yet"
                 },
                 "next_step": {
                     "type": "string",
-                    "example": "internal/auth/{handler,service,repository}.go"
+                    "example": "internal/{domain}/{handler,service,repository}.go"
                 }
             }
         }
