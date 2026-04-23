@@ -12,9 +12,10 @@
     "generate:api": "swagger-typescript-api generate --path ../api/swagger/openapi.yml --output ./src/api/generated --name apiSchema.ts --axios"
   },
   "dependencies": {
-    "axios": "^1.13.1",
     "@fontsource/roboto": "^5.2.10",
     "@mdi/font": "^7.4.47",
+    "@vueuse/core": "^14.2.1",
+    "axios": "^1.13.1",
     "vue": "^3.5.32",
     "vue-router": "^4.6.4",
     "vuetify": "^4.0.6"
