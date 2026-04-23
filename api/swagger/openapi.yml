@@ -1,11 +1,6 @@
 basePath: /
 definitions:
-  server.articleErrorResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  server.articleJSONResponse:
+  get_list_article.ArticleJSON:
     properties:
       content:
         type: string
@@ -20,35 +15,44 @@ definitions:
       user_id:
         type: integer
     type: object
-  server.createArticleRequest:
-    properties:
-      body:
-        type: string
-      title:
-        type: string
-    type: object
-  server.listArticlesResponse:
-    properties:
-      articles:
-        items:
-          $ref: '#/definitions/server.articleJSONResponse'
-        type: array
-    type: object
-  server.loginRequest:
-    properties:
-      email:
-        format: email
-        type: string
-      password:
-        format: password
-        type: string
-    type: object
-  server.notImplementedResponse:
+  get_list_article.ErrorResponse:
     properties:
       message:
         type: string
-      next_step:
+    type: object
+  get_list_article.ListArticlesJSONResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/get_list_article.ArticleJSON'
+        type: array
+    type: object
+  internal_get_list_article.ArticleJSON:
+    properties:
+      content:
         type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  internal_get_list_article.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  internal_get_list_article.ListArticlesJSONResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/internal_get_list_article.ArticleJSON'
+        type: array
     type: object
 info:
   contact: {}
@@ -65,55 +69,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.listArticlesResponse'
+            $ref: '#/definitions/internal_get_list_article.ListArticlesJSONResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/server.articleErrorResponse'
+            $ref: '#/definitions/internal_get_list_article.ErrorResponse'
       summary: List articles
       tags:
       - articles
-    post:
-      consumes:
-      - application/json
-      description: Create article API.
-      parameters:
-      - description: Create article request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/server.createArticleRequest'
-      produces:
-      - application/json
-      responses:
-        "501":
-          description: Not Implemented
-          schema:
-            $ref: '#/definitions/server.notImplementedResponse'
-      summary: Create article
-      tags:
-      - articles
-  /api/auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Login API.
-      parameters:
-      - description: Login request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/server.loginRequest'
-      produces:
-      - application/json
-      responses:
-        "501":
-          description: Not Implemented
-          schema:
-            $ref: '#/definitions/server.notImplementedResponse'
-      summary: Login
-      tags:
-      - auth
 swagger: "2.0"

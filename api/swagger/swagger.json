@@ -22,79 +22,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.listArticlesResponse"
+                            "$ref": "#/definitions/internal_get_list_article.ListArticlesJSONResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/server.articleErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create article API.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "articles"
-                ],
-                "summary": "Create article",
-                "parameters": [
-                    {
-                        "description": "Create article request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/server.createArticleRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "501": {
-                        "description": "Not Implemented",
-                        "schema": {
-                            "$ref": "#/definitions/server.notImplementedResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/auth/login": {
-            "post": {
-                "description": "Login API.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Login",
-                "parameters": [
-                    {
-                        "description": "Login request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/server.loginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "501": {
-                        "description": "Not Implemented",
-                        "schema": {
-                            "$ref": "#/definitions/server.notImplementedResponse"
+                            "$ref": "#/definitions/internal_get_list_article.ErrorResponse"
                         }
                     }
                 }
@@ -102,15 +36,7 @@
         }
     },
     "definitions": {
-        "server.articleErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "server.articleJSONResponse": {
+        "get_list_article.ArticleJSON": {
             "type": "object",
             "properties": {
                 "content": {
@@ -133,49 +59,64 @@
                 }
             }
         },
-        "server.createArticleRequest": {
+        "get_list_article.ErrorResponse": {
             "type": "object",
             "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "title": {
+                "message": {
                     "type": "string"
                 }
             }
         },
-        "server.listArticlesResponse": {
+        "get_list_article.ListArticlesJSONResponse": {
             "type": "object",
             "properties": {
                 "articles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/server.articleJSONResponse"
+                        "$ref": "#/definitions/get_list_article.ArticleJSON"
                     }
                 }
             }
         },
-        "server.loginRequest": {
+        "internal_get_list_article.ArticleJSON": {
             "type": "object",
             "properties": {
-                "email": {
-                    "type": "string",
-                    "format": "email"
+                "content": {
+                    "type": "string"
                 },
-                "password": {
-                    "type": "string",
-                    "format": "password"
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
-        "server.notImplementedResponse": {
+        "internal_get_list_article.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "next_step": {
-                    "type": "string"
+                }
+            }
+        },
+        "internal_get_list_article.ListArticlesJSONResponse": {
+            "type": "object",
+            "properties": {
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_get_list_article.ArticleJSON"
+                    }
                 }
             }
         }

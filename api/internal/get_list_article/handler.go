@@ -3,8 +3,16 @@ package article
 import (
 	"context"
 	"errors"
+	"log"
+	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
+
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
 
 type ArticleJSON struct {
 	ID        int64     `json:"id"`
@@ -25,6 +33,32 @@ type Handler struct {
 
 func NewHandler(repo *Repository) *Handler {
 	return &Handler{repo: repo}
+}
+
+func (h *Handler) RegisterRoutes(router gin.IRouter) {
+	router.GET("/articles", h.listArticlesHandler)
+}
+
+// listArticlesHandler godoc
+//
+//	@Summary		List articles
+//	@Description	Get article list API.
+//	@Tags			articles
+//	@Produce		json
+//	@Success		200	{object}	ListArticlesJSONResponse
+//	@Failure		500	{object}	ErrorResponse
+//	@Router			/api/articles [get]
+func (h *Handler) listArticlesHandler(c *gin.Context) {
+	response, err := h.ListArticles(c.Request.Context())
+	if err != nil {
+		log.Printf("list articles: %v", err)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
+			Message: "internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *Handler) ListArticles(ctx context.Context) (ListArticlesJSONResponse, error) {
