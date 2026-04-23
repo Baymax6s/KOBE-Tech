@@ -10,8 +10,7 @@
           <v-text-field
             v-model="name"
             label="ユーザー名"
-            outlined
-            dense
+            variant="outlined"
             required
             class="mb-4"
           />
@@ -20,8 +19,7 @@
             v-model="password"
             label="パスワード"
             type="password"
-            outlined
-            dense
+            variant="outlined"
             required
             class="mb-4"
           />
@@ -39,7 +37,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 
 const name = ref('')
@@ -47,6 +45,5 @@ const password = ref('')
 
 const login = () => {
   console.log('名前:', name.value)
-  console.log('パスワード:', password.value)
 }
 </script>
