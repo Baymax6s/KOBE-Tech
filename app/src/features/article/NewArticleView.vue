@@ -5,7 +5,12 @@ defineOptions({
   name: 'NewArticleView'
 })
 
-const formRef = ref<any>(null)
+type ArticleFormRef = {
+  validate: () => Promise<{ valid: boolean }>
+  reset: () => void
+}
+
+const formRef = ref<ArticleFormRef | null>(null)
 
 const form = reactive({
   title: '',
@@ -28,7 +33,7 @@ const submit = async () => {
 
     // 3. API送信 ← まだ書いてない（コメントアウト）
     // try {
-    //   await fetch('http://localhost:8080/articles', { ... })
+    //   await fetch('http://localhost:8080/api/articles', { ... })
     // } catch (e) { ... }
 
     // 4. フォームリセット
