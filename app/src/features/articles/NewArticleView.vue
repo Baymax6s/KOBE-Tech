@@ -26,10 +26,12 @@ const submit = async () => {
 
   if (valid) {
     // 2. コンソールに出力（確認用）
-    console.log('投稿内容を送信します', {
-      title: form.title,
-      body: form.body,
-    })
+    if (import.meta.env.DEV) {
+      console.log('投稿内容を送信します', {
+        title: form.title,
+        body: form.body,
+      })
+    }
 
     // 3. API送信 ← まだ書いてない（コメントアウト）
     // try {

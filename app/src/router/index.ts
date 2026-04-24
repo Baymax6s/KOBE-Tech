@@ -24,7 +24,7 @@ const router = createRouter({
     },
     {
       path: '/articles/new',
-      component: () => import('@/features/article/NewArticleView.vue'),
+      component: () => import('@/features/articles/NewArticleView.vue'),
     },
   ],
 })
