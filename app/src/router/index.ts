@@ -18,6 +18,10 @@ const router = createRouter({
       // 遅延読み込み: アクセス時に初めてJSを読み込むので初期表示が速くなる
       component: () => import('@/features/auth/LoginView.vue'),
     },
+    {
+      path: '/articles',
+      component: () => import('@/features/articles/ArticlesView.vue'),
+    },
   ],
 })
 

@@ -4,13 +4,15 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	listarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
+	postarticle "github.com/Baymax6s/KOBE-Tech/api/internal/post_article"
 	"github.com/gin-gonic/gin"
-
-	article "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
 )
 
-func NewHandler(db *sql.DB) http.Handler {
-	articleHandler := article.NewHandler(article.NewRepository(db))
+func NewHandler(db *sql.DB, validator *auth.Validator) http.Handler {
+	listArticleHandler := listarticle.NewHandler(listarticle.NewRepository(db))
+	postArticleHandler := postarticle.NewHandler(postarticle.NewRepository(db), validator)
 
 	router := gin.Default()
 	router.Use(corsMiddleware())
@@ -21,8 +23,9 @@ func NewHandler(db *sql.DB) http.Handler {
 	registerSwaggerRoutes(router)
 
 	api := router.Group("/api")
-	// article
-	articleHandler.RegisterRoutes(api)
+	// Article
+	listArticleHandler.RegisterRoutes(api)
+	postArticleHandler.RegisterRoutes(api)
 
 	return router
 }
