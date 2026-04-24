@@ -1,13 +1,13 @@
 <template>
   <v-app-bar app color="primary" dark>
     <v-img
-      src="/ChatGPT_Image_2026422_23_48_11.png"
+      src="/kdtech-icon.png"
       alt="Logo"
-      max-width="50"
+      max-width="200"
       class="mr-4"
     />
     <v-spacer></v-spacer>
-    <v-btn @click="logout" color="secondary">
+    <v-btn @click="logout" color="white">
       ログアウト
     </v-btn>
   </v-app-bar>
