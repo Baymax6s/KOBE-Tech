@@ -8,7 +8,7 @@
 ## 確認方法
 
 ```bash
-swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+swag init -q -g ./cmd/api/main.go -d . --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 go run ./cmd/api
 ```
@@ -25,7 +25,7 @@ go run ./cmd/api
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@v1.16.4
-swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+swag init -q -g ./cmd/api/main.go -d . --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```
 

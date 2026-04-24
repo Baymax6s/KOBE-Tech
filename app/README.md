@@ -32,7 +32,7 @@ backend 側の OpenAPI 定義を更新した直後であれば、先に以下を
 
 ```sh
 cd ../api
-swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+swag init -q -g ./cmd/api/main.go -d . --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```
 

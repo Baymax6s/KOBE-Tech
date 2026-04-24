@@ -15,7 +15,7 @@ swag --version
 ```bash
 cp .env.example .env
 docker compose up -d postgres
-swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+swag init -q -g ./cmd/api/main.go -d . --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 air
 ```
@@ -31,7 +31,7 @@ air
 Swagger を生成する:
 
 ```bash
-swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+swag init -q -g ./cmd/api/main.go -d . --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```
 

@@ -35,7 +35,7 @@ jobs:
       - name: Generate Swagger
         working-directory: api
         run: |
-          swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+          swag init -q -g ./cmd/api/main.go -d . --parseInternal -o ./swagger --ot json,yaml
           mv ./swagger/swagger.yaml ./swagger/openapi.yml
 
       - name: Preview Pages

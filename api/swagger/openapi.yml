@@ -1,5 +1,25 @@
 basePath: /
 definitions:
+  postlogin.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  postlogin.LoginRequest:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  postlogin.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
   server.articleErrorResponse:
     properties:
       message:
@@ -91,6 +111,40 @@ paths:
       summary: Create article
       tags:
       - articles
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postlogin.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/postlogin.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/postlogin.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/postlogin.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/postlogin.ErrorResponse'
+      summary: Login
+      tags:
+      - auth
 schemes:
 - http
 swagger: "2.0"

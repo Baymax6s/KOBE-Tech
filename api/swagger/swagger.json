@@ -108,7 +108,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_post_login.LoginRequest"
+                            "$ref": "#/definitions/postlogin.LoginRequest"
                         }
                     }
                 ],
@@ -116,25 +116,25 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_post_login.LoginResponse"
+                            "$ref": "#/definitions/postlogin.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/internal_post_login.ErrorResponse"
+                            "$ref": "#/definitions/postlogin.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/internal_post_login.ErrorResponse"
+                            "$ref": "#/definitions/postlogin.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internal_post_login.ErrorResponse"
+                            "$ref": "#/definitions/postlogin.ErrorResponse"
                         }
                     }
                 }
@@ -142,7 +142,7 @@
         }
     },
     "definitions": {
-        "internal_post_login.ErrorResponse": {
+        "postlogin.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -150,7 +150,7 @@
                 }
             }
         },
-        "internal_post_login.LoginRequest": {
+        "postlogin.LoginRequest": {
             "type": "object",
             "required": [
                 "name",
@@ -165,38 +165,7 @@
                 }
             }
         },
-        "internal_post_login.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "post_login.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "post_login.LoginRequest": {
-            "type": "object",
-            "required": [
-                "name",
-                "password"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "post_login.LoginResponse": {
+        "postlogin.LoginResponse": {
             "type": "object",
             "properties": {
                 "token": {
