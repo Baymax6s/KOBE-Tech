@@ -21,8 +21,7 @@ services:
       start_period: 10s
   migrate:
     image: migrate/migrate:v4.19.1
-    profiles:
-      - tools
+    restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
@@ -32,6 +31,7 @@ services:
       - migrate
       - -path=/migrations
       - -database=${MIGRATE_DATABASE_URL}
+      - up
 
 volumes:
   postgres_data:
