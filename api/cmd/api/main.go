@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/server"
 	_ "github.com/lib/pq"
 )
@@ -24,6 +25,11 @@ import (
 func main() {
 	if err := loadEnvFile(".env"); err != nil && !errors.Is(err, os.ErrNotExist) {
 		log.Fatalf("load .env: %v", err)
+	}
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET must be set")
 	}
 
 	db, err := openDBFromEnv()
@@ -40,7 +46,7 @@ func main() {
 	addr := ":" + port
 	log.Printf("api listening on %s", addr)
 
-	log.Fatal(http.ListenAndServe(addr, server.NewHandler(db)))
+	log.Fatal(http.ListenAndServe(addr, server.NewHandler(db, auth.NewValidator(jwtSecret))))
 }
 
 func openDBFromEnv() (*sql.DB, error) {
