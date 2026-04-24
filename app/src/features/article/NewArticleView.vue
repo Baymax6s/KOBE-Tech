@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
 defineOptions({
   name: 'NewArticleView'
 })
+
+const formRef = ref<any>(null)
 
 const form = reactive({
   title: '',
@@ -11,16 +13,29 @@ const form = reactive({
   // tags フィールドは将来追加用に構造化（現在は非表示）
 })
 
-const submit = () => {
-  console.log('投稿内容', {
-    title: form.title,
-    body: form.body,
-  })
 
-  // ここで API 送信や状態更新を行います。
-  form.title = ''
-  form.body = ''
+const submit = async () => {
+  // 1. バリデーションチェック
+  if (!formRef.value) return
+  const { valid } = await formRef.value.validate()
+
+  if (valid) {
+    // 2. コンソールに出力（確認用）
+    console.log('投稿内容を送信します', {
+      title: form.title,
+      body: form.body,
+    })
+
+    // 3. API送信 ← まだ書いてない（コメントアウト）
+    // try {
+    //   await fetch('http://localhost:8080/articles', { ... })
+    // } catch (e) { ... }
+
+    // 4. フォームリセット
+    formRef.value.reset()
+  }
 }
+
 </script>
 
 <template>
@@ -33,7 +48,7 @@ const submit = () => {
           </v-card-title>
 
           <v-card-text class="pa-6">
-            <v-form @submit.prevent="submit" class="form-wrapper">
+            <v-form ref="formRef" @submit.prevent="submit" class="form-wrapper">
               <div class="form-fields">
                 <!-- タイトル入力フィールド -->
                 <v-text-field
@@ -45,6 +60,8 @@ const submit = () => {
                   clearable
                   counter
                   maxlength="200"
+                  :rules="[v => !!v || 'タイトルは必須です']"
+                  validate-on="input"
                 />
 
                 <!-- 本文入力フィールド -->
@@ -57,6 +74,8 @@ const submit = () => {
                   density="comfortable"
                   counter
                   maxlength="10000"
+                  :rules="[v => !!v || '本文は必須です']"
+                  validate-on="input"
                 />
 
                 <!-- 投稿ボタン -->
