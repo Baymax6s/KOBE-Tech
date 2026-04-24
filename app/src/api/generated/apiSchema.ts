@@ -24,24 +24,12 @@ export interface ServerArticleJSONResponse {
 }
 
 export interface ServerCreateArticleRequest {
-  body?: string;
+  content?: string;
   title?: string;
 }
 
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
-}
-
-export interface ServerLoginRequest {
-  /** @format email */
-  email?: string;
-  /** @format password */
-  password?: string;
-}
-
-export interface ServerNotImplementedResponse {
-  message?: string;
-  next_step?: string;
 }
 
 import type {
@@ -108,7 +96,7 @@ export class HttpClient<SecurityDataType = unknown> {
   }: ApiConfig<SecurityDataType> = {}) {
     this.instance = axios.create({
       ...axiosConfig,
-      baseURL: axiosConfig.baseURL || "/",
+      baseURL: axiosConfig.baseURL || "http://localhost:8080",
     });
     this.secure = secure;
     this.format = format;
@@ -222,7 +210,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title KOBE-Tech API
  * @version 0.1.0
- * @baseUrl /
+ * @baseUrl http://localhost:8080
  * @contact
  *
  * KOBE-Tech API documentation generated from Go annotations.
@@ -259,31 +247,12 @@ export class Api<
       request: ServerCreateArticleRequest,
       params: RequestParams = {},
     ) =>
-      this.request<any, ServerNotImplementedResponse>({
+      this.request<ServerArticleJSONResponse, ServerArticleErrorResponse>({
         path: `/api/articles`,
         method: "POST",
         body: request,
         type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * @description Login API.
-     *
-     * @tags auth
-     * @name AuthLoginCreate
-     * @summary Login
-     * @request POST:/api/auth/login
-     */
-    authLoginCreate: (
-      request: ServerLoginRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<any, ServerNotImplementedResponse>({
-        path: `/api/auth/login`,
-        method: "POST",
-        body: request,
-        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

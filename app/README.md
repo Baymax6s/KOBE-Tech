@@ -16,6 +16,7 @@ node --version
 ### 初期setup
 
 ```sh
+cp .env.example .env
 npm install
 ```
 

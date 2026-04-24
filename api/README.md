@@ -14,21 +14,19 @@ swag --version
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres
+docker compose up -d
 swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 air
 ```
+
+`docker compose up -d` で PostgreSQL 起動・マイグレーション・seed データ投入がまとめて実行されます。
 
 ## 起動
 ```sh
 docker compose up -d
 air
 ```
-
-## ユーザーseed
-
-`go run ./cmd/seed-users` はログイン用ユーザーを投入または更新します。デフォルトでは `admin`, `user01`, `user02`, `user03` を同期し、初期パスワードはすべて `Password` です。パスワードは seed 実行時に bcrypt でハッシュ化して保存します。
 
 ## DB確認
 
@@ -45,22 +43,21 @@ swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger -
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```
 
-DB を起動 / 停止する:
+DB・マイグレーションを起動 / 停止する:
 
 ```bash
-docker compose up -d postgres
+docker compose up -d
 docker compose down
 ```
 
-マイグレーションを適用 / 巻き戻しする:
+マイグレーションを手動で巻き戻す:
 
 ```bash
-docker compose --profile tools run --rm migrate up
-docker compose --profile tools run --rm migrate down 1
+docker compose run --rm migrate down 1
 ```
 
 マイグレーションファイルを作成する:
 
 ```bash
-docker compose --profile tools run --rm migrate create -ext sql -dir /migrations -seq create_users
+docker compose run --rm migrate create -ext sql -dir /migrations <ファイル名のサフィックス>
 ```
