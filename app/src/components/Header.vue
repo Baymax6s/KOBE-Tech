@@ -7,21 +7,24 @@
       class="mr-4"
     />
     <v-spacer></v-spacer>
-    <v-btn @click="logout" color="white">
+    <v-btn v-if="showLogout" @click="logout" color="white">
       ログアウト
     </v-btn>
   </v-app-bar>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-const router = useRouter()
+const emit = defineEmits<{
+  (e: 'onLogout'): void
+}>()
+
+const route = useRoute()
+const showLogout = computed(() => route.path !== '/login')
 
 const logout = () => {
-  // ログアウト処理: トークンを削除など
-  localStorage.removeItem('authToken')
-  // ログインページにリダイレクト
-  router.push('/login')
+  emit('onLogout')
 }
 </script>
