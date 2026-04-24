@@ -2,23 +2,17 @@
 import { ref, onMounted } from 'vue'
 import ArticleCard from './ArticleCard.vue'
 import type { Article } from './types'
+import { api } from '@/api/client'
 
 const articles = ref<Article[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
-// TODO: スキーマ生成後は生成クライアントの呼び出しに差し替える
-const mockArticles: Article[] = [
-  { id: 1, title: '神戸大学でのハッカソン体験記', created_at: '2026-04-01T09:00:00Z' },
-  { id: 2, title: 'Goで作るREST API入門', created_at: '2026-04-10T12:30:00Z' },
-  { id: 3, title: 'Vue 3 + Vuetifyで学ぶフロントエンド開発', created_at: '2026-04-20T15:00:00Z' },
-]
-
 onMounted(async () => {
   loading.value = true
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    articles.value = mockArticles
+    const response = await api.api.articlesList()
+    articles.value = response.data.articles ?? []
   } catch {
     error.value = '記事の取得に失敗しました'
   } finally {
