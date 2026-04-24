@@ -46,7 +46,7 @@ func main() {
 	addr := ":" + port
 	log.Printf("api listening on %s", addr)
 
-	log.Fatal(http.ListenAndServe(addr, server.NewHandler(db, auth.NewValidator(jwtSecret))))
+	log.Fatal(http.ListenAndServe(addr, server.NewHandler(db, auth.NewValidator(jwtSecret), auth.NewIssuer(jwtSecret))))
 }
 
 func openDBFromEnv() (*sql.DB, error) {
