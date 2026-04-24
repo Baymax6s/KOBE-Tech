@@ -27,5 +27,10 @@ func NewHandler(db *sql.DB, validator *auth.Validator) http.Handler {
 	listArticleHandler.RegisterRoutes(api)
 	postArticleHandler.RegisterRoutes(api)
 
+	// ★追加（ルート確認）
+	for _, r := range router.Routes() {
+		println(r.Method, r.Path)
+	}
+
 	return router
 }
