@@ -1,1 +1,3 @@
-export type { ServerArticleJSONResponse as Article } from '@/api/generated/apiSchema'
+import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
+
+export type Article = Required<ServerArticleJSONResponse>

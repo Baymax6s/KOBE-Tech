@@ -1,3 +1,5 @@
 import { Api } from './generated/apiSchema'
 
-export const api = new Api({ baseURL: 'http://localhost:8080' })
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+
+export const api = new Api({ baseURL })
