@@ -65,8 +65,11 @@ jobs:
             }
 
             const { owner, repo } = context.repo;
+            const normalizedPreviewUrl = /^https?:\/\//i.test(previewUrl)
+              ? previewUrl.replace(/^http:\/\//i, "https://")
+              : `https://${previewUrl.replace(/^\/+/, "")}`;
             const expectedPrefix = `swaggerURL: https://${owner}.github.io/${repo}/pr-${pullNumber}/`;
-            const commentBody = `swaggerURL: ${previewUrl}`;
+            const commentBody = `swaggerURL: ${normalizedPreviewUrl}`;
 
             const created = await github.rest.issues.createComment({
               owner,
