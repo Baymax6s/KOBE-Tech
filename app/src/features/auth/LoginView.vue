@@ -25,12 +25,17 @@
           />
 
           <v-btn
-            type="submit"
             color="primary"
             block
+            :loading="loading"
+            @click="login"
           >
-            ログイン
+          ログイン
           </v-btn>
+
+          <div v-if="error" class="mt-4 text-red-500">
+            {{ error }}
+          </div>
         </v-form>
       </v-card-text>
     </v-card>
@@ -39,11 +44,30 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { api } from '@/api/client'
 
 const name = ref('')
 const password = ref('')
+const loading = ref(false)
+const error = ref('')
 
-const login = () => {
-  console.log('名前:', name.value)
+const login = async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const response = await api.api.authLoginCreate({
+      name: name.value,
+      password: password.value,
+    })
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token)
+      // ログイン成功の処理（例: リダイレクト）
+      console.log('ログイン成功')
+    }
+  } catch (err: any) {
+    error.value = err.response?.data?.message || 'ログインに失敗しました'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
