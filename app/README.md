@@ -28,6 +28,16 @@ npm install
 npm run dev
 ```
 
+### コード品質コマンド
+
+```sh
+npm run lint
+npm run format
+npm run fix
+```
+
+`lint` は `type-check` と ESLint を実行します。`format` は Prettier で書き込み、`fix` は format と ESLint の自動修正までまとめて実行します。
+
 ### Generate API Types
 
 `api/swagger/openapi.yml` から TypeScript クライアントを再生成します。

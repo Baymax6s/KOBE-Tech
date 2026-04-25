@@ -4,7 +4,10 @@ import type { Article } from './types'
 
 const props = defineProps<{ article: Article }>()
 
-const formattedDate = useDateFormat(() => props.article.created_at, 'YYYY/MM/DD')
+const formattedDate = useDateFormat(
+  () => props.article.created_at,
+  'YYYY/MM/DD',
+)
 </script>
 
 <template>

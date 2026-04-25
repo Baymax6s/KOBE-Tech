@@ -5,7 +5,7 @@ import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
 
 defineOptions({
-  name: 'NewArticleView'
+  name: 'NewArticleView',
 })
 
 type ArticleFormRef = {
@@ -27,7 +27,7 @@ const submitting = ref(false)
 const submitError = ref<string | null>(null)
 
 const canSubmit = computed(
-  () => !submitting.value && !!form.title.trim() && !!form.body.trim()
+  () => !submitting.value && !!form.title.trim() && !!form.body.trim(),
 )
 
 const submit = async () => {
@@ -61,7 +61,13 @@ const submit = async () => {
           </v-card-title>
 
           <v-card-text class="pa-6">
-            <v-alert v-if="submitError" type="error" class="mb-4" closable @click:close="submitError = null">
+            <v-alert
+              v-if="submitError"
+              type="error"
+              class="mb-4"
+              closable
+              @click:close="submitError = null"
+            >
               {{ submitError }}
             </v-alert>
 
@@ -76,7 +82,7 @@ const submit = async () => {
                   clearable
                   counter
                   maxlength="200"
-                  :rules="[v => !!v || 'タイトルは必須です']"
+                  :rules="[(v) => !!v || 'タイトルは必須です']"
                   validate-on="input"
                 />
 
@@ -89,7 +95,7 @@ const submit = async () => {
                   density="comfortable"
                   counter
                   maxlength="10000"
-                  :rules="[v => !!v || '本文は必須です']"
+                  :rules="[(v) => !!v || '本文は必須です']"
                   validate-on="input"
                 />
 

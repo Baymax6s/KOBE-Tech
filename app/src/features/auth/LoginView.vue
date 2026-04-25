@@ -1,9 +1,7 @@
 <template>
   <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <v-card class="w-full max-w-md p-6">
-      <v-card-title class="text-h6 text-center">
-        ログイン
-      </v-card-title>
+      <v-card-title class="text-h6 text-center"> ログイン </v-card-title>
 
       <v-card-text>
         <v-alert v-if="errorMessage" type="error" class="mb-4" closable @click:close="errorMessage = null">
