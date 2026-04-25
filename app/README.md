@@ -1,14 +1,16 @@
 # KOBE Tech Frontend
 
 Vue 3 + Vite のフロントエンドです。`src` は `features / components` を中心にした簡素な構成です。
-apiSchemaは自動生成されます。
+apiSchemaは`npm run generate:api`によって生成されます。
 
 ## Setup
 
 ### versionマネージャーの導入推奨
-例 nvm mise asdfなど..
 
-node.js versionは24
+例 nvm mise asdfなど..(推奨はmise)
+
+node.js ltsを採用 v24.15.0
+
 ```sh
 node --version
 ```
