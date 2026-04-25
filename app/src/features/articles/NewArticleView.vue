@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { api } from '@/api/client'
+import { useArticleNotificationStore } from '@/stores/articleNotification'
 
 defineOptions({
   name: 'NewArticleView'
@@ -15,34 +18,34 @@ const formRef = ref<ArticleFormRef | null>(null)
 const form = reactive({
   title: '',
   body: '',
-  // tags フィールドは将来追加用に構造化（現在は非表示）
 })
 
+const router = useRouter()
+const notificationStore = useArticleNotificationStore()
+
+const submitting = ref(false)
+const submitError = ref<string | null>(null)
+
+const canSubmit = computed(() => !!form.title.trim() && !!form.body.trim())
 
 const submit = async () => {
-  // 1. バリデーションチェック
   if (!formRef.value) return
   const { valid } = await formRef.value.validate()
+  if (!valid) return
 
-  if (valid) {
-    // 2. コンソールに出力（確認用）
-    if (import.meta.env.DEV) {
-      console.log('投稿内容を送信します', {
-        title: form.title,
-        body: form.body,
-      })
-    }
+  submitting.value = true
+  submitError.value = null
 
-    // 3. API送信 ← まだ書いてない（コメントアウト）
-    // try {
-    //   await fetch('http://localhost:8080/api/articles', { ... })
-    // } catch (e) { ... }
-
-    // 4. フォームリセット
-    formRef.value.reset()
+  try {
+    await api.api.articlesCreate({ title: form.title, content: form.body })
+    notificationStore.markCreated()
+    await router.push('/articles')
+  } catch {
+    submitError.value = '投稿に失敗しました。もう一度お試しください。'
+  } finally {
+    submitting.value = false
   }
 }
-
 </script>
 
 <template>
@@ -55,9 +58,12 @@ const submit = async () => {
           </v-card-title>
 
           <v-card-text class="pa-6">
+            <v-alert v-if="submitError" type="error" class="mb-4" closable @click:close="submitError = null">
+              {{ submitError }}
+            </v-alert>
+
             <v-form ref="formRef" @submit.prevent="submit" class="form-wrapper">
               <div class="form-fields">
-                <!-- タイトル入力フィールド -->
                 <v-text-field
                   v-model="form.title"
                   label="タイトル"
@@ -71,7 +77,6 @@ const submit = async () => {
                   validate-on="input"
                 />
 
-                <!-- 本文入力フィールド -->
                 <v-textarea
                   v-model="form.body"
                   label="本文"
@@ -85,13 +90,14 @@ const submit = async () => {
                   validate-on="input"
                 />
 
-                <!-- 投稿ボタン -->
                 <div class="button-row mt-4">
                   <v-btn
                     type="submit"
                     color="black"
                     size="large"
                     class="px-8"
+                    :loading="submitting"
+                    :disabled="!canSubmit"
                   >
                     投稿
                   </v-btn>
