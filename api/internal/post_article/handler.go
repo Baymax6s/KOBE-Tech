@@ -30,12 +30,11 @@ type ErrorResponse struct {
 } // @name server.articleErrorResponse
 
 type Handler struct {
-	repo      *Repository
-	validator *auth.Validator
+	repo *Repository
 }
 
-func NewHandler(repo *Repository, validator *auth.Validator) *Handler {
-	return &Handler{repo: repo, validator: validator}
+func NewHandler(repo *Repository) *Handler {
+	return &Handler{repo: repo}
 }
 
 func (h *Handler) RegisterRoutes(router gin.IRouter) {
@@ -62,11 +61,11 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := h.CreateArticle(c.Request.Context(), c.GetHeader("Authorization"), req.Title, req.Content)
+	userID := auth.MustUserID(c)
+
+	response, err := h.CreateArticle(c.Request.Context(), userID, req.Title, req.Content)
 	if err != nil {
 		switch {
-		case errors.Is(err, errInvalidAuthorization), errors.Is(err, errInvalidToken):
-			c.JSON(http.StatusUnauthorized, ErrorResponse{Message: err.Error()})
 		case errors.Is(err, errInvalidRequest):
 			c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		default:
@@ -78,25 +77,11 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-var (
-	errInvalidAuthorization = errors.New("invalid authorization header")
-	errInvalidToken         = errors.New("invalid token")
-	errInvalidRequest       = errors.New("title and content are required")
-)
+var errInvalidRequest = errors.New("title and content are required")
 
-func (h *Handler) CreateArticle(ctx context.Context, authorization, title, content string) (ArticleJSON, error) {
-	if h == nil || h.repo == nil || h.validator == nil {
+func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, content string) (ArticleJSON, error) {
+	if h == nil || h.repo == nil {
 		return ArticleJSON{}, errors.New("post article handler is not configured")
-	}
-
-	parts := strings.Fields(strings.TrimSpace(authorization))
-	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
-		return ArticleJSON{}, errInvalidAuthorization
-	}
-
-	userID, err := h.validator.ValidateToken(parts[1])
-	if err != nil {
-		return ArticleJSON{}, errInvalidToken
 	}
 
 	title = strings.TrimSpace(title)

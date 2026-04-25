@@ -32,6 +32,30 @@ export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
 }
 
+export interface ServerLoginErrorResponse {
+  message?: string;
+}
+
+export interface ServerLoginRequest {
+  name?: string;
+  password?: string;
+}
+
+export interface ServerLoginResponse {
+  token?: string;
+}
+
+export interface ServerMeErrorResponse {
+  message?: string;
+}
+
+export interface ServerMeResponse {
+  created_at?: string;
+  id?: number;
+  name?: string;
+  updated_at?: string;
+}
+
 import type {
   AxiosInstance,
   AxiosRequestConfig,
@@ -252,6 +276,43 @@ export class Api<
         method: "POST",
         body: request,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Authenticates a user by name and password, and returns a JWT.
+     *
+     * @tags auth
+     * @name AuthLoginCreate
+     * @summary Login
+     * @request POST:/api/auth/login
+     */
+    authLoginCreate: (
+      request: ServerLoginRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ServerLoginResponse, ServerLoginErrorResponse>({
+        path: `/api/auth/login`,
+        method: "POST",
+        body: request,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the authenticated user identified by the JWT in the Authorization header.
+     *
+     * @tags auth
+     * @name AuthMeList
+     * @summary Get current user
+     * @request GET:/api/auth/me
+     */
+    authMeList: (params: RequestParams = {}) =>
+      this.request<ServerMeResponse, ServerMeErrorResponse>({
+        path: `/api/auth/me`,
+        method: "GET",
         format: "json",
         ...params,
       }),
