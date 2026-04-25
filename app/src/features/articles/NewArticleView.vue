@@ -26,9 +26,12 @@ const notificationStore = useArticleNotificationStore()
 const submitting = ref(false)
 const submitError = ref<string | null>(null)
 
-const canSubmit = computed(() => !!form.title.trim() && !!form.body.trim())
+const canSubmit = computed(
+  () => !submitting.value && !!form.title.trim() && !!form.body.trim()
+)
 
 const submit = async () => {
+  if (submitting.value) return
   if (!formRef.value) return
   const { valid } = await formRef.value.validate()
   if (!valid) return
