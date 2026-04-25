@@ -14,9 +14,9 @@ import (
 
 func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http.Handler {
 	listArticleHandler := listarticle.NewHandler(listarticle.NewRepository(db))
-	postArticleHandler := postarticle.NewHandler(postarticle.NewRepository(db), validator)
+	postArticleHandler := postarticle.NewHandler(postarticle.NewRepository(db))
 	loginHandler := login.NewHandler(login.NewRepository(db), issuer)
-	meHandler := me.NewHandler(me.NewRepository(db), validator)
+	meHandler := me.NewHandler(me.NewRepository(db))
 
 	router := gin.Default()
 	router.Use(corsMiddleware())
@@ -27,12 +27,12 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	registerSwaggerRoutes(router)
 
 	api := router.Group("/api")
-	// Article
 	listArticleHandler.RegisterRoutes(api)
-	postArticleHandler.RegisterRoutes(api)
-	// Auth
 	loginHandler.RegisterRoutes(api)
-	meHandler.RegisterRoutes(api)
+
+	authRequired := api.Group("", auth.RequireUser(validator))
+	postArticleHandler.RegisterRoutes(authRequired)
+	meHandler.RegisterRoutes(authRequired)
 
 	return router
 }
