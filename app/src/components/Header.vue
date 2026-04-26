@@ -5,6 +5,9 @@
     <v-btn v-if="auth.isAuthenticated" @click="logout" color="white">
       ログアウト
     </v-btn>
+    <v-btn v-else @click="goToLogin" color="white" variant="outlined">
+      ログイン
+    </v-btn>
   </v-app-bar>
 </template>
 
@@ -18,5 +21,9 @@ const auth = useAuthStore()
 const logout = () => {
   auth.clearToken()
   router.push('/')
+}
+
+const goToLogin = () => {
+  router.push('/login')
 }
 </script>
