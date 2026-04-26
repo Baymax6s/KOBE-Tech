@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosHeaders } from 'axios'
 import { Api } from './generated/apiSchema'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
@@ -18,6 +18,7 @@ export const setApiErrorHandler = (handler: ApiErrorHandler) => {
 api.instance.interceptors.request.use((config) => {
   const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)
   if (token) {
+    config.headers = AxiosHeaders.from(config.headers)
     config.headers.set('Authorization', `Bearer ${token}`)
   }
   return config
