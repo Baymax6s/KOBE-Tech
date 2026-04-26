@@ -1,52 +1,56 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <v-card class="w-full max-w-md p-6">
-      <v-card-title class="text-h6 text-center"> ログイン </v-card-title>
+  <v-container class="fill-height bg-grey-lighten-4" fluid>
+    <v-row justify="center" align="center">
+      <v-col cols="12" sm="8" md="6" lg="4">
+        <v-card class="pa-6">
+          <v-card-title class="text-h6 text-center">ログイン</v-card-title>
 
-      <v-card-text>
-        <v-alert
-          v-if="errorMessage"
-          type="error"
-          class="mb-4"
-          closable
-          @click:close="errorMessage = null"
-        >
-          {{ errorMessage }}
-        </v-alert>
+          <v-card-text>
+            <v-alert
+              v-if="errorMessage"
+              type="error"
+              class="mb-4"
+              closable
+              @click:close="errorMessage = null"
+            >
+              {{ errorMessage }}
+            </v-alert>
 
-        <v-form @submit.prevent="onSubmit">
-          <v-text-field
-            v-model="name"
-            label="ユーザー名"
-            variant="outlined"
-            required
-            class="mb-4"
-            :disabled="submitting"
-          />
+            <v-form @submit.prevent="onSubmit">
+              <v-text-field
+                v-model="name"
+                label="ユーザー名"
+                variant="outlined"
+                required
+                class="mb-4"
+                :disabled="submitting"
+              />
 
-          <v-text-field
-            v-model="password"
-            label="パスワード"
-            type="password"
-            variant="outlined"
-            required
-            class="mb-4"
-            :disabled="submitting"
-          />
+              <v-text-field
+                v-model="password"
+                label="パスワード"
+                type="password"
+                variant="outlined"
+                required
+                class="mb-4"
+                :disabled="submitting"
+              />
 
-          <v-btn
-            type="submit"
-            color="primary"
-            block
-            :loading="submitting"
-            :disabled="!name || !password || submitting"
-          >
-            ログイン
-          </v-btn>
-        </v-form>
-      </v-card-text>
-    </v-card>
-  </div>
+              <v-btn
+                type="submit"
+                color="primary"
+                block
+                :loading="submitting"
+                :disabled="!name || !password || submitting"
+              >
+                ログイン
+              </v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
