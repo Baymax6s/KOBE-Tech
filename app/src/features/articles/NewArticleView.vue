@@ -71,46 +71,48 @@ const submit = async () => {
               {{ submitError }}
             </v-alert>
 
-            <v-form ref="formRef" @submit.prevent="submit" class="form-wrapper">
-              <div class="form-fields">
-                <v-text-field
-                  v-model="form.title"
-                  label="タイトル"
-                  placeholder="タイトルを入力"
-                  variant="outlined"
-                  density="comfortable"
-                  clearable
-                  counter
-                  maxlength="200"
-                  :rules="[(v) => !!v || 'タイトルは必須です']"
-                  validate-on="input"
-                />
+            <v-form
+              ref="formRef"
+              class="d-flex flex-column ga-6"
+              @submit.prevent="submit"
+            >
+              <v-text-field
+                v-model="form.title"
+                label="タイトル"
+                placeholder="タイトルを入力"
+                variant="outlined"
+                density="comfortable"
+                clearable
+                counter
+                maxlength="200"
+                :rules="[(v) => !!v || 'タイトルは必須です']"
+                validate-on="input"
+              />
 
-                <v-textarea
-                  v-model="form.body"
-                  label="本文"
-                  placeholder="本文を入力"
-                  rows="10"
-                  variant="outlined"
-                  density="comfortable"
-                  counter
-                  maxlength="10000"
-                  :rules="[(v) => !!v || '本文は必須です']"
-                  validate-on="input"
-                />
+              <v-textarea
+                v-model="form.body"
+                label="本文"
+                placeholder="本文を入力"
+                rows="10"
+                variant="outlined"
+                density="comfortable"
+                counter
+                maxlength="10000"
+                :rules="[(v) => !!v || '本文は必須です']"
+                validate-on="input"
+              />
 
-                <div class="button-row mt-4">
-                  <v-btn
-                    type="submit"
-                    color="black"
-                    size="large"
-                    class="px-8"
-                    :loading="submitting"
-                    :disabled="!canSubmit"
-                  >
-                    投稿
-                  </v-btn>
-                </div>
+              <div class="mt-4">
+                <v-btn
+                  type="submit"
+                  color="black"
+                  size="large"
+                  class="px-8"
+                  :loading="submitting"
+                  :disabled="!canSubmit"
+                >
+                  投稿
+                </v-btn>
               </div>
             </v-form>
           </v-card-text>
@@ -119,19 +121,3 @@ const submit = async () => {
     </v-row>
   </v-container>
 </template>
-
-<style scoped>
-.form-wrapper {
-  display: block;
-}
-
-.form-fields {
-  display: grid;
-  gap: 24px;
-}
-
-.button-row {
-  display: flex;
-  justify-content: flex-start;
-}
-</style>
