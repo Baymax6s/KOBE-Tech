@@ -35,7 +35,7 @@
             color="primary"
             block
             :loading="submitting"
-            :disabled="!name || !password"
+            :disabled="!name || !password || submitting"
           >
             ログイン
           </v-btn>
