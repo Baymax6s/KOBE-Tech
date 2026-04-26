@@ -3,15 +3,18 @@ package server
 import (
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	allowedMethods = "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD"
-	defaultHeaders = "Accept, Authorization, Content-Type, Origin"
-	maxAgeSeconds  = "600"
+	allowedMethods        = "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD"
+	defaultHeaders        = "Accept, Authorization, Content-Type, Origin"
+	defaultAllowedOrigins = "https://baymax6s.github.io,https://vue-cjne.onrender.com"
+	defaultMaxAgeSeconds  = 0
 )
 
 func corsMiddleware() gin.HandlerFunc {
@@ -38,7 +41,7 @@ func corsMiddleware() gin.HandlerFunc {
 		headers.Add("Vary", "Access-Control-Request-Headers")
 		headers.Set("Access-Control-Allow-Origin", origin)
 		headers.Set("Access-Control-Allow-Methods", allowedMethods)
-		headers.Set("Access-Control-Max-Age", maxAgeSeconds)
+		headers.Set("Access-Control-Max-Age", corsMaxAge())
 
 		allowHeaders := c.GetHeader("Access-Control-Request-Headers")
 		if allowHeaders == "" {
@@ -52,6 +55,7 @@ func corsMiddleware() gin.HandlerFunc {
 		}
 
 		if c.Request.Method == http.MethodOptions {
+			headers.Set("Cache-Control", "no-store")
 			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
@@ -61,7 +65,7 @@ func corsMiddleware() gin.HandlerFunc {
 }
 
 func isAllowedOrigin(origin string) bool {
-	if origin == "https://baymax6s.github.io" {
+	if isConfiguredAllowedOrigin(origin) {
 		return true
 	}
 
@@ -76,4 +80,45 @@ func isAllowedOrigin(origin string) bool {
 	default:
 		return false
 	}
+}
+
+func isConfiguredAllowedOrigin(origin string) bool {
+	for _, allowedOrigin := range configuredAllowedOrigins() {
+		if strings.EqualFold(allowedOrigin, origin) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func configuredAllowedOrigins() []string {
+	origins := []string{defaultAllowedOrigins}
+	if extraOrigins := strings.TrimSpace(os.Getenv("CORS_ALLOWED_ORIGINS")); extraOrigins != "" {
+		origins = append(origins, extraOrigins)
+	}
+
+	allowedOrigins := make([]string, 0, len(origins))
+	for _, group := range origins {
+		for _, origin := range strings.Split(group, ",") {
+			origin = strings.TrimSpace(origin)
+			if origin == "" {
+				continue
+			}
+			allowedOrigins = append(allowedOrigins, origin)
+		}
+	}
+
+	return allowedOrigins
+}
+
+func corsMaxAge() string {
+	if value := strings.TrimSpace(os.Getenv("CORS_MAX_AGE_SECONDS")); value != "" {
+		seconds, err := strconv.Atoi(value)
+		if err == nil && seconds >= 0 {
+			return strconv.Itoa(seconds)
+		}
+	}
+
+	return strconv.Itoa(defaultMaxAgeSeconds)
 }
