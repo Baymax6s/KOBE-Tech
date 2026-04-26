@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/features/home/HomeView.vue'
+import { setApiErrorHandler } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -29,7 +30,50 @@ const router = createRouter({
       component: () => import('@/features/articles/NewArticleView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/not-found',
+      name: 'not-found',
+      component: () => import('@/features/errors/ErrorStatusView.vue'),
+      props: {
+        statusCode: 404,
+        title: '何も見つかりません',
+        message:
+          'お探しのページまたはデータが見つかりませんでした。URLを確認するか、ホームへ戻ってください。',
+      },
+    },
+    {
+      path: '/server-error',
+      name: 'server-error',
+      component: () => import('@/features/errors/ErrorStatusView.vue'),
+      props: {
+        statusCode: 500,
+        title: 'サーバーが落ちています',
+        message:
+          'サーバー側で問題が発生しています。時間をおいてから、もう一度お試しください。',
+      },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'route-not-found',
+      component: () => import('@/features/errors/ErrorStatusView.vue'),
+      props: {
+        statusCode: 404,
+        title: '何も見つかりません',
+        message:
+          'お探しのページが見つかりませんでした。URLを確認するか、ホームへ戻ってください。',
+      },
+    },
   ],
+})
+
+setApiErrorHandler((status) => {
+  const name = status === 404 ? 'not-found' : 'server-error'
+
+  if (router.currentRoute.value.name === name) {
+    return
+  }
+
+  void router.push({ name }).catch(() => undefined)
 })
 
 router.beforeEach((to) => {
