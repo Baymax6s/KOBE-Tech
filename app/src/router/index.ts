@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/features/home/HomeView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +18,7 @@ const router = createRouter({
       path: '/login',
       // 遅延読み込み: アクセス時に初めてJSを読み込むので初期表示が速くなる
       component: () => import('@/features/auth/LoginView.vue'),
+      meta: { guestOnly: true },
     },
     {
       path: '/articles',
@@ -25,8 +27,21 @@ const router = createRouter({
     {
       path: '/articles/new',
       component: () => import('@/features/articles/NewArticleView.vue'),
+      meta: { requiresAuth: true },
     },
   ],
+})
+
+router.beforeEach((to) => {
+  const auth = useAuthStore()
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return { path: '/login', query: { redirect: to.fullPath } }
+  }
+
+  if (to.meta.guestOnly && auth.isAuthenticated) {
+    return { path: '/articles' }
+  }
 })
 
 export default router
