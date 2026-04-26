@@ -9,8 +9,6 @@ MIGRATE_DATABASE_URL_DOCKER := postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@
 
 setup:
 	@test -f .env || cp .env.example .env
-	db-up
-	air
 
 dev: db-up
 	air
@@ -20,12 +18,14 @@ swagger:
 	mv ./swagger/swagger.yaml ./swagger/openapi.yml
 
 db-up:
+	@test -f .env || (echo "Run make setup first" >&2; exit 1)
 	MIGRATE_DATABASE_URL="$(MIGRATE_DATABASE_URL_DOCKER)" docker compose up -d
 
 db-down:
 	docker compose down
 
 migrate-down:
+	@test -f .env || (echo "Run make setup first" >&2; exit 1)
 	docker compose run --rm --entrypoint migrate migrate -path=/migrations -database="$(MIGRATE_DATABASE_URL_DOCKER)" down 1
 
 migrate-create:
