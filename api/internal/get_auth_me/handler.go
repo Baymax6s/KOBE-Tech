@@ -40,10 +40,10 @@ func (h *Handler) RegisterRoutes(router gin.IRouter) {
 //	@Description	Returns the authenticated user identified by the JWT in the Authorization header.
 //	@Tags			auth
 //	@Produce		json
-//	@Param			Authorization	header		string	true	"Bearer token"
 //	@Success		200				{object}	MeResponse
 //	@Failure		401				{object}	ErrorResponse
 //	@Failure		500				{object}	ErrorResponse
+//	@Security		BearerAuth
 //	@Router			/api/auth/me [get]
 func (h *Handler) meHandler(c *gin.Context) {
 	userID := auth.MustUserID(c)

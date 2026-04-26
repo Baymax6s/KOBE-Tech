@@ -121,6 +121,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/server.articleErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create article
       tags:
       - articles
@@ -162,12 +164,6 @@ paths:
     get:
       description: Returns the authenticated user identified by the JWT in the Authorization
         header.
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -183,9 +179,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/server.meErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get current user
       tags:
       - auth
 schemes:
 - http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

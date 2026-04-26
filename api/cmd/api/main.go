@@ -22,6 +22,9 @@ import (
 // @host localhost:8080
 // @schemes http
 // @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	if err := loadEnvFile(".env"); err != nil && !errors.Is(err, os.ErrNotExist) {
 		log.Fatalf("load .env: %v", err)

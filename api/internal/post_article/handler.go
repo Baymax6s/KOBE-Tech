@@ -53,6 +53,7 @@ func (h *Handler) RegisterRoutes(router gin.IRouter) {
 //	@Failure		400		{object}	ErrorResponse
 //	@Failure		401		{object}	ErrorResponse
 //	@Failure		500		{object}	ErrorResponse
+//	@Security		BearerAuth
 //	@Router			/api/articles [post]
 func (h *Handler) createArticleHandler(c *gin.Context) {
 	var req createArticleRequest
