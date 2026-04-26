@@ -65,8 +65,7 @@ const onSubmit = async () => {
   errorMessage.value = null
   try {
     await auth.login(name.value, password.value)
-    await auth.fetchMe()
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/articles'
     router.push(redirect)
   } catch (e) {
     // 401 のような認証エラーはサーバのメッセージを優先、それ以外は汎用文言
