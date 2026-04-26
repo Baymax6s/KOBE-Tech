@@ -61,6 +61,7 @@ const route = useRoute()
 const auth = useAuthStore()
 
 const onSubmit = async () => {
+  if (submitting.value) return
   submitting.value = true
   errorMessage.value = null
   try {
