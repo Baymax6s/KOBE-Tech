@@ -1,15 +1,8 @@
 <template>
   <v-app-bar app color="primary" dark>
-    <v-img
-      src="/kdtech-icon.png"
-      alt="Logo"
-      max-width="200"
-      class="mr-4"
-    />
+    <v-img src="/kdtech-icon.png" alt="Logo" max-width="200" class="mr-4" />
     <v-spacer></v-spacer>
-    <v-btn v-if="showLogout" @click="logout" color="white">
-      ログアウト
-    </v-btn>
+    <v-btn v-if="showLogout" @click="logout" color="white"> ログアウト </v-btn>
   </v-app-bar>
 </template>
 
