@@ -11,7 +11,7 @@ const formattedDate = useDateFormat(
 </script>
 
 <template>
-  <v-card class="p-4">
+  <v-card :to="`/articles/${article.id}`" class="p-4">
     <v-card-title class="text-base font-medium">
       {{ article.title }}
     </v-card-title>
