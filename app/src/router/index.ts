@@ -31,6 +31,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/articles/:articleId(\\d+)',
+      component: () => import('@/features/articles/ArticleDetailView.vue'),
+      props: (route) => ({ articleId: Number(route.params.articleId) }),
+    },
+    {
       path: '/not-found',
       name: 'not-found',
       component: () => import('@/features/errors/ErrorStatusView.vue'),
