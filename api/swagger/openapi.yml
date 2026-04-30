@@ -6,6 +6,9 @@ definitions:
         type: integer
       name:
         type: string
+    required:
+    - id
+    - name
     type: object
   server.articleErrorResponse:
     properties:
@@ -26,6 +29,13 @@ definitions:
         type: string
       user_id:
         type: integer
+    required:
+    - content
+    - created_at
+    - id
+    - title
+    - updated_at
+    - user_id
     type: object
   server.createArticleRequest:
     properties:
@@ -48,6 +58,13 @@ definitions:
         type: string
       updated_at:
         type: string
+    required:
+    - author
+    - content
+    - created_at
+    - id
+    - title
+    - updated_at
     type: object
   server.listArticlesResponse:
     properties:

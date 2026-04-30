@@ -233,6 +233,10 @@
     "definitions": {
         "server.articleAuthorJSONResponse": {
             "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
@@ -252,6 +256,14 @@
         },
         "server.articleJSONResponse": {
             "type": "object",
+            "required": [
+                "content",
+                "created_at",
+                "id",
+                "title",
+                "updated_at",
+                "user_id"
+            ],
             "properties": {
                 "content": {
                     "type": "string"
@@ -286,6 +298,14 @@
         },
         "server.getArticleJSONResponse": {
             "type": "object",
+            "required": [
+                "author",
+                "content",
+                "created_at",
+                "id",
+                "title",
+                "updated_at"
+            ],
             "properties": {
                 "author": {
                     "$ref": "#/definitions/server.articleAuthorJSONResponse"
