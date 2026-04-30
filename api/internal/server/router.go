@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	getarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_article"
 	me "github.com/Baymax6s/KOBE-Tech/api/internal/get_auth_me"
 	listarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
 	postarticle "github.com/Baymax6s/KOBE-Tech/api/internal/post_article"
@@ -14,6 +15,7 @@ import (
 
 func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http.Handler {
 	listArticleHandler := listarticle.NewHandler(listarticle.NewRepository(db))
+	getArticleHandler := getarticle.NewHandler(getarticle.NewRepository(db))
 	postArticleHandler := postarticle.NewHandler(postarticle.NewRepository(db))
 	loginHandler := login.NewHandler(login.NewRepository(db), issuer)
 	meHandler := me.NewHandler(me.NewRepository(db))
@@ -28,6 +30,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 
 	api := router.Group("/api")
 	listArticleHandler.RegisterRoutes(api)
+	getArticleHandler.RegisterRoutes(api)
 	loginHandler.RegisterRoutes(api)
 
 	authRequired := api.Group("", auth.RequireUser(validator))
