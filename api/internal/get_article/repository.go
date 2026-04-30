@@ -16,7 +16,7 @@ func NewRepository(db *sql.DB) *Repository {
 
 func (r *Repository) FindByID(ctx context.Context, id int64) (Article, error) {
 	if r == nil || r.db == nil {
-		return Article{}, errors.New("get article repository is not configured")
+		return Article{}, errors.New("article repository is not configured")
 	}
 
 	const query = `

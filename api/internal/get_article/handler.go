@@ -13,7 +13,7 @@ import (
 
 type ErrorResponse struct {
 	Message string `json:"message"`
-} // @name server.getArticleErrorResponse
+} // @name server.articleErrorResponse
 
 type AuthorJSON struct {
 	ID   int64  `json:"id"`

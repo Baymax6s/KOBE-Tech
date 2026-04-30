@@ -34,11 +34,6 @@ definitions:
       title:
         type: string
     type: object
-  server.getArticleErrorResponse:
-    properties:
-      message:
-        type: string
-    type: object
   server.getArticleJSONResponse:
     properties:
       author:
@@ -172,15 +167,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/server.getArticleErrorResponse'
+            $ref: '#/definitions/server.articleErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/server.getArticleErrorResponse'
+            $ref: '#/definitions/server.articleErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/server.getArticleErrorResponse'
+            $ref: '#/definitions/server.articleErrorResponse'
       summary: Get article
       tags:
       - articles

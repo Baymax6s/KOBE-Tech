@@ -122,19 +122,19 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/server.getArticleErrorResponse"
+                            "$ref": "#/definitions/server.articleErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/server.getArticleErrorResponse"
+                            "$ref": "#/definitions/server.articleErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/server.getArticleErrorResponse"
+                            "$ref": "#/definitions/server.articleErrorResponse"
                         }
                     }
                 }
@@ -280,14 +280,6 @@
                     "type": "string"
                 },
                 "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "server.getArticleErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
                     "type": "string"
                 }
             }

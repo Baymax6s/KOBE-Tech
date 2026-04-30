@@ -33,10 +33,6 @@ export interface ServerCreateArticleRequest {
   title?: string;
 }
 
-export interface ServerGetArticleErrorResponse {
-  message?: string;
-}
-
 export interface ServerGetArticleJSONResponse {
   author?: ServerArticleAuthorJSONResponse;
   content?: string;
@@ -309,14 +305,12 @@ export class Api<
      * @request GET:/api/articles/{article_id}
      */
     articlesDetail: (articleId: number, params: RequestParams = {}) =>
-      this.request<ServerGetArticleJSONResponse, ServerGetArticleErrorResponse>(
-        {
-          path: `/api/articles/${articleId}`,
-          method: "GET",
-          format: "json",
-          ...params,
-        },
-      ),
+      this.request<ServerGetArticleJSONResponse, ServerArticleErrorResponse>({
+        path: `/api/articles/${articleId}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
 
     /**
      * @description Authenticates a user by name and password, and returns a JWT.
