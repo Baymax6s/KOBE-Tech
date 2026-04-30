@@ -33,26 +33,35 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-container class="py-8">
-    <v-row justify="center">
-      <v-col cols="12" md="8" lg="6">
-        <div v-if="loading" class="d-flex justify-center py-12">
-          <v-progress-circular indeterminate color="primary" />
-        </div>
+  <v-sheet color="grey-lighten-4" min-height="100%">
+    <v-container class="py-12">
+      <v-row justify="center">
+        <v-col cols="12" md="8" lg="7">
+          <div v-if="loading" class="d-flex justify-center py-12">
+            <v-progress-circular indeterminate color="primary" />
+          </div>
 
-        <v-alert v-else-if="error" type="error" class="mb-4">
-          {{ error }}
-        </v-alert>
+          <v-alert v-else-if="error" type="error">
+            {{ error }}
+          </v-alert>
 
-        <v-card v-else-if="article">
-          <v-card-title>{{ article.title }}</v-card-title>
-          <v-card-subtitle>Author: {{ article.author?.name }}</v-card-subtitle>
-          <v-card-subtitle>{{ formattedDate }}に公開</v-card-subtitle>
-          <v-card-text style="white-space: pre-wrap">{{
-            article.content
-          }}</v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+          <template v-else-if="article">
+            <h1 class="text-h4 font-weight-bold mb-4">
+              {{ article.title }}
+            </h1>
+            <div class="text-body-2 text-medium-emphasis mb-6">
+              <div>著者 {{ article.author?.name }}</div>
+              <div>投稿日 {{ formattedDate }}</div>
+            </div>
+
+            <v-card flat rounded="lg" class="pa-8">
+              <div class="text-body-1" style="white-space: pre-wrap">
+                {{ article.content }}
+              </div>
+            </v-card>
+          </template>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-sheet>
 </template>
