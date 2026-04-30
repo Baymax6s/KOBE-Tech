@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useDateFormat } from '@vueuse/core'
 import { api } from '@/api/client'
 import type { ServerGetArticleJSONResponse } from '@/api/generated/apiSchema'
@@ -19,17 +19,23 @@ const formattedDate = useDateFormat(
   'YYYY/MM/DD',
 )
 
-onMounted(async () => {
-  loading.value = true
-  try {
-    const response = await api.api.articlesDetail(props.articleId)
-    article.value = response.data
-  } catch {
-    error.value = '記事の取得に失敗しました'
-  } finally {
-    loading.value = false
-  }
-})
+watch(
+  () => props.articleId,
+  async (id) => {
+    article.value = null
+    error.value = null
+    loading.value = true
+    try {
+      const response = await api.api.articlesDetail(id)
+      article.value = response.data
+    } catch {
+      error.value = '記事の取得に失敗しました'
+    } finally {
+      loading.value = false
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
