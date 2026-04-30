@@ -10,6 +10,11 @@
  * ---------------------------------------------------------------
  */
 
+export interface ServerArticleAuthorJSONResponse {
+  id?: number;
+  name?: string;
+}
+
 export interface ServerArticleErrorResponse {
   message?: string;
 }
@@ -26,6 +31,19 @@ export interface ServerArticleJSONResponse {
 export interface ServerCreateArticleRequest {
   content?: string;
   title?: string;
+}
+
+export interface ServerGetArticleErrorResponse {
+  message?: string;
+}
+
+export interface ServerGetArticleJSONResponse {
+  author?: ServerArticleAuthorJSONResponse;
+  content?: string;
+  created_at?: string;
+  id?: number;
+  title?: string;
+  updated_at?: string;
 }
 
 export interface ServerListArticlesResponse {
@@ -266,6 +284,7 @@ export class Api<
      * @name ArticlesCreate
      * @summary Create article
      * @request POST:/api/articles
+     * @secure
      */
     articlesCreate: (
       request: ServerCreateArticleRequest,
@@ -275,10 +294,29 @@ export class Api<
         path: `/api/articles`,
         method: "POST",
         body: request,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Get article detail API.
+     *
+     * @tags articles
+     * @name ArticlesDetail
+     * @summary Get article
+     * @request GET:/api/articles/{article_id}
+     */
+    articlesDetail: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerGetArticleJSONResponse, ServerGetArticleErrorResponse>(
+        {
+          path: `/api/articles/${articleId}`,
+          method: "GET",
+          format: "json",
+          ...params,
+        },
+      ),
 
     /**
      * @description Authenticates a user by name and password, and returns a JWT.
@@ -308,11 +346,13 @@ export class Api<
      * @name AuthMeList
      * @summary Get current user
      * @request GET:/api/auth/me
+     * @secure
      */
     authMeList: (params: RequestParams = {}) =>
       this.request<ServerMeResponse, ServerMeErrorResponse>({
         path: `/api/auth/me`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
