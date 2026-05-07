@@ -15,16 +15,18 @@ const formattedDate = useDateFormat(
     <v-card-title class="text-base font-medium">
       {{ article.title }}
     </v-card-title>
-    
-    <v-card-subtitle class="text-sm text-gray-500 d-flex align-center justify-space-between">
+
+    <v-card-subtitle
+      class="text-sm text-gray-500 d-flex align-center justify-space-between"
+    >
       <span>{{ formattedDate }}</span>
 
       <div class="d-flex align-center">
-        <v-icon 
-          icon="mdi-heart-outline" 
-          size="small" 
-          color="red-lighten-2" 
-          class="me-1" 
+        <v-icon
+          icon="mdi-heart-outline"
+          size="small"
+          color="red-lighten-2"
+          class="me-1"
         />
         <span>{{ article.likes_count ?? 0 }}</span>
       </div>
