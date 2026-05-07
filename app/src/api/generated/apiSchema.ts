@@ -32,6 +32,7 @@ export interface ServerArticleJSONResponse {
 export interface ServerCreateArticleRequest {
   content?: string;
   title?: string;
+  tags?: string[];
 }
 
 export interface ServerGetArticleJSONResponse {

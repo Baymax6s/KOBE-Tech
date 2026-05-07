@@ -17,6 +17,7 @@ const formRef = ref<ArticleFormRef | null>(null)
 
 const form = reactive({
   title: '',
+  tags: [] as string[],
   body: '',
 })
 
@@ -27,12 +28,16 @@ const submitting = ref(false)
 const submitError = ref<string | null>(null)
 
 const canSubmit = computed(
-  () => !submitting.value && !!form.title.trim() && !!form.body.trim(),
+  () =>
+    !submitting.value &&
+    !!form.title.trim() &&
+    !!form.body.trim(),
 )
 
 const submit = async () => {
   if (submitting.value) return
   if (!formRef.value) return
+
   const { valid } = await formRef.value.validate()
   if (!valid) return
 
@@ -40,11 +45,18 @@ const submit = async () => {
   submitError.value = null
 
   try {
-    await api.api.articlesCreate({ title: form.title, content: form.body })
+    await api.api.articlesCreate({
+      title: form.title,
+      content: form.body,
+      tags: form.tags,
+    })
+
     notificationStore.markCreated()
+
     await router.push('/articles')
   } catch {
-    submitError.value = '投稿に失敗しました。もう一度お試しください。'
+    submitError.value =
+      '投稿に失敗しました。もう一度お試しください。'
   } finally {
     submitting.value = false
   }
@@ -76,6 +88,7 @@ const submit = async () => {
               class="d-flex flex-column ga-6"
               @submit.prevent="submit"
             >
+              <!-- タイトル -->
               <v-text-field
                 v-model="form.title"
                 label="タイトル"
@@ -89,6 +102,22 @@ const submit = async () => {
                 validate-on="input"
               />
 
+              <!-- タグ -->
+              <v-combobox
+                v-model="form.tags"
+                label="タグ"
+                placeholder="タグを入力してEnter"
+                variant="outlined"
+                density="comfortable"
+                multiple
+                chips
+                closable-chips
+                clearable
+                hint="Enterキーでタグを追加"
+                persistent-hint
+              />
+
+              <!-- 本文 -->
               <v-textarea
                 v-model="form.body"
                 label="本文"
@@ -102,6 +131,7 @@ const submit = async () => {
                 validate-on="input"
               />
 
+              <!-- 投稿ボタン -->
               <div class="mt-4">
                 <v-btn
                   type="submit"
