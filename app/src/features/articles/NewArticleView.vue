@@ -28,10 +28,7 @@ const submitting = ref(false)
 const submitError = ref<string | null>(null)
 
 const canSubmit = computed(
-  () =>
-    !submitting.value &&
-    !!form.title.trim() &&
-    !!form.body.trim(),
+  () => !submitting.value && !!form.title.trim() && !!form.body.trim(),
 )
 
 const submit = async () => {
@@ -55,8 +52,7 @@ const submit = async () => {
 
     await router.push('/articles')
   } catch {
-    submitError.value =
-      '投稿に失敗しました。もう一度お試しください。'
+    submitError.value = '投稿に失敗しました。もう一度お試しください。'
   } finally {
     submitting.value = false
   }
