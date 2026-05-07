@@ -8,9 +8,13 @@ defineOptions({
   name: 'ArticleDetailView',
 })
 
+type ArticleWithLikes = ServerGetArticleJSONResponse & {
+  likes_count?: number
+}
+
 const props = defineProps<{ articleId: number }>()
 
-const article = ref<ServerGetArticleJSONResponse | null>(null)
+const article = ref<ArticleWithLikes | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -43,9 +47,10 @@ watch(
     error.value = null
     loading.value = true
     isLiked.value = false
+    isLiked.value = false
     try {
       const response = await api.api.articlesDetail(id)
-      article.value = response.data
+      article.value = (response.data as unknown) as ArticleWithLikes
     } catch {
       error.value = '記事の取得に失敗しました'
     } finally {
