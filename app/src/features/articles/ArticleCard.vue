@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { useDateFormat } from '@vueuse/core'
-import type { Article } from './types'
+import type { Article as BaseArticle } from './types'
 
-const props = defineProps<{ article: Article }>()
+type ArticleWithLikes = BaseArticle & {
+  likes_count?: number
+}
+
+const props = defineProps<{ article: ArticleWithLikes }>()
 
 const formattedDate = useDateFormat(
   () => props.article.created_at,
@@ -15,8 +19,19 @@ const formattedDate = useDateFormat(
     <v-card-title class="text-base font-medium">
       {{ article.title }}
     </v-card-title>
-    <v-card-subtitle class="text-sm text-gray-500">
-      {{ formattedDate }}
+    
+    <v-card-subtitle class="text-sm text-gray-500 d-flex align-center justify-space-between">
+      <span>{{ formattedDate }}</span>
+
+      <div class="d-flex align-center">
+        <v-icon 
+          icon="mdi-heart-outline" 
+          size="small" 
+          color="red-lighten-2" 
+          class="me-1" 
+        />
+        <span>{{ article.likes_count ?? 0 }}</span>
+      </div>
     </v-card-subtitle>
   </v-card>
 </template>
