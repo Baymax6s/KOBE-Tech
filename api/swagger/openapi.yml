@@ -66,6 +66,11 @@ definitions:
     - title
     - updated_at
     type: object
+  server.likeErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
   server.listArticlesResponse:
     properties:
       articles:
@@ -194,6 +199,49 @@ paths:
           schema:
             $ref: '#/definitions/server.articleErrorResponse'
       summary: Get article
+      tags:
+      - articles
+  /api/articles/{article_id}/like:
+    post:
+      description: Like an article API.
+      parameters:
+      - description: Article ID
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Like an article
       tags:
       - articles
   /api/auth/login:
