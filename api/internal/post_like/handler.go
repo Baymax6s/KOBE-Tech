@@ -32,7 +32,9 @@ func (h *Handler) RegisterRoutes(router gin.IRouter) {
 //	@Tags			articles
 //	@Produce		json
 //	@Param			article_id	path	int	true	"Article ID"
+//
 // @Success		201
+//
 //	@Failure		400			{object}	ErrorResponse
 //	@Failure		401			{object}	ErrorResponse
 //	@Failure		404			{object}	ErrorResponse
