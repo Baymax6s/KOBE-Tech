@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { useDateFormat } from '@vueuse/core'
-import type { Article as BaseArticle } from './types'
+import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 
-type ArticleWithLikes = BaseArticle & {
-  likes_count?: number
-}
-
-const props = defineProps<{ article: ArticleWithLikes }>()
+const props = defineProps<{ article: ServerArticleJSONResponse }>()
 
 const formattedDate = useDateFormat(
   () => props.article.created_at,

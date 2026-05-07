@@ -26,6 +26,7 @@ export interface ServerArticleJSONResponse {
   title: string;
   updated_at: string;
   user_id: number;
+  likes_count?: number
 }
 
 export interface ServerCreateArticleRequest {
@@ -40,6 +41,7 @@ export interface ServerGetArticleJSONResponse {
   id: number;
   title: string;
   updated_at: string;
+  likes_count?: number
 }
 
 export interface ServerListArticlesResponse {
