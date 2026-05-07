@@ -11,8 +11,8 @@
  */
 
 export interface ServerArticleAuthorJSONResponse {
-  id?: number;
-  name?: string;
+  id: number;
+  name: string;
 }
 
 export interface ServerArticleErrorResponse {
@@ -20,12 +20,12 @@ export interface ServerArticleErrorResponse {
 }
 
 export interface ServerArticleJSONResponse {
-  content?: string;
-  created_at?: string;
-  id?: number;
-  title?: string;
-  updated_at?: string;
-  user_id?: number;
+  content: string;
+  created_at: string;
+  id: number;
+  title: string;
+  updated_at: string;
+  user_id: number;
 }
 
 export interface ServerCreateArticleRequest {
@@ -34,12 +34,12 @@ export interface ServerCreateArticleRequest {
 }
 
 export interface ServerGetArticleJSONResponse {
-  author?: ServerArticleAuthorJSONResponse;
-  content?: string;
-  created_at?: string;
-  id?: number;
-  title?: string;
-  updated_at?: string;
+  author: ServerArticleAuthorJSONResponse;
+  content: string;
+  created_at: string;
+  id: number;
+  title: string;
+  updated_at: string;
 }
 
 export interface ServerListArticlesResponse {

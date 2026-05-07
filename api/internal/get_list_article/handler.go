@@ -15,12 +15,12 @@ type ErrorResponse struct {
 } // @name server.articleErrorResponse
 
 type ArticleJSON struct {
-	ID        int64     `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	UserID    int64     `json:"user_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        int64     `json:"id" binding:"required"`
+	Title     string    `json:"title" binding:"required"`
+	Content   string    `json:"content" binding:"required"`
+	UserID    int64     `json:"user_id" binding:"required"`
+	CreatedAt time.Time `json:"created_at" binding:"required"`
+	UpdatedAt time.Time `json:"updated_at" binding:"required"`
 } // @name server.articleJSONResponse
 
 type ListArticlesJSONResponse struct {

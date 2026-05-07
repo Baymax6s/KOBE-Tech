@@ -16,17 +16,17 @@ type ErrorResponse struct {
 } // @name server.articleErrorResponse
 
 type AuthorJSON struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID   int64  `json:"id" binding:"required"`
+	Name string `json:"name" binding:"required"`
 } // @name server.articleAuthorJSONResponse
 
 type ArticleJSON struct {
-	ID        int64      `json:"id"`
-	Title     string     `json:"title"`
-	Content   string     `json:"content"`
-	Author    AuthorJSON `json:"author"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
+	ID        int64      `json:"id" binding:"required"`
+	Title     string     `json:"title" binding:"required"`
+	Content   string     `json:"content" binding:"required"`
+	Author    AuthorJSON `json:"author" binding:"required"`
+	CreatedAt time.Time  `json:"created_at" binding:"required"`
+	UpdatedAt time.Time  `json:"updated_at" binding:"required"`
 } // @name server.getArticleJSONResponse
 
 type Handler struct {
