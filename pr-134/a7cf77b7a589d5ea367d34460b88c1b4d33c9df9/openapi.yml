@@ -1,0 +1,312 @@
+basePath: /
+definitions:
+  server.articleAuthorJSONResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  server.articleErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.articleJSONResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - content
+    - created_at
+    - id
+    - title
+    - updated_at
+    - user_id
+    type: object
+  server.createArticleRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+  server.getArticleJSONResponse:
+    properties:
+      author:
+        $ref: '#/definitions/server.articleAuthorJSONResponse'
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - author
+    - content
+    - created_at
+    - id
+    - title
+    - updated_at
+    type: object
+  server.likeErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.listArticlesResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/server.articleJSONResponse'
+        type: array
+    type: object
+  server.loginErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.loginRequest:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  server.loginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  server.meErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.meResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: KOBE-Tech API documentation generated from Go annotations.
+  title: KOBE-Tech API
+  version: 0.1.0
+paths:
+  /api/articles:
+    get:
+      description: Get article list API.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.listArticlesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+      summary: List articles
+      tags:
+      - articles
+    post:
+      consumes:
+      - application/json
+      description: Create article API.
+      parameters:
+      - description: Create article request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.createArticleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.articleJSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create article
+      tags:
+      - articles
+  /api/articles/{article_id}:
+    get:
+      description: Get article detail API.
+      parameters:
+      - description: Article ID
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.getArticleJSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+      summary: Get article
+      tags:
+      - articles
+  /api/articles/{article_id}/like:
+    post:
+      description: Like an article API.
+      parameters:
+      - description: Article ID
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Like an article
+      tags:
+      - articles
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user by name and password, and returns a JWT.
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.loginErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.loginErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.loginErrorResponse'
+      summary: Login
+      tags:
+      - auth
+  /api/auth/me:
+    get:
+      description: Returns the authenticated user identified by the JWT in the Authorization
+        header.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.meResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.meErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.meErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
