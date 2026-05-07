@@ -44,6 +44,10 @@ export interface ServerGetArticleJSONResponse {
   likes_count?: number
 }
 
+export interface ServerLikeErrorResponse {
+  message?: string;
+}
+
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
 }
@@ -311,6 +315,23 @@ export class Api<
         path: `/api/articles/${articleId}`,
         method: "GET",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Like an article API.
+     *
+     * @tags articles
+     * @name ArticlesLikeCreate
+     * @summary Like an article
+     * @request POST:/api/articles/{article_id}/like
+     * @secure
+     */
+    articlesLikeCreate: (articleId: number, params: RequestParams = {}) =>
+      this.request<void, ServerLikeErrorResponse>({
+        path: `/api/articles/${articleId}/like`,
+        method: "POST",
+        secure: true,
         ...params,
       }),
 
