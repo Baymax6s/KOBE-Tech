@@ -215,10 +215,6 @@ paths:
       responses:
         "201":
           description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Bad Request
           schema:
