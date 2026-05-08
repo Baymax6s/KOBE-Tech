@@ -43,7 +43,6 @@ watch(
     error.value = null
     loading.value = true
     isLiked.value = false
-    isLiked.value = false
     try {
       const response = await api.api.articlesDetail(id)
       article.value = response.data
