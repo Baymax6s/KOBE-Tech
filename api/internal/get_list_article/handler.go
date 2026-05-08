@@ -14,7 +14,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 } // @name server.articleErrorResponse
 
-type ArticleJSON struct {
+type ArticleListItemJSON struct {
 	ID          int64     `json:"id" binding:"required"`
 	Title       string    `json:"title" binding:"required"`
 	Content     string    `json:"content" binding:"required"`
@@ -25,7 +25,7 @@ type ArticleJSON struct {
 } // @name server.articleJSONResponse
 
 type ListArticlesJSONResponse struct {
-	Articles []ArticleJSON `json:"articles"`
+	Articles []ArticleListItemJSON `json:"articles"`
 } // @name server.listArticlesResponse
 
 type Handler struct {
@@ -77,11 +77,11 @@ func (h *Handler) ListArticles(ctx context.Context) (ListArticlesJSONResponse, e
 
 func newListArticlesJSONResponse(articles []Article) ListArticlesJSONResponse {
 	response := ListArticlesJSONResponse{
-		Articles: make([]ArticleJSON, 0, len(articles)),
+		Articles: make([]ArticleListItemJSON, 0, len(articles)),
 	}
 
 	for _, article := range articles {
-		response.Articles = append(response.Articles, ArticleJSON{
+		response.Articles = append(response.Articles, ArticleListItemJSON{
 			ID:         article.ID,
 			Title:      article.Title,
 			Content:    article.Content,
