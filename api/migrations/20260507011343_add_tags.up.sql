@@ -15,5 +15,4 @@ CREATE TABLE article_tags (
     CONSTRAINT uq_article_tags_article_id_tag_id UNIQUE (article_id, tag_id)
 );
 
-CREATE INDEX idx_article_tags_article_id ON article_tags (article_id);
 CREATE INDEX idx_article_tags_tag_id ON article_tags (tag_id);
