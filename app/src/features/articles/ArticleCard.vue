@@ -9,8 +9,8 @@ const emit = defineEmits<{
 }>()
 
 const formattedDate = useDateFormat(
-  () => props.article.created_at,
-  'YYYY/MM/DD',
+  () => props.article.created_at ?? '',
+  'YYYY/MM/DD'
 )
 </script>
 
@@ -35,10 +35,18 @@ const formattedDate = useDateFormat(
       </v-chip-group>
     </v-card-text>
 
-    <v-card-subtitle class="text-sm text-gray-500 d-flex align-center justify-space-between mt-2">
+    <v-card-subtitle
+      class="text-sm text-gray-500 d-flex align-center justify-space-between mt-2"
+    >
       <span>{{ formattedDate }}</span>
+
       <div class="d-flex align-center">
-        <v-icon icon="mdi-heart-outline" size="small" color="red-lighten-2" class="me-1" />
+        <v-icon
+          icon="mdi-heart-outline"
+          size="small"
+          color="red-lighten-2"
+          class="me-1"
+        />
         <span>{{ article.likes_count ?? 0 }}</span>
       </div>
     </v-card-subtitle>
