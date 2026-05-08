@@ -27,6 +27,7 @@ export interface ServerArticleJSONResponse {
   updated_at: string;
   user_id: number;
   likes_count?: number
+  tags?: ServerTagJSONResponse[];
 }
 
 export interface ServerCreateArticleRequest {
@@ -41,7 +42,8 @@ export interface ServerGetArticleJSONResponse {
   id: number;
   title: string;
   updated_at: string;
-  likes_count?: number
+  likes_count?: number;
+  tags?: ServerTagJSONResponse[];
 }
 
 export interface ServerListArticlesResponse {
