@@ -67,15 +67,14 @@ func (r *Repository) Create(ctx context.Context, title, content string, userID i
 }
 
 func upsertTag(ctx context.Context, tx *sql.Tx, name string) (Tag, error) {
-	const insertQuery = `
-		INSERT INTO tags (name, created_at, updated_at)
-		VALUES ($1, NOW(), NOW())
-		ON CONFLICT (name) DO NOTHING
-		RETURNING id, name
+	const selectQuery = `
+		SELECT id, name
+		FROM tags
+		WHERE name = $1
 	`
 
 	var tag Tag
-	err := tx.QueryRowContext(ctx, insertQuery, name).Scan(&tag.ID, &tag.Name)
+	err := tx.QueryRowContext(ctx, selectQuery, name).Scan(&tag.ID, &tag.Name)
 	if err == nil {
 		return tag, nil
 	}
@@ -83,11 +82,21 @@ func upsertTag(ctx context.Context, tx *sql.Tx, name string) (Tag, error) {
 		return Tag{}, err
 	}
 
-	const selectQuery = `
-		SELECT id, name
-		FROM tags
-		WHERE name = $1
+	const insertQuery = `
+		INSERT INTO tags (name, created_at, updated_at)
+		VALUES ($1, NOW(), NOW())
+		ON CONFLICT (name) DO NOTHING
+		RETURNING id, name
 	`
+
+	err = tx.QueryRowContext(ctx, insertQuery, name).Scan(&tag.ID, &tag.Name)
+	if err == nil {
+		return tag, nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return Tag{}, err
+	}
+
 	err = tx.QueryRowContext(ctx, selectQuery, name).Scan(&tag.ID, &tag.Name)
 	if err != nil {
 		return Tag{}, err
