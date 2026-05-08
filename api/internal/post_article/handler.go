@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ import (
 type createArticleRequest struct {
 	Title    string   `json:"title"`
 	Content  string   `json:"content"`
-	TagNames []string `json:"tag_names"`
+	TagNames []string `json:"tag_names" minLength:"1" maxLength:"10"`
 } // @name server.createArticleRequest
 
 type TagJSON struct {
@@ -86,7 +87,9 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 }
 
 var errInvalidRequest = errors.New("title and content are required")
-var errInvalidTagName = errors.New("tag_names must not contain empty tag names")
+var errInvalidTagName = errors.New("tag_names must contain tag names between 1 and 10 characters")
+
+const maxTagNameLength = 10
 
 func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, content string, tagNames []string) (ArticleJSON, error) {
 	if h == nil || h.repo == nil {
@@ -135,6 +138,9 @@ func normalizeTagNames(tagNames []string) ([]string, error) {
 	for _, tagName := range tagNames {
 		normalizedTagName := strings.ToLower(strings.TrimSpace(tagName))
 		if normalizedTagName == "" {
+			return nil, errInvalidTagName
+		}
+		if utf8.RuneCountInString(normalizedTagName) > maxTagNameLength {
 			return nil, errInvalidTagName
 		}
 		if _, ok := seen[normalizedTagName]; ok {

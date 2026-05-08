@@ -374,7 +374,9 @@
                 "tag_names": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 10,
+                        "minLength": 1
                     }
                 },
                 "title": {
