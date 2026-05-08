@@ -260,6 +260,7 @@
                 "content",
                 "created_at",
                 "id",
+                "likes_count",
                 "title",
                 "updated_at",
                 "user_id"
@@ -337,6 +338,7 @@
                 "content",
                 "created_at",
                 "id",
+                "likes_count",
                 "title",
                 "updated_at"
             ],

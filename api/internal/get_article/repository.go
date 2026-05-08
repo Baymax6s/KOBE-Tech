@@ -28,12 +28,9 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (Article, error) {
 			u.name,
 			a.created_at,
 			a.updated_at,
-			COALESCE(l.like_count, 0)
+			COALESCE((SELECT COUNT(*) FROM likes WHERE article_id = a.id), 0)
 		FROM articles a
 		JOIN users u ON u.id = a.user_id
-		LEFT JOIN (
-			SELECT article_id, COUNT(*) AS like_count FROM likes GROUP BY article_id
-		) l ON l.article_id = a.id
 		WHERE a.id = $1
 	`
 

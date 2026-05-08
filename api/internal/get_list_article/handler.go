@@ -21,7 +21,7 @@ type ArticleListItemJSON struct {
 	UserID     int64     `json:"user_id" binding:"required"`
 	CreatedAt  time.Time `json:"created_at" binding:"required"`
 	UpdatedAt  time.Time `json:"updated_at" binding:"required"`
-	LikesCount int64     `json:"likes_count"`
+	LikesCount int64     `json:"likes_count" binding:"required"`
 } // @name server.articleJSONResponse
 
 type ListArticlesJSONResponse struct {

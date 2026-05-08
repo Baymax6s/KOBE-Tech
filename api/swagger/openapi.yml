@@ -35,6 +35,7 @@ definitions:
     - content
     - created_at
     - id
+    - likes_count
     - title
     - updated_at
     - user_id
@@ -89,6 +90,7 @@ definitions:
     - content
     - created_at
     - id
+    - likes_count
     - title
     - updated_at
     type: object
