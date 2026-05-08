@@ -11,6 +11,7 @@ import (
 var (
 	errArticleNotFound = errors.New("article not found")
 	errAlreadyLiked    = errors.New("already liked")
+	errUserNotFound    = errors.New("user not found")
 )
 
 type Repository struct {
@@ -37,7 +38,10 @@ func (r *Repository) Create(ctx context.Context, articleID, userID int64) error 
 		if errors.As(err, &pqErr) {
 			switch pqErr.Code {
 			case "23503":
-				return errArticleNotFound
+				if pqErr.Constraint == "fk_likes_article_id" {
+					return errArticleNotFound
+				}
+				return errUserNotFound
 			case "23505":
 				return errAlreadyLiked
 			}

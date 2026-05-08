@@ -56,6 +56,8 @@ func (h *Handler) createLikeHandler(c *gin.Context) {
 		switch {
 		case errors.Is(err, errArticleNotFound):
 			c.JSON(http.StatusNotFound, ErrorResponse{Message: err.Error()})
+		case errors.Is(err, errUserNotFound):
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 		case errors.Is(err, errAlreadyLiked):
 			c.JSON(http.StatusConflict, ErrorResponse{Message: err.Error()})
 		default:
