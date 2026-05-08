@@ -319,6 +319,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "likes_count": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 },
