@@ -27,7 +27,7 @@ type ArticleJSON struct {
 	Author     AuthorJSON `json:"author" binding:"required"`
 	CreatedAt  time.Time  `json:"created_at" binding:"required"`
 	UpdatedAt  time.Time  `json:"updated_at" binding:"required"`
-	LikesCount int64     `json:"likes_count" binding:"required"`
+	LikesCount int64      `json:"likes_count" binding:"required"`
 } // @name server.getArticleJSONResponse
 
 type Handler struct {
