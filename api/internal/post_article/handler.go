@@ -12,15 +12,22 @@ import (
 )
 
 type createArticleRequest struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title    string   `json:"title"`
+	Content  string   `json:"content"`
+	TagNames []string `json:"tag_names"`
 } // @name server.createArticleRequest
+
+type TagJSON struct {
+	ID   int64  `json:"id" binding:"required"`
+	Name string `json:"name" binding:"required"`
+} // @name server.articleTagJSONResponse
 
 type ArticleJSON struct {
 	ID        int64     `json:"id" binding:"required"`
 	Title     string    `json:"title" binding:"required"`
 	Content   string    `json:"content" binding:"required"`
 	UserID    int64     `json:"user_id" binding:"required"`
+	Tags      []TagJSON `json:"tags" binding:"required"`
 	CreatedAt time.Time `json:"created_at" binding:"required"`
 	UpdatedAt time.Time `json:"updated_at" binding:"required"`
 } // @name server.createArticleResponse
@@ -64,10 +71,10 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 
 	userID := auth.MustUserID(c)
 
-	response, err := h.CreateArticle(c.Request.Context(), userID, req.Title, req.Content)
+	response, err := h.CreateArticle(c.Request.Context(), userID, req.Title, req.Content, req.TagNames)
 	if err != nil {
 		switch {
-		case errors.Is(err, errInvalidRequest):
+		case errors.Is(err, errInvalidRequest), errors.Is(err, errInvalidTagName):
 			c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed to create article"})
@@ -79,8 +86,9 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 }
 
 var errInvalidRequest = errors.New("title and content are required")
+var errInvalidTagName = errors.New("tag_names must not contain empty tag names")
 
-func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, content string) (ArticleJSON, error) {
+func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, content string, tagNames []string) (ArticleJSON, error) {
 	if h == nil || h.repo == nil {
 		return ArticleJSON{}, errors.New("post article handler is not configured")
 	}
@@ -91,9 +99,22 @@ func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, conten
 		return ArticleJSON{}, errInvalidRequest
 	}
 
-	article, err := h.repo.Create(ctx, title, content, userID)
+	normalizedTagNames, err := normalizeTagNames(tagNames)
 	if err != nil {
 		return ArticleJSON{}, err
+	}
+
+	article, err := h.repo.Create(ctx, title, content, userID, normalizedTagNames)
+	if err != nil {
+		return ArticleJSON{}, err
+	}
+
+	tags := make([]TagJSON, 0, len(article.Tags))
+	for _, tag := range article.Tags {
+		tags = append(tags, TagJSON{
+			ID:   tag.ID,
+			Name: tag.Name,
+		})
 	}
 
 	return ArticleJSON{
@@ -101,7 +122,28 @@ func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, conten
 		Title:     article.Title,
 		Content:   article.Content,
 		UserID:    article.UserID,
+		Tags:      tags,
 		CreatedAt: article.CreatedAt,
 		UpdatedAt: article.UpdatedAt,
 	}, nil
+}
+
+func normalizeTagNames(tagNames []string) ([]string, error) {
+	normalizedTagNames := make([]string, 0, len(tagNames))
+	seen := make(map[string]struct{}, len(tagNames))
+
+	for _, tagName := range tagNames {
+		normalizedTagName := strings.ToLower(strings.TrimSpace(tagName))
+		if normalizedTagName == "" {
+			return nil, errInvalidTagName
+		}
+		if _, ok := seen[normalizedTagName]; ok {
+			continue
+		}
+
+		seen[normalizedTagName] = struct{}{}
+		normalizedTagNames = append(normalizedTagNames, normalizedTagName)
+	}
+
+	return normalizedTagNames, nil
 }
