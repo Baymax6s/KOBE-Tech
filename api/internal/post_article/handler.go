@@ -23,7 +23,7 @@ type ArticleJSON struct {
 	UserID    int64     `json:"user_id" binding:"required"`
 	CreatedAt time.Time `json:"created_at" binding:"required"`
 	UpdatedAt time.Time `json:"updated_at" binding:"required"`
-} // @name server.articleJSONResponse
+} // @name server.createArticleResponse
 
 type ErrorResponse struct {
 	Message string `json:"message"`

@@ -8,10 +8,11 @@ type Author struct {
 }
 
 type Article struct {
-	ID        int64
-	Title     string
-	Content   string
-	Author    Author
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID         int64
+	Title      string
+	Content    string
+	Author     Author
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	LikesCount int64
 }

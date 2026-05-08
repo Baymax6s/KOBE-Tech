@@ -19,9 +19,19 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 		return nil, errors.New("article repository is not configured")
 	}
 	query := `
-		SELECT id, title, content, user_id, created_at, updated_at
-		FROM articles
-		ORDER BY created_at DESC, id DESC
+		SELECT
+			a.id,
+			a.title,
+			a.content,
+			a.user_id,
+			a.created_at,
+			a.updated_at,
+			COALESCE(l.like_count, 0)
+		FROM articles a
+		LEFT JOIN (
+			SELECT article_id, COUNT(*) AS like_count FROM likes GROUP BY article_id
+		) l ON l.article_id = a.id
+		ORDER BY a.created_at DESC, a.id DESC
 	`
 
 	rows, err := r.db.QueryContext(ctx, query)
@@ -40,6 +50,7 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 			&article.UserID,
 			&article.CreatedAt,
 			&article.UpdatedAt,
+			&article.LikesCount,
 		); err != nil {
 			return nil, err
 		}

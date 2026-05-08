@@ -14,17 +14,18 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 } // @name server.articleErrorResponse
 
-type ArticleJSON struct {
-	ID        int64     `json:"id" binding:"required"`
-	Title     string    `json:"title" binding:"required"`
-	Content   string    `json:"content" binding:"required"`
-	UserID    int64     `json:"user_id" binding:"required"`
-	CreatedAt time.Time `json:"created_at" binding:"required"`
-	UpdatedAt time.Time `json:"updated_at" binding:"required"`
+type ArticleListItemJSON struct {
+	ID         int64     `json:"id" binding:"required"`
+	Title      string    `json:"title" binding:"required"`
+	Content    string    `json:"content" binding:"required"`
+	UserID     int64     `json:"user_id" binding:"required"`
+	CreatedAt  time.Time `json:"created_at" binding:"required"`
+	UpdatedAt  time.Time `json:"updated_at" binding:"required"`
+	LikesCount int64     `json:"likes_count" binding:"required"`
 } // @name server.articleJSONResponse
 
 type ListArticlesJSONResponse struct {
-	Articles []ArticleJSON `json:"articles"`
+	Articles []ArticleListItemJSON `json:"articles"`
 } // @name server.listArticlesResponse
 
 type Handler struct {
@@ -76,17 +77,18 @@ func (h *Handler) ListArticles(ctx context.Context) (ListArticlesJSONResponse, e
 
 func newListArticlesJSONResponse(articles []Article) ListArticlesJSONResponse {
 	response := ListArticlesJSONResponse{
-		Articles: make([]ArticleJSON, 0, len(articles)),
+		Articles: make([]ArticleListItemJSON, 0, len(articles)),
 	}
 
 	for _, article := range articles {
-		response.Articles = append(response.Articles, ArticleJSON{
-			ID:        article.ID,
-			Title:     article.Title,
-			Content:   article.Content,
-			UserID:    article.UserID,
-			CreatedAt: article.CreatedAt,
-			UpdatedAt: article.UpdatedAt,
+		response.Articles = append(response.Articles, ArticleListItemJSON{
+			ID:         article.ID,
+			Title:      article.Title,
+			Content:    article.Content,
+			UserID:     article.UserID,
+			CreatedAt:  article.CreatedAt,
+			UpdatedAt:  article.UpdatedAt,
+			LikesCount: article.LikesCount,
 		})
 	}
 

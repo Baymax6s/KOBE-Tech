@@ -69,7 +69,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/server.articleJSONResponse"
+                            "$ref": "#/definitions/server.createArticleResponse"
                         }
                     },
                     "400": {
@@ -321,6 +321,52 @@
                 "content",
                 "created_at",
                 "id",
+                "likes_count",
+                "title",
+                "updated_at",
+                "user_id"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "likes_count": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.createArticleRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.createArticleResponse": {
+            "type": "object",
+            "required": [
+                "content",
+                "created_at",
+                "id",
                 "title",
                 "updated_at",
                 "user_id"
@@ -346,17 +392,6 @@
                 }
             }
         },
-        "server.createArticleRequest": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
         "server.getArticleJSONResponse": {
             "type": "object",
             "required": [
@@ -364,6 +399,7 @@
                 "content",
                 "created_at",
                 "id",
+                "likes_count",
                 "title",
                 "updated_at"
             ],
@@ -378,6 +414,9 @@
                     "type": "string"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "likes_count": {
                     "type": "integer"
                 },
                 "title": {

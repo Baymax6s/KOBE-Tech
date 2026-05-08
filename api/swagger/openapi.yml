@@ -23,6 +23,38 @@ definitions:
         type: string
       id:
         type: integer
+      likes_count:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - content
+    - created_at
+    - id
+    - likes_count
+    - title
+    - updated_at
+    - user_id
+    type: object
+  server.createArticleRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+  server.createArticleResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
       title:
         type: string
       updated_at:
@@ -37,13 +69,6 @@ definitions:
     - updated_at
     - user_id
     type: object
-  server.createArticleRequest:
-    properties:
-      content:
-        type: string
-      title:
-        type: string
-    type: object
   server.getArticleJSONResponse:
     properties:
       author:
@@ -54,6 +79,8 @@ definitions:
         type: string
       id:
         type: integer
+      likes_count:
+        type: integer
       title:
         type: string
       updated_at:
@@ -63,6 +90,7 @@ definitions:
     - content
     - created_at
     - id
+    - likes_count
     - title
     - updated_at
     type: object
@@ -152,7 +180,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/server.articleJSONResponse'
+            $ref: '#/definitions/server.createArticleResponse'
         "400":
           description: Bad Request
           schema:
