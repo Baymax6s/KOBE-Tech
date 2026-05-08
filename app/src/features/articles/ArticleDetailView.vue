@@ -23,14 +23,14 @@ const toggleLike = () => {
   } else {
     article.value.likes_count = Math.max(
       0,
-      (article.value.likes_count ?? 1) - 1
+      (article.value.likes_count ?? 1) - 1,
     )
   }
 }
 
 const formattedDate = useDateFormat(
   () => article.value?.created_at ?? '',
-  'YYYY/MM/DD'
+  'YYYY/MM/DD',
 )
 
 watch(
@@ -45,13 +45,12 @@ watch(
       const response = await api.api.articlesDetail(id)
       article.value = response.data
     } catch (e) {
-      error.value =
-        e instanceof Error ? e.message : '記事の取得に失敗しました'
+      error.value = e instanceof Error ? e.message : '記事の取得に失敗しました'
     } finally {
       loading.value = false
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 
@@ -60,7 +59,6 @@ watch(
     <v-container class="py-12">
       <v-row justify="center">
         <v-col cols="12" md="8" lg="7">
-
           <div v-if="loading" class="d-flex justify-center py-12">
             <v-progress-circular indeterminate color="primary" />
           </div>
@@ -75,10 +73,7 @@ watch(
             </h1>
 
             <!-- ✅ cast削除（型推論OK） -->
-            <div
-              v-if="article.tags?.length"
-              class="mb-4 d-flex flex-wrap ga-2"
-            >
+            <div v-if="article.tags?.length" class="mb-4 d-flex flex-wrap ga-2">
               <v-chip
                 v-for="tag in article.tags"
                 :key="tag.id"
@@ -109,9 +104,7 @@ watch(
                   color="red-lighten-2"
                   @click="toggleLike"
                 >
-                  <v-icon
-                    :icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'"
-                  />
+                  <v-icon :icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'" />
                 </v-btn>
 
                 <span class="text-subtitle-1 ml-1">
@@ -126,7 +119,6 @@ watch(
               </div>
             </v-card>
           </template>
-
         </v-col>
       </v-row>
     </v-container>

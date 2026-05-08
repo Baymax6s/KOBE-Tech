@@ -10,7 +10,7 @@ const emit = defineEmits<{
 
 const formattedDate = useDateFormat(
   () => props.article.created_at ?? '',
-  'YYYY/MM/DD'
+  'YYYY/MM/DD',
 )
 </script>
 

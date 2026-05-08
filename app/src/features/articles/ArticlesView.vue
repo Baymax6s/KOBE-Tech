@@ -38,10 +38,8 @@ const filteredArticles = computed(() => {
 
   return articles.value.filter((article) =>
     selectedTags.value.every((tagName) =>
-      article.tags?.some((tag: Tag) =>
-        tag.name === tagName
-      )
-    )
+      article.tags?.some((tag: Tag) => tag.name === tagName),
+    ),
   )
 })
 
@@ -55,20 +53,17 @@ onMounted(async () => {
     const response = await api.api.articlesList()
     articles.value = response.data.articles ?? []
   } catch (e) {
-    error.value =
-      e instanceof Error ? e.message : '記事の取得に失敗しました'
+    error.value = e instanceof Error ? e.message : '記事の取得に失敗しました'
   } finally {
     loading.value = false
   }
 })
 </script>
 
-
 <template>
   <v-container class="py-8">
     <v-row justify="center">
       <v-col cols="12" md="8" lg="6">
-
         <v-alert
           v-if="showCreatedAlert"
           type="success"
@@ -97,7 +92,6 @@ onMounted(async () => {
               {{ tag }}
             </v-chip>
 
-            
             <v-icon
               icon="mdi-close-circle"
               size="small"
@@ -105,7 +99,6 @@ onMounted(async () => {
               class="cursor-pointer ms-2"
               @click="clearTag"
             />
-
           </div>
         </v-fade-transition>
 
@@ -118,7 +111,6 @@ onMounted(async () => {
         </v-alert>
 
         <div v-else class="d-flex flex-column ga-4">
-
           <ArticleCard
             v-for="article in filteredArticles"
             :key="article.id"
@@ -133,7 +125,6 @@ onMounted(async () => {
           >
             該当する記事はありません
           </v-alert>
-
         </div>
       </v-col>
     </v-row>
