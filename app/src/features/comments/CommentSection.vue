@@ -57,7 +57,9 @@ const fetchComments = async (id: number) => {
   loading.value = true
   error.value = null
   try {
-    const { data } = await api.api.articleRepliesList(id)
+    const { data } = await api.api.articleRepliesList(id, {
+      skipGlobalErrorHandler: true,
+    })
     comments.value = (data.replies ?? []).filter(isCommentKind)
   } catch {
     error.value = 'コメントの取得に失敗しました'

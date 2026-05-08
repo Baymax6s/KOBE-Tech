@@ -37,11 +37,15 @@ const submit = async () => {
   submitError.value = null
 
   try {
-    const { data } = await api.api.articleRepliesCreate(props.articleId, {
-      parent_id: props.parentId,
-      kind: 'comment',
-      body: body.value,
-    })
+    const { data } = await api.api.articleRepliesCreate(
+      props.articleId,
+      {
+        parent_id: props.parentId,
+        kind: 'comment',
+        body: body.value,
+      },
+      { skipGlobalErrorHandler: true },
+    )
     emit('submitted', data)
     body.value = ''
   } catch {
