@@ -1,23 +1,26 @@
 CREATE TABLE replies (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     article_id INT NOT NULL,
     user_id INT NOT NULL,
     content TEXT NOT NULL,
     is_best BOOLEAN NOT NULL DEFAULT FALSE,
-    parent_id INT NULL,
-    kind TINYINT NOT NULL,
+    parent_id INT,
+    kind SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_replies_article
         FOREIGN KEY (article_id) REFERENCES articles(id)
         ON DELETE CASCADE,
+
     CONSTRAINT fk_replies_user
         FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE,
+
     CONSTRAINT fk_replies_parent
         FOREIGN KEY (parent_id) REFERENCES replies(id)
         ON DELETE CASCADE,
+
     CONSTRAINT chk_replies_kind
         CHECK (kind IN (0, 1, 2))
 );
