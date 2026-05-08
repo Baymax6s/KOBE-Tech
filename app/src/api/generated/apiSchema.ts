@@ -98,12 +98,31 @@ export interface ServerMeResponse {
   updated_at?: string;
 }
 
-export interface ServerTagJSONResponse {
+export type ServerReplyKind = "comment" | "question" | "answer";
+
+export interface ServerReplyJSONResponse {
   id: number;
-  name: string;
+  article_id: number;
+  parent_id: number | null;
+  kind: ServerReplyKind;
+  body: string;
+  user_id: number;
+  user_name: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface ServerTagsErrorResponse {
+export interface ServerListRepliesResponse {
+  replies?: ServerReplyJSONResponse[];
+}
+
+export interface ServerCreateReplyRequest {
+  parent_id?: number | null;
+  kind?: ServerReplyKind;
+  body?: string;
+}
+
+export interface ServerReplyErrorResponse {
   message?: string;
 }
 
@@ -350,19 +369,42 @@ export class Api<
       }),
 
     /**
-     * @description Like an article API.
+     * @description List replies (comments) for an article.
      *
-     * @tags articles
-     * @name ArticlesLikeCreate
-     * @summary Like an article
-     * @request POST:/api/articles/{article_id}/like
+     * @tags replies
+     * @name ArticleRepliesList
+     * @summary List replies
+     * @request GET:/api/articles/{article_id}/replies
+     */
+    articleRepliesList: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerListRepliesResponse, ServerReplyErrorResponse>({
+        path: `/api/articles/${articleId}/replies`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Create a reply (comment) on an article.
+     *
+     * @tags replies
+     * @name ArticleRepliesCreate
+     * @summary Create reply
+     * @request POST:/api/articles/{article_id}/replies
      * @secure
      */
-    articlesLikeCreate: (articleId: number, params: RequestParams = {}) =>
-      this.request<void, ServerLikeErrorResponse>({
-        path: `/api/articles/${articleId}/like`,
+    articleRepliesCreate: (
+      articleId: number,
+      request: ServerCreateReplyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
+        path: `/api/articles/${articleId}/replies`,
         method: "POST",
+        body: request,
         secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
