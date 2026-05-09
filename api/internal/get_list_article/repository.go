@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
+	"github.com/lib/pq"
 )
 
 type Repository struct {
@@ -26,11 +28,29 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 			a.user_id,
 			a.created_at,
 			a.updated_at,
-			COALESCE(l.like_count, 0)
+			COALESCE(l.like_count, 0),
+			COALESCE(
+				array_agg(t.id ORDER BY t.name, t.id) FILTER (WHERE t.id IS NOT NULL),
+				ARRAY[]::integer[]
+			),
+			COALESCE(
+				array_agg(t.name::text ORDER BY t.name, t.id) FILTER (WHERE t.id IS NOT NULL),
+				ARRAY[]::text[]
+			)
 		FROM articles a
 		LEFT JOIN (
 			SELECT article_id, COUNT(*) AS like_count FROM likes GROUP BY article_id
 		) l ON l.article_id = a.id
+		LEFT JOIN article_tags article_tag ON article_tag.article_id = a.id
+		LEFT JOIN tags t ON t.id = article_tag.tag_id
+		GROUP BY
+			a.id,
+			a.title,
+			a.content,
+			a.user_id,
+			a.created_at,
+			a.updated_at,
+			l.like_count
 		ORDER BY a.created_at DESC, a.id DESC
 	`
 
@@ -43,6 +63,8 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 	articles := make([]Article, 0)
 	for rows.Next() {
 		var article Article
+		var tagIDs []int64
+		var tagNames []string
 		if err := rows.Scan(
 			&article.ID,
 			&article.Title,
@@ -51,9 +73,12 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 			&article.CreatedAt,
 			&article.UpdatedAt,
 			&article.LikesCount,
+			pq.Array(&tagIDs),
+			pq.Array(&tagNames),
 		); err != nil {
 			return nil, err
 		}
+		article.Tags = newTags(tagIDs, tagNames)
 
 		articles = append(articles, article)
 	}
@@ -63,4 +88,20 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 	}
 
 	return articles, nil
+}
+
+func newTags(ids []int64, names []string) []Tag {
+	tags := make([]Tag, 0, len(ids))
+	for i, id := range ids {
+		if i >= len(names) {
+			break
+		}
+
+		tags = append(tags, Tag{
+			ID:   id,
+			Name: names[i],
+		})
+	}
+
+	return tags
 }
