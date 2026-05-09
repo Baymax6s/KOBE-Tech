@@ -76,12 +76,7 @@ onMounted(async () => {
     loading.value = false
   }
 
-  try {
-    const response = await api.api.tagsList()
-    tagCandidates.value = response.data.tags?.map((tag) => tag.name) ?? []
-  } catch {
-    tagCandidates.value = []
-  }
+  tagCandidates.value = []
 })
 </script>
 
