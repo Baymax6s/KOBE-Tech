@@ -350,11 +350,34 @@
                 }
             }
         },
+        "server.articleTagJSONResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "server.createArticleRequest": {
             "type": "object",
             "properties": {
                 "content": {
                     "type": "string"
+                },
+                "tag_names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "maxLength": 10,
+                        "minLength": 1
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -367,6 +390,7 @@
                 "content",
                 "created_at",
                 "id",
+                "tags",
                 "title",
                 "updated_at",
                 "user_id"
@@ -380,6 +404,12 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.articleTagJSONResponse"
+                    }
                 },
                 "title": {
                     "type": "string"

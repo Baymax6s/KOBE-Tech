@@ -40,10 +40,26 @@ definitions:
     - updated_at
     - user_id
     type: object
+  server.articleTagJSONResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
   server.createArticleRequest:
     properties:
       content:
         type: string
+      tag_names:
+        items:
+          maxLength: 10
+          minLength: 1
+          type: string
+        type: array
       title:
         type: string
     type: object
@@ -55,6 +71,10 @@ definitions:
         type: string
       id:
         type: integer
+      tags:
+        items:
+          $ref: '#/definitions/server.articleTagJSONResponse'
+        type: array
       title:
         type: string
       updated_at:
@@ -65,6 +85,7 @@ definitions:
     - content
     - created_at
     - id
+    - tags
     - title
     - updated_at
     - user_id
