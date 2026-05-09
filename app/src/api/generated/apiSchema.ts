@@ -19,6 +19,11 @@ export interface ServerArticleErrorResponse {
   message?: string;
 }
 
+export interface ServerTagJSONResponse {
+  id: number;
+  name: string;
+}
+
 export interface ServerArticleJSONResponse {
   content: string;
   created_at: string;

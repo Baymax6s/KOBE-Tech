@@ -44,8 +44,8 @@ watch(
     try {
       const response = await api.api.articlesDetail(id)
       article.value = response.data
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : '記事の取得に失敗しました'
+    } catch {
+      error.value = '記事の取得に失敗しました。時間をおいて再度お試しください。'
     } finally {
       loading.value = false
     }
@@ -72,7 +72,6 @@ watch(
               {{ article.title }}
             </h1>
 
-            <!-- ✅ cast削除（型推論OK） -->
             <div v-if="article.tags?.length" class="mb-4 d-flex flex-wrap ga-2">
               <v-chip
                 v-for="tag in article.tags"

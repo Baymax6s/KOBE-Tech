@@ -5,10 +5,7 @@ import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
 
-type Tag = {
-  id: number
-  name: string
-}
+type ArticleTag = NonNullable<ServerArticleJSONResponse['tags']>[number]
 
 const articles = ref<ServerArticleJSONResponse[]>([])
 const loading = ref(false)
@@ -38,7 +35,7 @@ const filteredArticles = computed(() => {
 
   return articles.value.filter((article) =>
     selectedTags.value.every((tagName) =>
-      article.tags?.some((tag: Tag) => tag.name === tagName),
+      article.tags?.some((tag: ArticleTag) => tag.name === tagName),
     ),
   )
 })
@@ -52,8 +49,8 @@ onMounted(async () => {
   try {
     const response = await api.api.articlesList()
     articles.value = response.data.articles ?? []
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : '記事の取得に失敗しました'
+  } catch {
+    error.value = '記事の取得に失敗しました。時間をおいて再度お試しください。'
   } finally {
     loading.value = false
   }
@@ -92,11 +89,13 @@ onMounted(async () => {
               {{ tag }}
             </v-chip>
 
-            <v-icon
+            <v-btn
+              aria-label="絞り込みをすべて解除"
               icon="mdi-close-circle"
               size="small"
               color="grey"
-              class="cursor-pointer ms-2"
+              variant="text"
+              class="ms-1"
               @click="clearTag"
             />
           </div>
