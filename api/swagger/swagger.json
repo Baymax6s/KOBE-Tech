@@ -359,6 +359,7 @@
                 "created_at",
                 "id",
                 "likes_count",
+                "tags",
                 "title",
                 "updated_at",
                 "user_id"
@@ -375,6 +376,12 @@
                 },
                 "likes_count": {
                     "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.articleTagJSONResponse"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -467,6 +474,7 @@
                 "created_at",
                 "id",
                 "likes_count",
+                "tags",
                 "title",
                 "updated_at"
             ],
@@ -485,6 +493,12 @@
                 },
                 "likes_count": {
                     "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.articleTagJSONResponse"
+                    }
                 },
                 "title": {
                     "type": "string"

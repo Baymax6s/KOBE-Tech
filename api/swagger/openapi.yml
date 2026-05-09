@@ -25,6 +25,10 @@ definitions:
         type: integer
       likes_count:
         type: integer
+      tags:
+        items:
+          $ref: '#/definitions/server.articleTagJSONResponse'
+        type: array
       title:
         type: string
       updated_at:
@@ -36,6 +40,7 @@ definitions:
     - created_at
     - id
     - likes_count
+    - tags
     - title
     - updated_at
     - user_id
@@ -102,6 +107,10 @@ definitions:
         type: integer
       likes_count:
         type: integer
+      tags:
+        items:
+          $ref: '#/definitions/server.articleTagJSONResponse'
+        type: array
       title:
         type: string
       updated_at:
@@ -112,6 +121,7 @@ definitions:
     - created_at
     - id
     - likes_count
+    - tags
     - title
     - updated_at
     type: object
