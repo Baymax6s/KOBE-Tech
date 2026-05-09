@@ -59,7 +59,7 @@ definitions:
     properties:
       content:
         type: string
-      tag_names:
+      tags:
         items:
           maxLength: 10
           minLength: 1

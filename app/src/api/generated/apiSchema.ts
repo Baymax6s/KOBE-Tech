@@ -19,26 +19,36 @@ export interface ServerArticleErrorResponse {
   message?: string;
 }
 
-export interface ServerTagJSONResponse {
-  id: number;
-  name: string;
-}
-
 export interface ServerArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  likes_count: number;
+  tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
   user_id: number;
-  likes_count?: number
-  tags?: ServerTagJSONResponse[];
+}
+
+export interface ServerArticleTagJSONResponse {
+  id: number;
+  name: string;
 }
 
 export interface ServerCreateArticleRequest {
   content?: string;
-  title?: string;
   tags?: string[];
+  title?: string;
+}
+
+export interface ServerCreateArticleResponse {
+  content: string;
+  created_at: string;
+  id: number;
+  tags: ServerArticleTagJSONResponse[];
+  title: string;
+  updated_at: string;
+  user_id: number;
 }
 
 export interface ServerGetArticleJSONResponse {
@@ -46,10 +56,10 @@ export interface ServerGetArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  likes_count: number;
+  tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
-  likes_count?: number;
-  tags?: ServerTagJSONResponse[];
 }
 
 export interface ServerLikeErrorResponse {
@@ -58,6 +68,10 @@ export interface ServerLikeErrorResponse {
 
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
+}
+
+export interface ServerListTagsResponse {
+  tags?: ServerTagJSONResponse[];
 }
 
 export interface ServerLoginErrorResponse {
@@ -82,6 +96,15 @@ export interface ServerMeResponse {
   id?: number;
   name?: string;
   updated_at?: string;
+}
+
+export interface ServerTagJSONResponse {
+  id: number;
+  name: string;
+}
+
+export interface ServerTagsErrorResponse {
+  message?: string;
 }
 
 import type {
@@ -300,7 +323,7 @@ export class Api<
       request: ServerCreateArticleRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ServerArticleJSONResponse, ServerArticleErrorResponse>({
+      this.request<ServerCreateArticleResponse, ServerArticleErrorResponse>({
         path: `/api/articles`,
         method: "POST",
         body: request,
@@ -376,6 +399,24 @@ export class Api<
     authMeList: (params: RequestParams = {}) =>
       this.request<ServerMeResponse, ServerMeErrorResponse>({
         path: `/api/auth/me`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get tag candidates for creating articles.
+     *
+     * @tags tags
+     * @name TagsList
+     * @summary List tags
+     * @request GET:/api/tags
+     * @secure
+     */
+    tagsList: (params: RequestParams = {}) =>
+      this.request<ServerListTagsResponse, ServerTagsErrorResponse>({
+        path: `/api/tags`,
         method: "GET",
         secure: true,
         format: "json",
