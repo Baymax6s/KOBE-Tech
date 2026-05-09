@@ -15,6 +15,7 @@ const showCreatedAlert = ref(false)
 const notificationStore = useArticleNotificationStore()
 
 const selectedTags = ref<string[]>([])
+const tagCandidates = ref<string[]>([])
 
 const toggleTag = (tagName: string) => {
   const index = selectedTags.value.indexOf(tagName)
@@ -29,6 +30,26 @@ const toggleTag = (tagName: string) => {
 const clearTag = () => {
   selectedTags.value = []
 }
+
+const articleTagNames = computed(() => {
+  const tagNames = new Set<string>()
+
+  for (const article of articles.value) {
+    for (const tag of article.tags ?? []) {
+      tagNames.add(tag.name)
+    }
+  }
+
+  return [...tagNames].sort((a, b) => a.localeCompare(b))
+})
+
+const filterTagItems = computed(() => {
+  if (tagCandidates.value.length > 0) {
+    return tagCandidates.value
+  }
+
+  return articleTagNames.value
+})
 
 const filteredArticles = computed(() => {
   if (selectedTags.value.length === 0) return articles.value
@@ -54,6 +75,13 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+
+  try {
+    const response = await api.api.tagsList()
+    tagCandidates.value = response.data.tags?.map((tag) => tag.name) ?? []
+  } catch {
+    tagCandidates.value = []
+  }
 })
 </script>
 
@@ -70,6 +98,21 @@ onMounted(async () => {
         >
           記事を投稿しました
         </v-alert>
+
+        <v-select
+          v-model="selectedTags"
+          :items="filterTagItems"
+          label="タグで絞り込み"
+          prepend-inner-icon="mdi-tag-outline"
+          variant="outlined"
+          density="comfortable"
+          multiple
+          chips
+          closable-chips
+          clearable
+          hide-details
+          class="mb-4"
+        />
 
         <v-fade-transition>
           <div
