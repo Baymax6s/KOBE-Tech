@@ -4,8 +4,12 @@ import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 
 const props = defineProps<{ article: ServerArticleJSONResponse }>()
 
+const emit = defineEmits<{
+  (e: 'select-tag', tagName: string): void
+}>()
+
 const formattedDate = useDateFormat(
-  () => props.article.created_at,
+  () => props.article.created_at ?? '',
   'YYYY/MM/DD',
 )
 </script>
@@ -16,8 +20,23 @@ const formattedDate = useDateFormat(
       {{ article.title }}
     </v-card-title>
 
+    <v-card-text v-if="article.tags?.length" class="py-0 px-4">
+      <v-chip-group>
+        <v-chip
+          v-for="tag in article.tags"
+          :key="tag.id"
+          size="x-small"
+          variant="outlined"
+          color="primary"
+          @click.stop.prevent="emit('select-tag', tag.name)"
+        >
+          {{ tag.name }}
+        </v-chip>
+      </v-chip-group>
+    </v-card-text>
+
     <v-card-subtitle
-      class="text-sm text-gray-500 d-flex align-center justify-space-between"
+      class="text-sm text-gray-500 d-flex align-center justify-space-between mt-2"
     >
       <span>{{ formattedDate }}</span>
 

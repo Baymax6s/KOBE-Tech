@@ -4,16 +4,13 @@ import { useDateFormat } from '@vueuse/core'
 import { api } from '@/api/client'
 import type { ServerGetArticleJSONResponse } from '@/api/generated/apiSchema'
 
-defineOptions({
-  name: 'ArticleDetailView',
-})
+defineOptions({ name: 'ArticleDetailView' })
 
 const props = defineProps<{ articleId: number }>()
 
 const article = ref<ServerGetArticleJSONResponse | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
-
 const isLiked = ref(false)
 
 const toggleLike = () => {
@@ -32,7 +29,7 @@ const toggleLike = () => {
 }
 
 const formattedDate = useDateFormat(
-  () => article.value?.created_at,
+  () => article.value?.created_at ?? '',
   'YYYY/MM/DD',
 )
 
@@ -43,11 +40,12 @@ watch(
     error.value = null
     loading.value = true
     isLiked.value = false
+
     try {
       const response = await api.api.articlesDetail(id)
       article.value = response.data
     } catch {
-      error.value = '記事の取得に失敗しました'
+      error.value = '記事の取得に失敗しました。時間をおいて再度お試しください。'
     } finally {
       loading.value = false
     }
@@ -74,6 +72,20 @@ watch(
               {{ article.title }}
             </h1>
 
+            <div v-if="article.tags?.length" class="mb-4 d-flex flex-wrap ga-2">
+              <v-chip
+                v-for="tag in article.tags"
+                :key="tag.id"
+                size="small"
+                color="primary"
+                variant="flat"
+                label
+              >
+                <v-icon start icon="mdi-tag-outline" size="x-small" />
+                {{ tag.name }}
+              </v-chip>
+            </div>
+
             <div
               class="text-body-2 text-medium-emphasis mb-6 d-flex align-center"
             >
@@ -83,6 +95,7 @@ watch(
               </div>
 
               <v-spacer />
+
               <div class="d-flex align-center">
                 <v-btn
                   variant="text"
@@ -90,16 +103,15 @@ watch(
                   color="red-lighten-2"
                   @click="toggleLike"
                 >
-                  <v-icon
-                    :icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'"
-                    size="default"
-                  />
+                  <v-icon :icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'" />
                 </v-btn>
-                <span class="text-subtitle-1 ml-1">{{
-                  article.likes_count ?? 0
-                }}</span>
+
+                <span class="text-subtitle-1 ml-1">
+                  {{ article.likes_count ?? 0 }}
+                </span>
               </div>
             </div>
+
             <v-card flat rounded="lg" class="pa-8">
               <div class="text-body-1" style="white-space: pre-wrap">
                 {{ article.content }}
