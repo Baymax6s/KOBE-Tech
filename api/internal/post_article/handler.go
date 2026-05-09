@@ -13,10 +13,9 @@ import (
 )
 
 type createArticleRequest struct {
-	Title          string   `json:"title"`
-	Content        string   `json:"content"`
-	Tags           []string `json:"tags" minLength:"1" maxLength:"10"`
-	LegacyTagNames []string `json:"tag_names" swaggerignore:"true"`
+	Title    string   `json:"title"`
+	Content  string   `json:"content"`
+	TagNames []string `json:"tags" minLength:"1" maxLength:"10"`
 } // @name server.createArticleRequest
 
 type TagJSON struct {
@@ -73,7 +72,7 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 
 	userID := auth.MustUserID(c)
 
-	response, err := h.CreateArticle(c.Request.Context(), userID, req.Title, req.Content, req.tagNames())
+	response, err := h.CreateArticle(c.Request.Context(), userID, req.Title, req.Content, req.TagNames)
 	if err != nil {
 		switch {
 		case errors.Is(err, errInvalidRequest), errors.Is(err, errInvalidTagName):
@@ -153,12 +152,4 @@ func normalizeTagNames(tagNames []string) ([]string, error) {
 	}
 
 	return normalizedTagNames, nil
-}
-
-func (r createArticleRequest) tagNames() []string {
-	if len(r.Tags) > 0 {
-		return r.Tags
-	}
-
-	return r.LegacyTagNames
 }
