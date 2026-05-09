@@ -127,6 +127,13 @@ definitions:
           $ref: '#/definitions/server.articleJSONResponse'
         type: array
     type: object
+  server.listTagsResponse:
+    properties:
+      tags:
+        items:
+          $ref: '#/definitions/server.tagJSONResponse'
+        type: array
+    type: object
   server.loginErrorResponse:
     properties:
       message:
@@ -158,6 +165,21 @@ definitions:
       name:
         type: string
       updated_at:
+        type: string
+    type: object
+  server.tagJSONResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  server.tagsErrorResponse:
+    properties:
+      message:
         type: string
     type: object
 host: localhost:8080
@@ -347,6 +369,29 @@ paths:
       summary: Get current user
       tags:
       - auth
+  /api/tags:
+    get:
+      description: Get tag candidates for creating articles.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.listTagsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.tagsErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.tagsErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List tags
+      tags:
+      - tags
 schemes:
 - http
 securityDefinitions:
