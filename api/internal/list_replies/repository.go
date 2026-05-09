@@ -35,7 +35,7 @@ func (r *Repository) FindByArticleID(ctx context.Context, articleID int64) ([]Re
 	FROM replies r
 	JOIN users u ON u.id = r.user_id
 	WHERE r.article_id = $1
-	ORDER BY r.created_at ASC
+	ORDER BY r.created_at DESC
 	`
 
 	rows, err := r.db.QueryContext(ctx, query, articleID)

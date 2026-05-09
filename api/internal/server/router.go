@@ -38,9 +38,9 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	getArticleHandler.RegisterRoutes(api)
 	loginHandler.RegisterRoutes(api)
 	listRepliesHandler.RegisterRoutes(api)
-	postReplyHandler.RegisterRoutes(api)
 	authRequired := api.Group("", auth.RequireUser(validator))
 	postArticleHandler.RegisterRoutes(authRequired)
+	postReplyHandler.RegisterRoutes(authRequired)
 	meHandler.RegisterRoutes(authRequired)
 
 	return router

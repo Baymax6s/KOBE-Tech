@@ -3,20 +3,20 @@ package post_reply
 import "time"
 
 type Reply struct {
-	ID        int64
-	ArticleID int64
-	UserID    int64
+	ID        int64     `json:"id"`
+	ArticleID int64     `json:"article_id"`
+	UserID    int64     `json:"user_id"`
 
-	Content  string
-	ParentID *int64
+	Content  string `json:"content"`
+	ParentID *int64 `json:"parent_id"`
 
-	Kind int
+	Kind int `json:"kind"`
 
-	IsBest bool
+	IsBest bool `json:"is_best"`
 
-	UserName  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	UserName string    `json:"user_name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // kind定義（DB int前提）

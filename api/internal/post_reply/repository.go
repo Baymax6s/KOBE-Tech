@@ -70,11 +70,39 @@ func (r *Repository) Create(
 	}
 
 	const query = `
-	INSERT INTO replies (
-		article_id, user_id, content, parent_id, kind
+	WITH inserted AS (
+		INSERT INTO replies (
+			article_id,
+			user_id,
+			content,
+			parent_id,
+			kind
+		)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING
+			id,
+			article_id,
+			user_id,
+			content,
+			parent_id,
+			kind,
+			is_best,
+			created_at,
+			updated_at
 	)
-	VALUES ($1, $2, $3, $4, $5)
-	RETURNING id, article_id, user_id, content, parent_id, kind, is_best, created_at, updated_at
+	SELECT
+		i.id,
+		i.article_id,
+		i.user_id,
+		i.content,
+		i.parent_id,
+		i.kind,
+		i.is_best,
+		u.name,
+		i.created_at,
+		i.updated_at
+	FROM inserted i
+	JOIN users u ON u.id = i.user_id
 	`
 
 	var rp Reply
@@ -95,6 +123,7 @@ func (r *Repository) Create(
 		&rp.ParentID,
 		&rp.Kind,
 		&rp.IsBest,
+		&rp.UserName,
 		&rp.CreatedAt,
 		&rp.UpdatedAt,
 	)
