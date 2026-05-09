@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
@@ -26,6 +26,7 @@ const notificationStore = useArticleNotificationStore()
 
 const submitting = ref(false)
 const submitError = ref<string | null>(null)
+const tagCandidates = ref<string[]>([])
 
 const canSubmit = computed(
   () => !submitting.value && !!form.title.trim() && !!form.body.trim(),
@@ -57,6 +58,15 @@ const submit = async () => {
     submitting.value = false
   }
 }
+
+onMounted(async () => {
+  try {
+    const response = await api.api.tagsList()
+    tagCandidates.value = response.data.tags?.map((tag) => tag.name) ?? []
+  } catch {
+    tagCandidates.value = []
+  }
+})
 </script>
 
 <template>
@@ -105,6 +115,7 @@ const submit = async () => {
                 placeholder="タグを入力してEnter"
                 variant="outlined"
                 density="comfortable"
+                :items="tagCandidates"
                 multiple
                 chips
                 closable-chips

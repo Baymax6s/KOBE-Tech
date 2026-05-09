@@ -415,7 +415,7 @@
                 "content": {
                     "type": "string"
                 },
-                "tag_names": {
+                "tags": {
                     "type": "array",
                     "items": {
                         "type": "string",
