@@ -29,28 +29,21 @@ func (r *Repository) List(ctx context.Context) ([]Article, error) {
 			a.created_at,
 			a.updated_at,
 			COALESCE(l.like_count, 0),
-			COALESCE(
-				array_agg(t.id ORDER BY t.name, t.id) FILTER (WHERE t.id IS NOT NULL),
-				ARRAY[]::integer[]
-			),
-			COALESCE(
-				array_agg(t.name::text ORDER BY t.name, t.id) FILTER (WHERE t.id IS NOT NULL),
-				ARRAY[]::text[]
-			)
+			COALESCE(tag_summary.tag_ids, ARRAY[]::integer[]),
+			COALESCE(tag_summary.tag_names, ARRAY[]::text[])
 		FROM articles a
 		LEFT JOIN (
 			SELECT article_id, COUNT(*) AS like_count FROM likes GROUP BY article_id
 		) l ON l.article_id = a.id
-		LEFT JOIN article_tags article_tag ON article_tag.article_id = a.id
-		LEFT JOIN tags t ON t.id = article_tag.tag_id
-		GROUP BY
-			a.id,
-			a.title,
-			a.content,
-			a.user_id,
-			a.created_at,
-			a.updated_at,
-			l.like_count
+		LEFT JOIN (
+			SELECT
+				article_tag.article_id,
+				array_agg(t.id ORDER BY t.name, t.id) AS tag_ids,
+				array_agg(t.name::text ORDER BY t.name, t.id) AS tag_names
+			FROM article_tags article_tag
+			JOIN tags t ON t.id = article_tag.tag_id
+			GROUP BY article_tag.article_id
+		) tag_summary ON tag_summary.article_id = a.id
 		ORDER BY a.created_at DESC, a.id DESC
 	`
 
