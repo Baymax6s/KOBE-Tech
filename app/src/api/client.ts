@@ -1,6 +1,14 @@
 import axios, { AxiosHeaders } from 'axios'
 import { Api } from './generated/apiSchema'
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    // ページ全体のエラー画面遷移を抑止したい呼び出しに付ける
+    // （例：記事詳細内のコメントなど、サブ機能の取得失敗で記事ごと吹き飛ばしたくないケース）
+    skipGlobalErrorHandler?: boolean
+  }
+}
+
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 export const AUTH_TOKEN_STORAGE_KEY = 'auth_token'
@@ -28,14 +36,18 @@ api.instance.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.code !== 'ERR_CANCELED') {
-      const status = error.response?.status ?? null
+      const skip = error.config?.skipGlobalErrorHandler === true
 
-      if (status === 404 || (status !== null && status >= 500)) {
-        apiErrorHandler?.(status)
-      }
+      if (!skip) {
+        const status = error.response?.status ?? null
 
-      if (status === null && error.request) {
-        apiErrorHandler?.(status)
+        if (status === 404 || (status !== null && status >= 500)) {
+          apiErrorHandler?.(status)
+        }
+
+        if (status === null && error.request) {
+          apiErrorHandler?.(status)
+        }
       }
     }
 

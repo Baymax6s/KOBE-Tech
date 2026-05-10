@@ -51,6 +51,12 @@ export interface ServerCreateArticleResponse {
   user_id: number;
 }
 
+export interface ServerCreateReplyRequest {
+  body: string;
+  kind?: string;
+  parent_id?: number;
+}
+
 export interface ServerGetArticleJSONResponse {
   author: ServerArticleAuthorJSONResponse;
   content: string;
@@ -68,6 +74,10 @@ export interface ServerLikeErrorResponse {
 
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
+}
+
+export interface ServerListRepliesResponse {
+  replies: ServerReplyJSONResponse[];
 }
 
 export interface ServerListTagsResponse {
@@ -96,6 +106,22 @@ export interface ServerMeResponse {
   id?: number;
   name?: string;
   updated_at?: string;
+}
+
+export interface ServerReplyErrorResponse {
+  message?: string;
+}
+
+export interface ServerReplyJSONResponse {
+  article_id: number;
+  body: string;
+  created_at: string;
+  id: number;
+  kind: "comment" | "question" | "answer";
+  parent_id?: number;
+  updated_at: string;
+  user_id: number;
+  user_name: string;
 }
 
 export interface ServerTagJSONResponse {
@@ -363,6 +389,46 @@ export class Api<
         path: `/api/articles/${articleId}/like`,
         method: "POST",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
+     *
+     * @tags replies
+     * @name ArticlesRepliesList
+     * @summary List replies of an article
+     * @request GET:/api/articles/{article_id}/replies
+     */
+    articlesRepliesList: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerListRepliesResponse, ServerReplyErrorResponse>({
+        path: `/api/articles/${articleId}/replies`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
+     *
+     * @tags replies
+     * @name ArticlesRepliesCreate
+     * @summary Create a reply (comment) on an article
+     * @request POST:/api/articles/{article_id}/replies
+     * @secure
+     */
+    articlesRepliesCreate: (
+      articleId: number,
+      request: ServerCreateReplyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
+        path: `/api/articles/${articleId}/replies`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
