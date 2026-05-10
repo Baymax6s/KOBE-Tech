@@ -66,6 +66,13 @@ func (h *Handler) postReplyHandler(c *gin.Context) {
 			return
 		}
 
+		if p.ArticleID != articleID {
+			c.JSON(http.StatusBadRequest, gin.H{
+			"message": "parent does not belong to the article",
+			})
+			return
+		}
+
 		parent = &p
 	}
 
