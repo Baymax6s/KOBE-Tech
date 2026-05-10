@@ -14,7 +14,7 @@ import (
 type ReplyJSON struct {
 	ID        int64     `json:"id" binding:"required"`
 	ArticleID int64     `json:"article_id" binding:"required"`
-	ParentID  *int64    `json:"parent_id"`
+	ParentID  *int64    `json:"parent_id,omitempty"`
 	Kind      string    `json:"kind" binding:"required" enums:"comment,question,answer"`
 	Body      string    `json:"body" binding:"required"`
 	UserID    int64     `json:"user_id" binding:"required"`

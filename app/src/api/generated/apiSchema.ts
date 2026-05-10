@@ -52,7 +52,7 @@ export interface ServerCreateArticleResponse {
 }
 
 export interface ServerCreateReplyRequest {
-  body?: string;
+  body: string;
   kind?: string;
   parent_id?: number;
 }

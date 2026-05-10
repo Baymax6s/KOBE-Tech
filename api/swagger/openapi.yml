@@ -103,6 +103,8 @@ definitions:
         type: string
       parent_id:
         type: integer
+    required:
+    - body
     type: object
   server.getArticleJSONResponse:
     properties:

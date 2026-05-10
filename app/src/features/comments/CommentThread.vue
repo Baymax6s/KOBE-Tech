@@ -75,7 +75,7 @@ const handleSubmitted = (newComment: ServerReplyJSONResponse) => {
           :descendant-count-by-parent="descendantCountByParent"
           :depth="depth + 1"
           :article-id="articleId"
-          @submitted="(c) => emit('submitted', c)"
+          @submitted="emit('submitted', $event)"
         />
       </div>
       <v-btn

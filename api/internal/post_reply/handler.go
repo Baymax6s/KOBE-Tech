@@ -3,25 +3,27 @@ package reply
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/gin-gonic/gin"
 )
 
 type createReplyRequest struct {
-	ParentID *int64  `json:"parent_id"`
-	Kind     *string `json:"kind"`
-	Body     string  `json:"body"`
+	ParentID *int64  `json:"parent_id,omitempty"`
+	Kind     *string `json:"kind,omitempty"`
+	Body     string  `json:"body" binding:"required"`
 } // @name server.createReplyRequest
 
 type ReplyJSON struct {
 	ID        int64     `json:"id" binding:"required"`
 	ArticleID int64     `json:"article_id" binding:"required"`
-	ParentID  *int64    `json:"parent_id"`
+	ParentID  *int64    `json:"parent_id,omitempty"`
 	Kind      string    `json:"kind" binding:"required" enums:"comment,question,answer"`
 	Body      string    `json:"body" binding:"required"`
 	UserID    int64     `json:"user_id" binding:"required"`
@@ -81,6 +83,7 @@ func (h *Handler) createReplyHandler(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, errInvalidBody),
+			errors.Is(err, errBodyTooLong),
 			errors.Is(err, errInvalidKind),
 			errors.Is(err, errInvalidParent),
 			errors.Is(err, errParentMismatch):
@@ -96,12 +99,13 @@ func (h *Handler) createReplyHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
+const maxBodyLength = 2000
+
 var (
 	errInvalidBody = errors.New("body is required")
+	errBodyTooLong = fmt.Errorf("body must be %d characters or less", maxBodyLength)
 	errInvalidKind = errors.New("kind must be 'comment'")
 )
-
-const maxBodyLength = 2000
 
 func (h *Handler) CreateReply(ctx context.Context, articleID, userID int64, req createReplyRequest) (ReplyJSON, error) {
 	if h == nil || h.repo == nil {
@@ -109,8 +113,11 @@ func (h *Handler) CreateReply(ctx context.Context, articleID, userID int64, req 
 	}
 
 	body := strings.TrimSpace(req.Body)
-	if body == "" || len(body) > maxBodyLength {
+	if body == "" {
 		return ReplyJSON{}, errInvalidBody
+	}
+	if utf8.RuneCountInString(body) > maxBodyLength {
+		return ReplyJSON{}, errBodyTooLong
 	}
 
 	// 今回スコープは comment のみ。kind 省略時は comment 扱い。
