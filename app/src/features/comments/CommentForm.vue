@@ -37,10 +37,10 @@ const submit = async () => {
   submitError.value = null
 
   try {
-    const { data } = await api.api.articleRepliesCreate(
+    const { data } = await api.api.articlesRepliesCreate(
       props.articleId,
       {
-        parent_id: props.parentId,
+        parent_id: props.parentId ?? undefined,
         kind: 'comment',
         body: body.value,
       },

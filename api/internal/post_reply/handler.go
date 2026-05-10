@@ -28,7 +28,7 @@ type ReplyJSON struct {
 	UserName  string    `json:"user_name" binding:"required"`
 	CreatedAt time.Time `json:"created_at" binding:"required"`
 	UpdatedAt time.Time `json:"updated_at" binding:"required"`
-} // @name server.replyResponse
+} // @name server.replyJSONResponse
 
 type ErrorResponse struct {
 	Message string `json:"message"`

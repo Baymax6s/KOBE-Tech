@@ -27,7 +27,7 @@ const error = ref<string | null>(null)
 const childrenByParent = computed(() => {
   const map = new Map<number, ServerReplyJSONResponse[]>()
   for (const c of comments.value) {
-    if (c.parent_id === null) continue
+    if (c.parent_id == null) continue
     const list = map.get(c.parent_id) ?? []
     list.push(c)
     map.set(c.parent_id, list)
@@ -43,7 +43,7 @@ const childrenByParent = computed(() => {
 
 const rootComments = computed(() =>
   comments.value
-    .filter((c) => c.parent_id === null)
+    .filter((c) => c.parent_id == null)
     .slice()
     .sort(
       (a, b) =>
@@ -57,7 +57,7 @@ const fetchComments = async (id: number) => {
   loading.value = true
   error.value = null
   try {
-    const { data } = await api.api.articleRepliesList(id, {
+    const { data } = await api.api.articlesRepliesList(id, {
       skipGlobalErrorHandler: true,
     })
     comments.value = (data.replies ?? []).filter(isCommentKind)

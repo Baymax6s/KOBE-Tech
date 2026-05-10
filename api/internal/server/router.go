@@ -8,6 +8,7 @@ import (
 	getarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_article"
 	me "github.com/Baymax6s/KOBE-Tech/api/internal/get_auth_me"
 	listarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
+	listreply "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_reply"
 	gettags "github.com/Baymax6s/KOBE-Tech/api/internal/get_tags"
 	postarticle "github.com/Baymax6s/KOBE-Tech/api/internal/post_article"
 	postlike "github.com/Baymax6s/KOBE-Tech/api/internal/post_like"
@@ -25,6 +26,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	loginHandler := login.NewHandler(login.NewRepository(db), issuer)
 	meHandler := me.NewHandler(me.NewRepository(db))
 	getTagsHandler := gettags.NewHandler(gettags.NewRepository(db))
+	listReplyHandler := listreply.NewHandler(listreply.NewRepository(db))
 
 	router := gin.Default()
 	router.Use(corsMiddleware())
@@ -37,6 +39,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	api := router.Group("/api")
 	listArticleHandler.RegisterRoutes(api)
 	getArticleHandler.RegisterRoutes(api)
+	listReplyHandler.RegisterRoutes(api)
 	loginHandler.RegisterRoutes(api)
 
 	authRequired := api.Group("", auth.RequireUser(validator))

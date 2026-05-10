@@ -76,6 +76,10 @@ export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
 }
 
+export interface ServerListRepliesResponse {
+  replies: ServerReplyJSONResponse[];
+}
+
 export interface ServerListTagsResponse {
   tags?: ServerTagJSONResponse[];
 }
@@ -108,7 +112,7 @@ export interface ServerReplyErrorResponse {
   message?: string;
 }
 
-export interface ServerReplyResponse {
+export interface ServerReplyJSONResponse {
   article_id: number;
   body: string;
   created_at: string;
@@ -389,6 +393,22 @@ export class Api<
       }),
 
     /**
+     * @description 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
+     *
+     * @tags replies
+     * @name ArticlesRepliesList
+     * @summary List replies of an article
+     * @request GET:/api/articles/{article_id}/replies
+     */
+    articlesRepliesList: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerListRepliesResponse, ServerReplyErrorResponse>({
+        path: `/api/articles/${articleId}/replies`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
      *
      * @tags replies
@@ -402,7 +422,7 @@ export class Api<
       request: ServerCreateReplyRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ServerReplyResponse, ServerReplyErrorResponse>({
+      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
         path: `/api/articles/${articleId}/replies`,
         method: "POST",
         body: request,
