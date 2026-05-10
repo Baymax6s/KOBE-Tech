@@ -51,6 +51,12 @@ export interface ServerCreateArticleResponse {
   user_id: number;
 }
 
+export interface ServerCreateReplyRequest {
+  body?: string;
+  kind?: string;
+  parent_id?: number;
+}
+
 export interface ServerGetArticleJSONResponse {
   author: ServerArticleAuthorJSONResponse;
   content: string;
@@ -98,31 +104,28 @@ export interface ServerMeResponse {
   updated_at?: string;
 }
 
-export type ServerReplyKind = "comment" | "question" | "answer";
+export interface ServerReplyErrorResponse {
+  message?: string;
+}
 
-export interface ServerReplyJSONResponse {
-  id: number;
+export interface ServerReplyResponse {
   article_id: number;
-  parent_id: number | null;
-  kind: ServerReplyKind;
   body: string;
+  created_at: string;
+  id: number;
+  kind: "comment" | "question" | "answer";
+  parent_id?: number;
+  updated_at: string;
   user_id: number;
   user_name: string;
-  created_at: string;
-  updated_at: string;
 }
 
-export interface ServerListRepliesResponse {
-  replies?: ServerReplyJSONResponse[];
+export interface ServerTagJSONResponse {
+  id: number;
+  name: string;
 }
 
-export interface ServerCreateReplyRequest {
-  parent_id?: number | null;
-  kind?: ServerReplyKind;
-  body?: string;
-}
-
-export interface ServerReplyErrorResponse {
+export interface ServerTagsErrorResponse {
   message?: string;
 }
 
@@ -369,36 +372,37 @@ export class Api<
       }),
 
     /**
-     * @description List replies (comments) for an article.
+     * @description Like an article API.
      *
-     * @tags replies
-     * @name ArticleRepliesList
-     * @summary List replies
-     * @request GET:/api/articles/{article_id}/replies
+     * @tags articles
+     * @name ArticlesLikeCreate
+     * @summary Like an article
+     * @request POST:/api/articles/{article_id}/like
+     * @secure
      */
-    articleRepliesList: (articleId: number, params: RequestParams = {}) =>
-      this.request<ServerListRepliesResponse, ServerReplyErrorResponse>({
-        path: `/api/articles/${articleId}/replies`,
-        method: "GET",
-        format: "json",
+    articlesLikeCreate: (articleId: number, params: RequestParams = {}) =>
+      this.request<void, ServerLikeErrorResponse>({
+        path: `/api/articles/${articleId}/like`,
+        method: "POST",
+        secure: true,
         ...params,
       }),
 
     /**
-     * @description Create a reply (comment) on an article.
+     * @description 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
      *
      * @tags replies
-     * @name ArticleRepliesCreate
-     * @summary Create reply
+     * @name ArticlesRepliesCreate
+     * @summary Create a reply (comment) on an article
      * @request POST:/api/articles/{article_id}/replies
      * @secure
      */
-    articleRepliesCreate: (
+    articlesRepliesCreate: (
       articleId: number,
       request: ServerCreateReplyRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
+      this.request<ServerReplyResponse, ServerReplyErrorResponse>({
         path: `/api/articles/${articleId}/replies`,
         method: "POST",
         body: request,

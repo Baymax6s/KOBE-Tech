@@ -95,6 +95,15 @@ definitions:
     - updated_at
     - user_id
     type: object
+  server.createReplyRequest:
+    properties:
+      body:
+        type: string
+      kind:
+        type: string
+      parent_id:
+        type: integer
+    type: object
   server.getArticleJSONResponse:
     properties:
       author:
@@ -176,6 +185,45 @@ definitions:
         type: string
       updated_at:
         type: string
+    type: object
+  server.replyErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.replyResponse:
+    properties:
+      article_id:
+        type: integer
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      kind:
+        enum:
+        - comment
+        - question
+        - answer
+        type: string
+      parent_id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      user_name:
+        type: string
+    required:
+    - article_id
+    - body
+    - created_at
+    - id
+    - kind
+    - updated_at
+    - user_id
+    - user_name
     type: object
   server.tagJSONResponse:
     properties:
@@ -321,6 +369,51 @@ paths:
       summary: Like an article
       tags:
       - articles
+  /api/articles/{article_id}/replies:
+    post:
+      consumes:
+      - application/json
+      description: 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
+      parameters:
+      - description: Article ID
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      - description: Create reply request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.createReplyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.replyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a reply (comment) on an article
+      tags:
+      - replies
   /api/auth/login:
     post:
       consumes:

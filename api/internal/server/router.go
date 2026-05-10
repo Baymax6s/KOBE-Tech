@@ -12,6 +12,7 @@ import (
 	postarticle "github.com/Baymax6s/KOBE-Tech/api/internal/post_article"
 	postlike "github.com/Baymax6s/KOBE-Tech/api/internal/post_like"
 	login "github.com/Baymax6s/KOBE-Tech/api/internal/post_login"
+	postreply "github.com/Baymax6s/KOBE-Tech/api/internal/post_reply"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +21,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	getArticleHandler := getarticle.NewHandler(getarticle.NewRepository(db))
 	postArticleHandler := postarticle.NewHandler(postarticle.NewRepository(db))
 	postLikeHandler := postlike.NewHandler(postlike.NewRepository(db))
+	postReplyHandler := postreply.NewHandler(postreply.NewRepository(db))
 	loginHandler := login.NewHandler(login.NewRepository(db), issuer)
 	meHandler := me.NewHandler(me.NewRepository(db))
 	getTagsHandler := gettags.NewHandler(gettags.NewRepository(db))
@@ -40,6 +42,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	authRequired := api.Group("", auth.RequireUser(validator))
 	postArticleHandler.RegisterRoutes(authRequired)
 	postLikeHandler.RegisterRoutes(authRequired)
+	postReplyHandler.RegisterRoutes(authRequired)
 	meHandler.RegisterRoutes(authRequired)
 	getTagsHandler.RegisterRoutes(authRequired)
 
