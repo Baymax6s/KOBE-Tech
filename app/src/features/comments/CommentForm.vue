@@ -24,9 +24,7 @@ const submitError = ref<string | null>(null)
 const canSubmit = computed(() => !submitting.value && !!body.value.trim())
 
 const placeholder = computed(() =>
-  props.parentId === null
-    ? 'コメントを書く'
-    : 'このコメントに返信する',
+  props.parentId === null ? 'コメントを書く' : 'このコメントに返信する',
 )
 
 const submit = async () => {

@@ -135,11 +135,7 @@ watch(
     <v-alert v-else-if="error" type="error" closable>
       {{ error }}
       <template #append>
-        <v-btn
-          variant="text"
-          size="small"
-          @click="fetchComments(articleId)"
-        >
+        <v-btn variant="text" size="small" @click="fetchComments(articleId)">
           再試行
         </v-btn>
       </template>

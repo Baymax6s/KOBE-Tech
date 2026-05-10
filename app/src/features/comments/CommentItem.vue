@@ -58,9 +58,9 @@ const formattedDate = useTimeAgo(() => props.comment.created_at, {
       </span>
     </div>
 
-    <div class="text-body-2 mb-2" style="white-space: pre-wrap">{{
-      comment.body
-    }}</div>
+    <div class="text-body-2 mb-2" style="white-space: pre-wrap">
+      {{ comment.body }}
+    </div>
 
     <div v-if="canReply" class="d-flex">
       <v-btn
