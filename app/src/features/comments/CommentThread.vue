@@ -13,6 +13,7 @@ defineOptions({
 const props = defineProps<{
   comment: ServerReplyJSONResponse
   childrenByParent: Map<number, ServerReplyJSONResponse[]>
+  descendantCountByParent: Map<number, number>
   depth: number
   articleId: number
 }>()
@@ -27,7 +28,12 @@ const children = computed<ServerReplyJSONResponse[]>(
   () => props.childrenByParent.get(props.comment.id) ?? [],
 )
 
-const expanded = ref(props.depth === 0)
+const descendantCount = computed(
+  () => props.descendantCountByParent.get(props.comment.id) ?? 0,
+)
+
+// depth 0 のみ初期折りたたみ。クリックで自分以下のサブツリーをまとめて開く。
+const expanded = ref(props.depth >= 1)
 const showReplyForm = ref(false)
 
 const toggleReplyForm = () => {
@@ -66,6 +72,7 @@ const handleSubmitted = (newComment: ServerReplyJSONResponse) => {
           :key="child.id"
           :comment="child"
           :children-by-parent="childrenByParent"
+          :descendant-count-by-parent="descendantCountByParent"
           :depth="depth + 1"
           :article-id="articleId"
           @submitted="(c) => emit('submitted', c)"
@@ -79,7 +86,7 @@ const handleSubmitted = (newComment: ServerReplyJSONResponse) => {
         prepend-icon="mdi-chevron-down"
         @click="expanded = true"
       >
-        返信 {{ children.length }} 件を表示
+        返信 {{ descendantCount }} 件を表示
       </v-btn>
     </div>
   </div>

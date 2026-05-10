@@ -41,6 +41,23 @@ const childrenByParent = computed(() => {
   return map
 })
 
+// 各コメントの「自分以下にぶら下がる返信の総数」をメモ化付き DFS で一括計算する。
+// 「返信 N 件を表示」ボタンは展開時にサブツリー全体を開く挙動なので、N もサブツリー全体の件数に揃える。
+const descendantCountByParent = computed(() => {
+  const counts = new Map<number, number>()
+  const compute = (id: number): number => {
+    const cached = counts.get(id)
+    if (cached !== undefined) return cached
+    const kids = childrenByParent.value.get(id) ?? []
+    let total = 0
+    for (const k of kids) total += 1 + compute(k.id)
+    counts.set(id, total)
+    return total
+  }
+  for (const c of comments.value) compute(c.id)
+  return counts
+})
+
 const rootComments = computed(() =>
   comments.value
     .filter((c) => c.parent_id == null)
@@ -141,6 +158,7 @@ watch(
         :key="comment.id"
         :comment="comment"
         :children-by-parent="childrenByParent"
+        :descendant-count-by-parent="descendantCountByParent"
         :depth="0"
         :article-id="articleId"
         @submitted="handleSubmitted"
