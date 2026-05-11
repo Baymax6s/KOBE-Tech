@@ -1,0 +1,30 @@
+INSERT INTO tags (name, created_at, updated_at)
+VALUES
+    ('ハッカソン', '2026-04-01 09:00:00+09'::timestamptz, '2026-04-01 09:00:00+09'::timestamptz),
+    ('Go',         '2026-04-10 12:30:00+09'::timestamptz, '2026-04-10 12:30:00+09'::timestamptz),
+    ('API',        '2026-04-10 12:30:00+09'::timestamptz, '2026-04-10 12:30:00+09'::timestamptz),
+    ('Vue',        '2026-04-15 15:00:00+09'::timestamptz, '2026-04-15 15:00:00+09'::timestamptz),
+    ('フロントエンド', '2026-04-15 15:00:00+09'::timestamptz, '2026-04-15 15:00:00+09'::timestamptz),
+    ('PostgreSQL', '2026-04-18 10:00:00+09'::timestamptz, '2026-04-18 10:00:00+09'::timestamptz),
+    ('マイグレーション', '2026-04-18 10:00:00+09'::timestamptz, '2026-04-18 10:00:00+09'::timestamptz),
+    ('Docker',     '2026-04-20 11:00:00+09'::timestamptz, '2026-04-20 11:00:00+09'::timestamptz),
+    ('開発環境',   '2026-04-20 11:00:00+09'::timestamptz, '2026-04-20 11:00:00+09'::timestamptz)
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO article_tags (article_id, tag_id, created_at)
+SELECT a.id, t.id, v.created_at
+FROM (VALUES
+    ('神戸大学でのハッカソン体験記',           'ハッカソン',       '2026-04-01 09:00:00+09'::timestamptz),
+    ('神戸大学でのハッカソン体験記',           '開発環境',         '2026-04-01 09:00:00+09'::timestamptz),
+    ('Goで作るREST API入門',                   'Go',               '2026-04-10 12:30:00+09'::timestamptz),
+    ('Goで作るREST API入門',                   'API',              '2026-04-10 12:30:00+09'::timestamptz),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'Vue',              '2026-04-15 15:00:00+09'::timestamptz),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'フロントエンド',   '2026-04-15 15:00:00+09'::timestamptz),
+    ('PostgreSQLのマイグレーション管理',         'PostgreSQL',       '2026-04-18 10:00:00+09'::timestamptz),
+    ('PostgreSQLのマイグレーション管理',         'マイグレーション', '2026-04-18 10:00:00+09'::timestamptz),
+    ('Dockerで開発環境を統一する',              'Docker',           '2026-04-20 11:00:00+09'::timestamptz),
+    ('Dockerで開発環境を統一する',              '開発環境',         '2026-04-20 11:00:00+09'::timestamptz)
+) AS v(article_title, tag_name, created_at)
+JOIN articles a ON a.title = v.article_title
+JOIN tags t ON t.name = v.tag_name
+ON CONFLICT (article_id, tag_id) DO NOTHING;
