@@ -1,6 +1,6 @@
-name: "🧠 Improvement"
+name: "開発経験の向上"
 description: "開発体験・リファクタ・Swagger改善など"
-title: "[IMPROVEMENT] "
+title: "【開発経験の向上】"
 
 labels: []
 
@@ -9,6 +9,7 @@ body:
     id: problem
     attributes:
       label: "課題"
+      description: "筆記必須。現在の課題や問題点をできるだけ詳しく書く"
       placeholder: "例：API仕様が分かりにくい"
     validations:
       required: true
@@ -16,4 +17,8 @@ body:
   - type: textarea
     id: proposal
     attributes:
+      description: "改善案。課題に対する改善案やアイデアを記載する"
       label: "改善案"
+      placeholder: "例：API仕様をSwaggerで管理する"
+    validations:
+      required: true
