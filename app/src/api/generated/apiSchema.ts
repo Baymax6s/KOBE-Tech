@@ -10,26 +10,78 @@
  * ---------------------------------------------------------------
  */
 
+export interface ServerArticleAuthorJSONResponse {
+  id: number;
+  name: string;
+}
+
 export interface ServerArticleErrorResponse {
   message?: string;
 }
 
 export interface ServerArticleJSONResponse {
-  content?: string;
-  created_at?: string;
-  id?: number;
-  title?: string;
-  updated_at?: string;
-  user_id?: number;
+  content: string;
+  created_at: string;
+  id: number;
+  likes_count: number;
+  tags: ServerArticleTagJSONResponse[];
+  title: string;
+  updated_at: string;
+  user_id: number;
+}
+
+export interface ServerArticleTagJSONResponse {
+  id: number;
+  name: string;
 }
 
 export interface ServerCreateArticleRequest {
   content?: string;
+  tags?: string[];
   title?: string;
+}
+
+export interface ServerCreateArticleResponse {
+  content: string;
+  created_at: string;
+  id: number;
+  tags: ServerArticleTagJSONResponse[];
+  title: string;
+  updated_at: string;
+  user_id: number;
+}
+
+export interface ServerCreateReplyRequest {
+  body: string;
+  kind?: string;
+  parent_id?: number;
+}
+
+export interface ServerGetArticleJSONResponse {
+  author: ServerArticleAuthorJSONResponse;
+  content: string;
+  created_at: string;
+  id: number;
+  likes_count: number;
+  tags: ServerArticleTagJSONResponse[];
+  title: string;
+  updated_at: string;
+}
+
+export interface ServerLikeErrorResponse {
+  message?: string;
 }
 
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
+}
+
+export interface ServerListRepliesResponse {
+  replies: ServerReplyJSONResponse[];
+}
+
+export interface ServerListTagsResponse {
+  tags?: ServerTagJSONResponse[];
 }
 
 export interface ServerLoginErrorResponse {
@@ -54,6 +106,31 @@ export interface ServerMeResponse {
   id?: number;
   name?: string;
   updated_at?: string;
+}
+
+export interface ServerReplyErrorResponse {
+  message?: string;
+}
+
+export interface ServerReplyJSONResponse {
+  article_id: number;
+  body: string;
+  created_at: string;
+  id: number;
+  kind: "comment" | "question" | "answer";
+  parent_id?: number;
+  updated_at: string;
+  user_id: number;
+  user_name: string;
+}
+
+export interface ServerTagJSONResponse {
+  id: number;
+  name: string;
+}
+
+export interface ServerTagsErrorResponse {
+  message?: string;
 }
 
 import type {
@@ -266,15 +343,90 @@ export class Api<
      * @name ArticlesCreate
      * @summary Create article
      * @request POST:/api/articles
+     * @secure
      */
     articlesCreate: (
       request: ServerCreateArticleRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ServerArticleJSONResponse, ServerArticleErrorResponse>({
+      this.request<ServerCreateArticleResponse, ServerArticleErrorResponse>({
         path: `/api/articles`,
         method: "POST",
         body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get article detail API.
+     *
+     * @tags articles
+     * @name ArticlesDetail
+     * @summary Get article
+     * @request GET:/api/articles/{article_id}
+     */
+    articlesDetail: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerGetArticleJSONResponse, ServerArticleErrorResponse>({
+        path: `/api/articles/${articleId}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Like an article API.
+     *
+     * @tags articles
+     * @name ArticlesLikeCreate
+     * @summary Like an article
+     * @request POST:/api/articles/{article_id}/like
+     * @secure
+     */
+    articlesLikeCreate: (articleId: number, params: RequestParams = {}) =>
+      this.request<void, ServerLikeErrorResponse>({
+        path: `/api/articles/${articleId}/like`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
+     *
+     * @tags replies
+     * @name ArticlesRepliesList
+     * @summary List replies of an article
+     * @request GET:/api/articles/{article_id}/replies
+     */
+    articlesRepliesList: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerListRepliesResponse, ServerReplyErrorResponse>({
+        path: `/api/articles/${articleId}/replies`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
+     *
+     * @tags replies
+     * @name ArticlesRepliesCreate
+     * @summary Create a reply (comment) on an article
+     * @request POST:/api/articles/{article_id}/replies
+     * @secure
+     */
+    articlesRepliesCreate: (
+      articleId: number,
+      request: ServerCreateReplyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
+        path: `/api/articles/${articleId}/replies`,
+        method: "POST",
+        body: request,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -308,11 +460,31 @@ export class Api<
      * @name AuthMeList
      * @summary Get current user
      * @request GET:/api/auth/me
+     * @secure
      */
     authMeList: (params: RequestParams = {}) =>
       this.request<ServerMeResponse, ServerMeErrorResponse>({
         path: `/api/auth/me`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get tag candidates for creating articles.
+     *
+     * @tags tags
+     * @name TagsList
+     * @summary List tags
+     * @request GET:/api/tags
+     * @secure
+     */
+    tagsList: (params: RequestParams = {}) =>
+      this.request<ServerListTagsResponse, ServerTagsErrorResponse>({
+        path: `/api/tags`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),

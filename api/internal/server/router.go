@@ -5,18 +5,28 @@ import (
 	"net/http"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	getarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_article"
 	me "github.com/Baymax6s/KOBE-Tech/api/internal/get_auth_me"
 	listarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
+	listreply "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_reply"
+	gettags "github.com/Baymax6s/KOBE-Tech/api/internal/get_tags"
 	postarticle "github.com/Baymax6s/KOBE-Tech/api/internal/post_article"
+	postlike "github.com/Baymax6s/KOBE-Tech/api/internal/post_like"
 	login "github.com/Baymax6s/KOBE-Tech/api/internal/post_login"
+	postreply "github.com/Baymax6s/KOBE-Tech/api/internal/post_reply"
 	"github.com/gin-gonic/gin"
 )
 
 func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http.Handler {
 	listArticleHandler := listarticle.NewHandler(listarticle.NewRepository(db))
+	getArticleHandler := getarticle.NewHandler(getarticle.NewRepository(db))
 	postArticleHandler := postarticle.NewHandler(postarticle.NewRepository(db))
+	postLikeHandler := postlike.NewHandler(postlike.NewRepository(db))
+	postReplyHandler := postreply.NewHandler(postreply.NewRepository(db))
 	loginHandler := login.NewHandler(login.NewRepository(db), issuer)
 	meHandler := me.NewHandler(me.NewRepository(db))
+	getTagsHandler := gettags.NewHandler(gettags.NewRepository(db))
+	listReplyHandler := listreply.NewHandler(listreply.NewRepository(db))
 
 	router := gin.Default()
 	router.Use(corsMiddleware())
@@ -28,11 +38,16 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 
 	api := router.Group("/api")
 	listArticleHandler.RegisterRoutes(api)
+	getArticleHandler.RegisterRoutes(api)
+	listReplyHandler.RegisterRoutes(api)
 	loginHandler.RegisterRoutes(api)
 
 	authRequired := api.Group("", auth.RequireUser(validator))
 	postArticleHandler.RegisterRoutes(authRequired)
+	postLikeHandler.RegisterRoutes(authRequired)
+	postReplyHandler.RegisterRoutes(authRequired)
 	meHandler.RegisterRoutes(authRequired)
+	getTagsHandler.RegisterRoutes(authRequired)
 
 	return router
 }

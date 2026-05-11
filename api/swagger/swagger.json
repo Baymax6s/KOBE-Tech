@@ -69,7 +69,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/server.articleJSONResponse"
+                            "$ref": "#/definitions/server.createArticleResponse"
                         }
                     },
                     "400": {
@@ -88,6 +88,223 @@
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/server.articleErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/articles/{article_id}": {
+            "get": {
+                "description": "Get article detail API.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get article",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Article ID",
+                        "name": "article_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.getArticleJSONResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.articleErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.articleErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.articleErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/articles/{article_id}/like": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Like an article API.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Like an article",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Article ID",
+                        "name": "article_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/articles/{article_id}/replies": {
+            "get": {
+                "description": "記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "summary": "List replies of an article",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Article ID",
+                        "name": "article_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.listRepliesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "summary": "Create a reply (comment) on an article",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Article ID",
+                        "name": "article_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Create reply request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.createReplyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyJSONResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
                         }
                     }
                 }
@@ -181,9 +398,61 @@
                     }
                 }
             }
+        },
+        "/api/tags": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get tag candidates for creating articles.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tags"
+                ],
+                "summary": "List tags",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.listTagsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.tagsErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.tagsErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "server.articleAuthorJSONResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "server.articleErrorResponse": {
             "type": "object",
             "properties": {
@@ -194,6 +463,16 @@
         },
         "server.articleJSONResponse": {
             "type": "object",
+            "required": [
+                "content",
+                "created_at",
+                "id",
+                "likes_count",
+                "tags",
+                "title",
+                "updated_at",
+                "user_id"
+            ],
             "properties": {
                 "content": {
                     "type": "string"
@@ -203,6 +482,15 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "likes_count": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.articleTagJSONResponse"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -215,13 +503,141 @@
                 }
             }
         },
+        "server.articleTagJSONResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "server.createArticleRequest": {
             "type": "object",
             "properties": {
                 "content": {
                     "type": "string"
                 },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "maxLength": 10,
+                        "minLength": 1
+                    }
+                },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.createArticleResponse": {
+            "type": "object",
+            "required": [
+                "content",
+                "created_at",
+                "id",
+                "tags",
+                "title",
+                "updated_at",
+                "user_id"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.articleTagJSONResponse"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.createReplyRequest": {
+            "type": "object",
+            "required": [
+                "body"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.getArticleJSONResponse": {
+            "type": "object",
+            "required": [
+                "author",
+                "content",
+                "created_at",
+                "id",
+                "likes_count",
+                "tags",
+                "title",
+                "updated_at"
+            ],
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/server.articleAuthorJSONResponse"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "likes_count": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.articleTagJSONResponse"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.likeErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
@@ -233,6 +649,31 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/server.articleJSONResponse"
+                    }
+                }
+            }
+        },
+        "server.listRepliesResponse": {
+            "type": "object",
+            "required": [
+                "replies"
+            ],
+            "properties": {
+                "replies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.replyJSONResponse"
+                    }
+                }
+            }
+        },
+        "server.listTagsResponse": {
+            "type": "object",
+            "properties": {
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.tagJSONResponse"
                     }
                 }
             }
@@ -285,6 +726,84 @@
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.replyErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.replyJSONResponse": {
+            "type": "object",
+            "required": [
+                "article_id",
+                "body",
+                "created_at",
+                "id",
+                "kind",
+                "updated_at",
+                "user_id",
+                "user_name"
+            ],
+            "properties": {
+                "article_id": {
+                    "type": "integer"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "comment",
+                        "question",
+                        "answer"
+                    ]
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.tagJSONResponse": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.tagsErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

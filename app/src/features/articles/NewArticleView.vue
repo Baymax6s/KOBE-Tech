@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
@@ -17,6 +17,7 @@ const formRef = ref<ArticleFormRef | null>(null)
 
 const form = reactive({
   title: '',
+  tags: [] as string[],
   body: '',
 })
 
@@ -25,6 +26,7 @@ const notificationStore = useArticleNotificationStore()
 
 const submitting = ref(false)
 const submitError = ref<string | null>(null)
+const tagCandidates = ref<string[]>([])
 
 const canSubmit = computed(
   () => !submitting.value && !!form.title.trim() && !!form.body.trim(),
@@ -33,6 +35,7 @@ const canSubmit = computed(
 const submit = async () => {
   if (submitting.value) return
   if (!formRef.value) return
+
   const { valid } = await formRef.value.validate()
   if (!valid) return
 
@@ -40,8 +43,14 @@ const submit = async () => {
   submitError.value = null
 
   try {
-    await api.api.articlesCreate({ title: form.title, content: form.body })
+    await api.api.articlesCreate({
+      title: form.title,
+      content: form.body,
+      tags: form.tags,
+    })
+
     notificationStore.markCreated()
+
     await router.push('/articles')
   } catch {
     submitError.value = '投稿に失敗しました。もう一度お試しください。'
@@ -49,6 +58,15 @@ const submit = async () => {
     submitting.value = false
   }
 }
+
+onMounted(async () => {
+  try {
+    const response = await api.api.tagsList()
+    tagCandidates.value = response.data.tags?.map((tag) => tag.name) ?? []
+  } catch {
+    tagCandidates.value = []
+  }
+})
 </script>
 
 <template>
@@ -76,6 +94,7 @@ const submit = async () => {
               class="d-flex flex-column ga-6"
               @submit.prevent="submit"
             >
+              <!-- タイトル -->
               <v-text-field
                 v-model="form.title"
                 label="タイトル"
@@ -89,6 +108,23 @@ const submit = async () => {
                 validate-on="input"
               />
 
+              <!-- タグ -->
+              <v-combobox
+                v-model="form.tags"
+                label="タグ"
+                placeholder="タグを入力してEnter"
+                variant="outlined"
+                density="comfortable"
+                :items="tagCandidates"
+                multiple
+                chips
+                closable-chips
+                clearable
+                hint="Enterキーでタグを追加"
+                persistent-hint
+              />
+
+              <!-- 本文 -->
               <v-textarea
                 v-model="form.body"
                 label="本文"
@@ -102,6 +138,7 @@ const submit = async () => {
                 validate-on="input"
               />
 
+              <!-- 投稿ボタン -->
               <div class="mt-4">
                 <v-btn
                   type="submit"

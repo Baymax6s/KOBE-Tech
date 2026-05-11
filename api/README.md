@@ -15,18 +15,17 @@ swag --version
 ## getting started
 
 ```bash
-cp .env.example .env
-docker compose up -d
-air
+make setup
+make dev
 ```
 
-`docker compose up -d` で PostgreSQL 起動・マイグレーション・seed データ投入がまとめて実行されます。
+`make setup` で `.env` がなければ `.env.example` から作成します。
+`make dev` で PostgreSQL 起動・マイグレーション・seed データ投入を実行し、`air` で API を起動します。
 
 ## 起動
 
 ```sh
-docker compose up -d
-air
+make dev
 ```
 
 ## DB確認
@@ -54,27 +53,32 @@ air
 Swagger を生成する:
 
 ```bash
-swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
-mv ./swagger/swagger.yaml ./swagger/openapi.yml
+make swagger
 ```
 
 DB・マイグレーションを起動 / 停止する:
 
 ```bash
-docker compose up -d
-docker compose down
+make db-up
+make db-down
+```
+
+テストを実行する:
+
+```bash
+make test
 ```
 
 マイグレーションを手動で巻き戻す:
 
 ```bash
-docker compose run --rm migrate down 1
+make migrate-down
 ```
 
 マイグレーションファイルを作成する:
 
 ```bash
-docker compose run --rm migrate create -ext sql -dir /migrations <ファイル名のサフィックス(create_usersなど)>
+make migrate-create NAME=create_users
 ```
 
 ### seed_users_データ
