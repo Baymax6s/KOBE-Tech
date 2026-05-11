@@ -1,0 +1,19 @@
+name: "⚙ Backend"
+description: "API・DB・認証などサーバー側の変更"
+title: "[BACKEND] "
+
+labels: []
+
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: "やること"
+      placeholder: "例：メッセージ保存APIを作成する"
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: "詳細"

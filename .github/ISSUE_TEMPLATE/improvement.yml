@@ -1,0 +1,19 @@
+name: "🧠 Improvement"
+description: "開発体験・リファクタ・Swagger改善など"
+title: "[IMPROVEMENT] "
+
+labels: []
+
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: "課題"
+      placeholder: "例：API仕様が分かりにくい"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "改善案"
