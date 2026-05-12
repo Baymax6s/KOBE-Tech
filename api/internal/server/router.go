@@ -11,6 +11,8 @@ import (
 	authrepository "github.com/Baymax6s/KOBE-Tech/api/internal/auth/repository"
 	likehandler "github.com/Baymax6s/KOBE-Tech/api/internal/like/handler"
 	likerepository "github.com/Baymax6s/KOBE-Tech/api/internal/like/repository"
+	profilehandler "github.com/Baymax6s/KOBE-Tech/api/internal/profile/handler"
+	profilerepository "github.com/Baymax6s/KOBE-Tech/api/internal/profile/repository"
 	replyhandler "github.com/Baymax6s/KOBE-Tech/api/internal/reply/handler"
 	replyrepository "github.com/Baymax6s/KOBE-Tech/api/internal/reply/repository"
 	"github.com/gin-gonic/gin"
@@ -21,6 +23,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	authHandler := authhandler.NewHandler(authrepository.NewRepository(db), issuer)
 	likeHandler := likehandler.NewHandler(likerepository.NewRepository(db))
 	replyHandler := replyhandler.NewHandler(replyrepository.NewRepository(db))
+	profileHandler := profilehandler.NewHandler(profilerepository.NewRepository(db))
 
 	router := gin.Default()
 	router.Use(corsMiddleware())
@@ -37,6 +40,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	authHandler.RegisterRoutes(api, authRequired)
 	likeHandler.RegisterRoutes(authRequired)
 	replyHandler.RegisterRoutes(api, authRequired)
+	profileHandler.RegisterRoutes(api, authRequired)
 
 	return router
 }

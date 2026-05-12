@@ -1,5 +1,41 @@
 basePath: /
 definitions:
+  internal_profile_handler.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  internal_profile_handler.ProfileJSON:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  profile_handler.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  profile_handler.ProfileJSON:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   server.articleAuthorJSONResponse:
     properties:
       id:
@@ -571,6 +607,29 @@ paths:
       summary: Get current user
       tags:
       - auth
+  /api/profile:
+    get:
+      description: ログインユーザーのプロフィール取得
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile_handler.ProfileJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/profile_handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/profile_handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get profile
+      tags:
+      - profile
   /api/auth/password:
     put:
       consumes:
