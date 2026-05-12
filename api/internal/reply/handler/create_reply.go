@@ -15,6 +15,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type createReplyRequest struct {
+	ParentID *int64  `json:"parent_id,omitempty"`
+	Kind     *string `json:"kind,omitempty"`
+	Body     string  `json:"body" binding:"required"`
+} // @name server.createReplyRequest
+
 // createReplyHandler godoc
 //
 //	@Summary		Create a reply (comment) on an article

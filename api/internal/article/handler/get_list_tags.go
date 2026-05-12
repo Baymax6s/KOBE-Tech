@@ -6,8 +6,22 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
 	"github.com/gin-gonic/gin"
 )
+
+type TagsErrorResponse struct {
+	Message string `json:"message"`
+} // @name server.tagsErrorResponse
+
+type TagJSON struct {
+	ID   int64  `json:"id" binding:"required"`
+	Name string `json:"name" binding:"required"`
+} // @name server.tagJSONResponse
+
+type ListTagsJSONResponse struct {
+	Tags []TagJSON `json:"tags"`
+} // @name server.listTagsResponse
 
 // listTagsHandler godoc
 //
@@ -44,4 +58,19 @@ func (h *Handler) ListTags(ctx context.Context) (ListTagsJSONResponse, error) {
 	}
 
 	return newListTagsJSONResponse(tags), nil
+}
+
+func newListTagsJSONResponse(tags []article.Tag) ListTagsJSONResponse {
+	response := ListTagsJSONResponse{
+		Tags: make([]TagJSON, 0, len(tags)),
+	}
+
+	for _, tag := range tags {
+		response.Tags = append(response.Tags, TagJSON{
+			ID:   tag.ID,
+			Name: tag.Name,
+		})
+	}
+
+	return response
 }
