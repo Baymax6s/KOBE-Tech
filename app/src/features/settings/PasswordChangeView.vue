@@ -37,6 +37,7 @@
                 required
                 class="mb-4"
                 :disabled="submitting"
+                autocomplete="current-password"
               />
 
               <v-text-field
@@ -47,6 +48,8 @@
                 required
                 class="mb-4"
                 :disabled="submitting"
+                :rules="newPasswordRules"
+                autocomplete="new-password"
               />
 
               <v-btn
@@ -54,7 +57,12 @@
                 color="primary"
                 block
                 :loading="submitting"
-                :disabled="!currentPassword || !newPassword || submitting"
+                :disabled="
+                  !currentPassword ||
+                  !newPassword ||
+                  newPassword.length < 8 ||
+                  submitting
+                "
               >
                 変更する
               </v-btn>
@@ -74,19 +82,39 @@ import { api } from '@/api/client'
 const currentPassword = ref('')
 const newPassword = ref('')
 const submitting = ref(false)
+const newPasswordRules = [
+  (v: string) => !!v || '新しいパスワードは必須です',
+  (v: string) => (v && v.length >= 8) || '8文字以上で入力してください',
+]
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 
 const onSubmit = async () => {
   if (submitting.value) return
-  submitting.value = true
   errorMessage.value = null
   successMessage.value = null
+
+  if (!currentPassword.value || !newPassword.value) {
+    errorMessage.value = '現在のパスワードと新しいパスワードを入力してください'
+    return
+  }
+  if (newPassword.value.length < 8) {
+    errorMessage.value = '新しいパスワードは8文字以上で入力してください'
+    return
+  }
+
+  submitting.value = true
   try {
-    await api.instance.put('/api/auth/password', {
-      current_password: currentPassword.value,
-      new_password: newPassword.value,
-    })
+    await api.instance.put(
+      '/api/auth/password',
+      {
+        current_password: currentPassword.value,
+        new_password: newPassword.value,
+      },
+      {
+        skipGlobalErrorHandler: true,
+      },
+    )
     successMessage.value = 'パスワードを変更しました'
     currentPassword.value = ''
     newPassword.value = ''

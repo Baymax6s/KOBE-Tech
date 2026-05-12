@@ -2,7 +2,12 @@
   <v-app-bar app color="primary" dark>
     <v-img src="/kdtech-icon.png" alt="Logo" max-width="200" class="mr-4" />
     <v-spacer></v-spacer>
-    <v-btn v-if="auth.isAuthenticated" icon="mdi-cog" @click="goToSettings" />
+    <v-btn
+      v-if="auth.isAuthenticated"
+      icon="mdi-cog"
+      aria-label="設定"
+      @click="goToSettings"
+    />
     <v-btn v-if="auth.isAuthenticated" @click="logout" color="white">
       ログアウト
     </v-btn>
