@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"strings"
 	"time"
-	"unicode/utf8"
 
+	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/gin-gonic/gin"
 )
@@ -54,7 +53,7 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 	response, err := h.CreateArticle(c.Request.Context(), userID, req.Title, req.Content, req.TagNames)
 	if err != nil {
 		switch {
-		case errors.Is(err, errInvalidRequest), errors.Is(err, errInvalidTagName):
+		case errors.Is(err, article.ErrInvalidArticle), errors.Is(err, article.ErrInvalidTagName):
 			c.JSON(http.StatusBadRequest, ArticleErrorResponse{Message: err.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, ArticleErrorResponse{Message: "failed to create article"})
@@ -65,23 +64,12 @@ func (h *Handler) createArticleHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-var errInvalidRequest = errors.New("title and content are required")
-var errInvalidTagName = errors.New("tags must contain tag names between 1 and 10 characters")
-
-const maxTagNameLength = 10
-
 func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, content string, tagNames []string) (CreateArticleJSONResponse, error) {
 	if h == nil || h.repo == nil {
 		return CreateArticleJSONResponse{}, errors.New("post article handler is not configured")
 	}
 
-	title = strings.TrimSpace(title)
-	content = strings.TrimSpace(content)
-	if title == "" || content == "" {
-		return CreateArticleJSONResponse{}, errInvalidRequest
-	}
-
-	normalizedTagNames, err := normalizeTagNames(tagNames)
+	title, content, normalizedTagNames, err := article.NormalizeCreateInput(title, content, tagNames)
 	if err != nil {
 		return CreateArticleJSONResponse{}, err
 	}
@@ -100,27 +88,4 @@ func (h *Handler) CreateArticle(ctx context.Context, userID int64, title, conten
 		CreatedAt: item.CreatedAt,
 		UpdatedAt: item.UpdatedAt,
 	}, nil
-}
-
-func normalizeTagNames(tagNames []string) ([]string, error) {
-	normalizedTagNames := make([]string, 0, len(tagNames))
-	seen := make(map[string]struct{}, len(tagNames))
-
-	for _, tagName := range tagNames {
-		normalizedTagName := strings.ToLower(strings.TrimSpace(tagName))
-		if normalizedTagName == "" {
-			return nil, errInvalidTagName
-		}
-		if utf8.RuneCountInString(normalizedTagName) > maxTagNameLength {
-			return nil, errInvalidTagName
-		}
-		if _, ok := seen[normalizedTagName]; ok {
-			continue
-		}
-
-		seen[normalizedTagName] = struct{}{}
-		normalizedTagNames = append(normalizedTagNames, normalizedTagName)
-	}
-
-	return normalizedTagNames, nil
 }

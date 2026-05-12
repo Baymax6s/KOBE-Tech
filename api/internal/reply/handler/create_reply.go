@@ -3,11 +3,8 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/reply"
@@ -55,9 +52,9 @@ func (h *Handler) createReplyHandler(c *gin.Context) {
 	response, err := h.CreateReply(c.Request.Context(), articleID, userID, req)
 	if err != nil {
 		switch {
-		case errors.Is(err, errInvalidBody),
-			errors.Is(err, errBodyTooLong),
-			errors.Is(err, errInvalidKind),
+		case errors.Is(err, reply.ErrInvalidBody),
+			errors.Is(err, reply.ErrBodyTooLong),
+			errors.Is(err, reply.ErrInvalidKind),
 			errors.Is(err, repository.ErrInvalidParent),
 			errors.Is(err, repository.ErrParentMismatch):
 			c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
@@ -72,37 +69,15 @@ func (h *Handler) createReplyHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-const maxBodyLength = 2000
-
-var (
-	errInvalidBody = errors.New("body is required")
-	errBodyTooLong = fmt.Errorf("body must be %d characters or less", maxBodyLength)
-	errInvalidKind = errors.New("kind must be 'comment'")
-)
-
 func (h *Handler) CreateReply(ctx context.Context, articleID, userID int64, req createReplyRequest) (ReplyJSON, error) {
 	if h == nil || h.repo == nil {
 		return ReplyJSON{}, errors.New("reply handler is not configured")
 	}
 
-	body := strings.TrimSpace(req.Body)
-	if body == "" {
-		return ReplyJSON{}, errInvalidBody
+	body, kind, err := reply.NormalizeCreateInput(req.Body, req.Kind)
+	if err != nil {
+		return ReplyJSON{}, err
 	}
-	if utf8.RuneCountInString(body) > maxBodyLength {
-		return ReplyJSON{}, errBodyTooLong
-	}
-
-	// 今回スコープは comment のみ。kind 省略時は comment 扱い。
-	kind := reply.KindComment
-	if req.Kind != nil {
-		parsed, ok := reply.ParseKind(*req.Kind)
-		if !ok || parsed != reply.KindComment {
-			return ReplyJSON{}, errInvalidKind
-		}
-		kind = parsed
-	}
-
 	item, err := h.repo.Create(ctx, articleID, userID, req.ParentID, kind, body)
 	if err != nil {
 		return ReplyJSON{}, err

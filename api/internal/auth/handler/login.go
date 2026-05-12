@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/gin-gonic/gin"
@@ -47,7 +46,7 @@ func (h *Handler) loginHandler(c *gin.Context) {
 	token, err := h.Login(c.Request.Context(), req.Name, req.Password)
 	if err != nil {
 		switch {
-		case errors.Is(err, errInvalidRequest):
+		case errors.Is(err, auth.ErrInvalidLoginRequest):
 			c.JSON(http.StatusBadRequest, LoginErrorResponse{Message: err.Error()})
 		case errors.Is(err, errInvalidCredentials):
 			c.JSON(http.StatusUnauthorized, LoginErrorResponse{Message: err.Error()})
@@ -60,19 +59,16 @@ func (h *Handler) loginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, LoginResponse{Token: token})
 }
 
-var (
-	errInvalidRequest     = errors.New("name and password are required")
-	errInvalidCredentials = errors.New("invalid name or password")
-)
+var errInvalidCredentials = errors.New("invalid name or password")
 
 func (h *Handler) Login(ctx context.Context, name, password string) (string, error) {
 	if h == nil || h.repo == nil || h.issuer == nil {
 		return "", errors.New("auth handler is not configured")
 	}
 
-	name = strings.TrimSpace(name)
-	if name == "" || password == "" {
-		return "", errInvalidRequest
+	name, err := auth.NormalizeLoginInput(name, password)
+	if err != nil {
+		return "", err
 	}
 
 	user, err := h.repo.FindByName(ctx, name)

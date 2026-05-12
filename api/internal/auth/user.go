@@ -1,6 +1,12 @@
 package auth
 
-import "time"
+import (
+	"errors"
+	"strings"
+	"time"
+)
+
+var ErrInvalidLoginRequest = errors.New("name and password are required")
 
 type User struct {
 	ID           int64
@@ -8,4 +14,13 @@ type User struct {
 	PasswordHash string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+}
+
+func NormalizeLoginInput(name, password string) (string, error) {
+	name = strings.TrimSpace(name)
+	if name == "" || password == "" {
+		return "", ErrInvalidLoginRequest
+	}
+
+	return name, nil
 }

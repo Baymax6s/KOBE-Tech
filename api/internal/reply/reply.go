@@ -1,6 +1,20 @@
 package reply
 
-import "time"
+import (
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+	"unicode/utf8"
+)
+
+const maxBodyLength = 2000
+
+var (
+	ErrInvalidBody = errors.New("body is required")
+	ErrBodyTooLong = fmt.Errorf("body must be %d characters or less", maxBodyLength)
+	ErrInvalidKind = errors.New("kind must be 'comment'")
+)
 
 type Kind int16
 
@@ -46,4 +60,26 @@ type Reply struct {
 	UserName  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+func NormalizeCreateInput(body string, kindValue *string) (string, Kind, error) {
+	body = strings.TrimSpace(body)
+	if body == "" {
+		return "", 0, ErrInvalidBody
+	}
+	if utf8.RuneCountInString(body) > maxBodyLength {
+		return "", 0, ErrBodyTooLong
+	}
+
+	// 今回スコープは comment のみ。kind 省略時は comment 扱い。
+	kind := KindComment
+	if kindValue != nil {
+		parsed, ok := ParseKind(*kindValue)
+		if !ok || parsed != KindComment {
+			return "", 0, ErrInvalidKind
+		}
+		kind = parsed
+	}
+
+	return body, kind, nil
 }
