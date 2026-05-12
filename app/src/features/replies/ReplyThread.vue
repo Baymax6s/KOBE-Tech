@@ -3,15 +3,15 @@ import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
-import CommentItem from './CommentItem.vue'
-import CommentForm from './CommentForm.vue'
+import ReplyItem from './ReplyItem.vue'
+import ReplyForm from './ReplyForm.vue'
 
 defineOptions({
-  name: 'CommentThread',
+  name: 'ReplyThread',
 })
 
 const props = defineProps<{
-  comment: ServerReplyJSONResponse
+  reply: ServerReplyJSONResponse
   childrenByParent: Map<number, ServerReplyJSONResponse[]>
   descendantCountByParent: Map<number, number>
   depth: number
@@ -19,17 +19,17 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'submitted', comment: ServerReplyJSONResponse): void
+  (e: 'submitted', reply: ServerReplyJSONResponse): void
 }>()
 
 const { isAuthenticated } = storeToRefs(useAuthStore())
 
 const children = computed<ServerReplyJSONResponse[]>(
-  () => props.childrenByParent.get(props.comment.id) ?? [],
+  () => props.childrenByParent.get(props.reply.id) ?? [],
 )
 
 const descendantCount = computed(
-  () => props.descendantCountByParent.get(props.comment.id) ?? 0,
+  () => props.descendantCountByParent.get(props.reply.id) ?? 0,
 )
 
 // depth 0 のみ初期折りたたみ。クリックで自分以下のサブツリーをまとめて開く。
@@ -40,8 +40,8 @@ const toggleReplyForm = () => {
   showReplyForm.value = !showReplyForm.value
 }
 
-const handleSubmitted = (newComment: ServerReplyJSONResponse) => {
-  emit('submitted', newComment)
+const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
+  emit('submitted', newReply)
   showReplyForm.value = false
   expanded.value = true
 }
@@ -49,17 +49,18 @@ const handleSubmitted = (newComment: ServerReplyJSONResponse) => {
 
 <template>
   <div class="d-flex flex-column ga-3">
-    <CommentItem
-      :comment="comment"
+    <ReplyItem
+      :reply="reply"
       :can-reply="isAuthenticated"
       :replying="showReplyForm"
       @toggle-reply="toggleReplyForm"
     />
 
     <div v-if="showReplyForm" class="ml-8">
-      <CommentForm
+      <ReplyForm
         :article-id="articleId"
-        :parent-id="comment.id"
+        :parent-id="reply.id"
+        :parent-kind="reply.kind"
         autofocus
         @submitted="handleSubmitted"
       />
@@ -67,10 +68,10 @@ const handleSubmitted = (newComment: ServerReplyJSONResponse) => {
 
     <div v-if="children.length > 0" class="ml-8">
       <div v-if="expanded" class="d-flex flex-column ga-3">
-        <CommentThread
+        <ReplyThread
           v-for="child in children"
           :key="child.id"
-          :comment="child"
+          :reply="child"
           :children-by-parent="childrenByParent"
           :descendant-count-by-parent="descendantCountByParent"
           :depth="depth + 1"

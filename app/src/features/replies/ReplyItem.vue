@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useTimeAgo, type UseTimeAgoMessages } from '@vueuse/core'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
 
 defineOptions({
-  name: 'CommentItem',
+  name: 'ReplyItem',
 })
 
 const props = defineProps<{
-  comment: ServerReplyJSONResponse
+  reply: ServerReplyJSONResponse
   canReply: boolean
   replying: boolean
 }>()
@@ -16,9 +17,26 @@ defineEmits<{
   (e: 'toggle-reply'): void
 }>()
 
+const kindBadge = computed(() => {
+  switch (props.reply.kind) {
+    case 'question':
+      return { color: 'warning', label: '質問' }
+    case 'answer':
+      return { color: 'success', label: '回答' }
+    default:
+      return { color: 'primary', label: 'コメント' }
+  }
+})
+
+// 返信ボタン文言は親（=この reply）の kind から決める。
+// コメント配下は「コメントする」、質問/回答配下は「回答する」。
+const replyActionLabel = computed(() =>
+  props.reply.kind === 'comment' ? 'コメントする' : '回答する',
+)
+
 // 投稿から 6 日以内は「N分前 / N時間前 / N日前」と表示し、7 日以上経過したら絶対日付に切り替える。
 // useTimeAgo は内部で setInterval により値をリアクティブに更新するので、画面を開きっぱなしでも表示が古びない。
-const formattedDate = useTimeAgo(() => props.comment.created_at, {
+const formattedDate = useTimeAgo(() => props.reply.created_at, {
   max: 6 * 24 * 60 * 60 * 1000,
   fullDateFormatter: (date) => {
     const y = date.getFullYear()
@@ -47,11 +65,11 @@ const formattedDate = useTimeAgo(() => props.comment.created_at, {
 <template>
   <v-card flat rounded="lg" class="pa-4 bg-grey-lighten-5">
     <div class="d-flex align-center ga-2 mb-2">
-      <v-chip color="primary" size="small" variant="tonal" label>
-        コメント
+      <v-chip :color="kindBadge.color" size="small" variant="tonal" label>
+        {{ kindBadge.label }}
       </v-chip>
       <span class="text-body-2 font-weight-medium">
-        {{ comment.user_name }}
+        {{ reply.user_name }}
       </span>
       <span class="text-caption text-medium-emphasis">
         {{ formattedDate }}
@@ -59,7 +77,7 @@ const formattedDate = useTimeAgo(() => props.comment.created_at, {
     </div>
 
     <div class="text-body-2 mb-2" style="white-space: pre-wrap">
-      {{ comment.body }}
+      {{ reply.body }}
     </div>
 
     <div v-if="canReply" class="d-flex">
@@ -70,7 +88,7 @@ const formattedDate = useTimeAgo(() => props.comment.created_at, {
         :prepend-icon="replying ? 'mdi-close' : 'mdi-reply'"
         @click="$emit('toggle-reply')"
       >
-        {{ replying ? 'キャンセル' : 'コメントする' }}
+        {{ replying ? 'キャンセル' : replyActionLabel }}
       </v-btn>
     </div>
   </v-card>

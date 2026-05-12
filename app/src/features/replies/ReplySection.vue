@@ -5,11 +5,11 @@ import { useRoute } from 'vue-router'
 import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
-import CommentForm from './CommentForm.vue'
-import CommentThread from './CommentThread.vue'
+import ReplyForm from './ReplyForm.vue'
+import ReplyThread from './ReplyThread.vue'
 
 defineOptions({
-  name: 'CommentSection',
+  name: 'ReplySection',
 })
 
 const props = defineProps<{ articleId: number }>()
@@ -20,17 +20,17 @@ const loginRedirect = computed(
   () => `/login?redirect=${encodeURIComponent(route.fullPath)}`,
 )
 
-const comments = ref<ServerReplyJSONResponse[]>([])
+const replies = ref<ServerReplyJSONResponse[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
 const childrenByParent = computed(() => {
   const map = new Map<number, ServerReplyJSONResponse[]>()
-  for (const c of comments.value) {
-    if (c.parent_id == null) continue
-    const list = map.get(c.parent_id) ?? []
-    list.push(c)
-    map.set(c.parent_id, list)
+  for (const r of replies.value) {
+    if (r.parent_id == null) continue
+    const list = map.get(r.parent_id) ?? []
+    list.push(r)
+    map.set(r.parent_id, list)
   }
   for (const list of map.values()) {
     list.sort(
@@ -41,7 +41,7 @@ const childrenByParent = computed(() => {
   return map
 })
 
-// 各コメントの「自分以下にぶら下がる返信の総数」をメモ化付き DFS で一括計算する。
+// 各リプライの「自分以下にぶら下がる返信の総数」をメモ化付き DFS で一括計算する。
 // 「返信 N 件を表示」ボタンは展開時にサブツリー全体を開く挙動なので、N もサブツリー全体の件数に揃える。
 const descendantCountByParent = computed(() => {
   const counts = new Map<number, number>()
@@ -54,13 +54,13 @@ const descendantCountByParent = computed(() => {
     counts.set(id, total)
     return total
   }
-  for (const c of comments.value) compute(c.id)
+  for (const r of replies.value) compute(r.id)
   return counts
 })
 
-const rootComments = computed(() =>
-  comments.value
-    .filter((c) => c.parent_id == null)
+const rootReplies = computed(() =>
+  replies.value
+    .filter((r) => r.parent_id == null)
     .slice()
     .sort(
       (a, b) =>
@@ -68,33 +68,30 @@ const rootComments = computed(() =>
     ),
 )
 
-const isCommentKind = (c: ServerReplyJSONResponse) => c.kind === 'comment'
-
-const fetchComments = async (id: number) => {
+const fetchReplies = async (id: number) => {
   loading.value = true
   error.value = null
   try {
     const { data } = await api.api.articlesRepliesList(id, {
       skipGlobalErrorHandler: true,
     })
-    comments.value = (data.replies ?? []).filter(isCommentKind)
+    replies.value = data.replies ?? []
   } catch {
-    error.value = 'コメントの取得に失敗しました'
+    error.value = 'リプライの取得に失敗しました'
   } finally {
     loading.value = false
   }
 }
 
-const handleSubmitted = (newComment: ServerReplyJSONResponse) => {
-  if (!isCommentKind(newComment)) return
-  comments.value = [...comments.value, newComment]
+const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
+  replies.value = [...replies.value, newReply]
 }
 
 watch(
   () => props.articleId,
   (id) => {
-    comments.value = []
-    void fetchComments(id)
+    replies.value = []
+    void fetchReplies(id)
   },
   { immediate: true },
 )
@@ -103,22 +100,23 @@ watch(
 <template>
   <section class="d-flex flex-column ga-6">
     <h2 class="text-h6 font-weight-bold">
-      コメント
+      リプライ
       <span v-if="!loading" class="text-medium-emphasis text-body-2 ml-1">
-        ({{ comments.length }})
+        ({{ replies.length }})
       </span>
     </h2>
 
     <v-card flat rounded="lg" class="pa-4">
-      <CommentForm
+      <ReplyForm
         v-if="isAuthenticated"
         :article-id="articleId"
         :parent-id="null"
+        :parent-kind="null"
         @submitted="handleSubmitted"
       />
       <div v-else class="text-body-2 d-flex align-center ga-2">
         <v-icon icon="mdi-lock-outline" size="small" />
-        <span>コメントを投稿するには</span>
+        <span>リプライを投稿するには</span>
         <RouterLink :to="loginRedirect" class="text-primary">
           ログイン
         </RouterLink>
@@ -135,24 +133,24 @@ watch(
     <v-alert v-else-if="error" type="error" closable>
       {{ error }}
       <template #append>
-        <v-btn variant="text" size="small" @click="fetchComments(articleId)">
+        <v-btn variant="text" size="small" @click="fetchReplies(articleId)">
           再試行
         </v-btn>
       </template>
     </v-alert>
 
     <div
-      v-else-if="rootComments.length === 0"
+      v-else-if="rootReplies.length === 0"
       class="text-body-2 text-medium-emphasis text-center py-6"
     >
-      まだコメントはありません
+      まだリプライはありません
     </div>
 
     <div v-else class="d-flex flex-column ga-4">
-      <CommentThread
-        v-for="comment in rootComments"
-        :key="comment.id"
-        :comment="comment"
+      <ReplyThread
+        v-for="reply in rootReplies"
+        :key="reply.id"
+        :reply="reply"
         :children-by-parent="childrenByParent"
         :descendant-count-by-parent="descendantCountByParent"
         :depth="0"

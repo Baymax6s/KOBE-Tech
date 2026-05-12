@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDateFormat } from '@vueuse/core'
 import { api } from '@/api/client'
 import type { ServerGetArticleJSONResponse } from '@/api/generated/apiSchema'
-import CommentSection from '@/features/comments/CommentSection.vue'
+import ReplySection from '@/features/replies/ReplySection.vue'
 import { useAuthStore } from '@/stores/auth'
 
 defineOptions({ name: 'ArticleDetailView' })
@@ -156,7 +156,7 @@ watch(
             </v-card>
 
             <div class="mt-10">
-              <CommentSection :article-id="article.id" />
+              <ReplySection :article-id="article.id" />
             </div>
           </template>
         </v-col>
