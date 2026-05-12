@@ -1,4 +1,4 @@
-package like
+package repository
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	errArticleNotFound = errors.New("article not found")
-	errAlreadyLiked    = errors.New("already liked")
-	errUserNotFound    = errors.New("user not found")
+	ErrArticleNotFound = errors.New("article not found")
+	ErrAlreadyLiked    = errors.New("already liked")
+	ErrUserNotFound    = errors.New("user not found")
 )
 
 type Repository struct {
@@ -24,7 +24,7 @@ func NewRepository(db *sql.DB) *Repository {
 
 func (r *Repository) Create(ctx context.Context, articleID, userID int64) error {
 	if r == nil || r.db == nil {
-		return errors.New("post like repository is not configured")
+		return errors.New("like repository is not configured")
 	}
 
 	const query = `
@@ -39,11 +39,11 @@ func (r *Repository) Create(ctx context.Context, articleID, userID int64) error 
 			switch pqErr.Code {
 			case "23503":
 				if pqErr.Constraint == "fk_likes_article_id" {
-					return errArticleNotFound
+					return ErrArticleNotFound
 				}
-				return errUserNotFound
+				return ErrUserNotFound
 			case "23505":
-				return errAlreadyLiked
+				return ErrAlreadyLiked
 			}
 		}
 		return err

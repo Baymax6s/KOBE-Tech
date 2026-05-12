@@ -1,4 +1,4 @@
-package like
+package handler
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/like/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,10 +15,10 @@ type ErrorResponse struct {
 } // @name server.likeErrorResponse
 
 type Handler struct {
-	repo *Repository
+	repo *repository.Repository
 }
 
-func NewHandler(repo *Repository) *Handler {
+func NewHandler(repo *repository.Repository) *Handler {
 	return &Handler{repo: repo}
 }
 
@@ -54,11 +55,11 @@ func (h *Handler) createLikeHandler(c *gin.Context) {
 	err = h.repo.Create(c.Request.Context(), articleID, userID)
 	if err != nil {
 		switch {
-		case errors.Is(err, errArticleNotFound):
+		case errors.Is(err, repository.ErrArticleNotFound):
 			c.JSON(http.StatusNotFound, ErrorResponse{Message: err.Error()})
-		case errors.Is(err, errUserNotFound):
+		case errors.Is(err, repository.ErrUserNotFound):
 			c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
-		case errors.Is(err, errAlreadyLiked):
+		case errors.Is(err, repository.ErrAlreadyLiked):
 			c.JSON(http.StatusConflict, ErrorResponse{Message: err.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed to like article"})

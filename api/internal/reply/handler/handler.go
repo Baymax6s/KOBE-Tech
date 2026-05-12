@@ -1,9 +1,10 @@
-package reply
+package handler
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,6 +12,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/reply"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/reply/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,20 +35,66 @@ type ReplyJSON struct {
 	UpdatedAt time.Time `json:"updated_at" binding:"required"`
 } // @name server.replyJSONResponse
 
+type ListRepliesJSONResponse struct {
+	Replies []ReplyJSON `json:"replies" binding:"required"`
+} // @name server.listRepliesResponse
+
 type ErrorResponse struct {
 	Message string `json:"message"`
 } // @name server.replyErrorResponse
 
 type Handler struct {
-	repo *Repository
+	repo *repository.Repository
 }
 
-func NewHandler(repo *Repository) *Handler {
+func NewHandler(repo *repository.Repository) *Handler {
 	return &Handler{repo: repo}
 }
 
-func (h *Handler) RegisterRoutes(router gin.IRouter) {
-	router.POST("/articles/:article_id/replies", h.createReplyHandler)
+func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
+	router.GET("/articles/:article_id/replies", h.listRepliesHandler)
+	authRouter.POST("/articles/:article_id/replies", h.createReplyHandler)
+}
+
+// listRepliesHandler godoc
+//
+//	@Summary		List replies of an article
+//	@Description	記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
+//	@Tags			replies
+//	@Produce		json
+//	@Param			article_id	path		int	true	"Article ID"
+//	@Success		200			{object}	ListRepliesJSONResponse
+//	@Failure		400			{object}	ErrorResponse
+//	@Failure		500			{object}	ErrorResponse
+//	@Router			/api/articles/{article_id}/replies [get]
+func (h *Handler) listRepliesHandler(c *gin.Context) {
+	articleID, err := strconv.ParseInt(c.Param("article_id"), 10, 64)
+	if err != nil || articleID <= 0 {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "invalid article_id"})
+		return
+	}
+
+	response, err := h.ListReplies(c.Request.Context(), articleID)
+	if err != nil {
+		log.Printf("list replies: %v", err)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed to list replies"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *Handler) ListReplies(ctx context.Context, articleID int64) (ListRepliesJSONResponse, error) {
+	if h == nil || h.repo == nil {
+		return ListRepliesJSONResponse{}, errors.New("reply handler is not configured")
+	}
+
+	replies, err := h.repo.ListByArticleID(ctx, articleID)
+	if err != nil {
+		return ListRepliesJSONResponse{}, err
+	}
+
+	return ListRepliesJSONResponse{Replies: newReplyJSONs(replies)}, nil
 }
 
 // createReplyHandler godoc
@@ -85,10 +134,10 @@ func (h *Handler) createReplyHandler(c *gin.Context) {
 		case errors.Is(err, errInvalidBody),
 			errors.Is(err, errBodyTooLong),
 			errors.Is(err, errInvalidKind),
-			errors.Is(err, errInvalidParent),
-			errors.Is(err, errParentMismatch):
+			errors.Is(err, repository.ErrInvalidParent),
+			errors.Is(err, repository.ErrParentMismatch):
 			c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
-		case errors.Is(err, errArticleNotFound), errors.Is(err, errParentNotFound):
+		case errors.Is(err, repository.ErrArticleNotFound), errors.Is(err, repository.ErrParentNotFound):
 			c.JSON(http.StatusNotFound, ErrorResponse{Message: err.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed to create reply"})
@@ -109,7 +158,7 @@ var (
 
 func (h *Handler) CreateReply(ctx context.Context, articleID, userID int64, req createReplyRequest) (ReplyJSON, error) {
 	if h == nil || h.repo == nil {
-		return ReplyJSON{}, errors.New("post reply handler is not configured")
+		return ReplyJSON{}, errors.New("reply handler is not configured")
 	}
 
 	body := strings.TrimSpace(req.Body)
@@ -121,29 +170,41 @@ func (h *Handler) CreateReply(ctx context.Context, articleID, userID int64, req 
 	}
 
 	// 今回スコープは comment のみ。kind 省略時は comment 扱い。
-	kind := KindComment
+	kind := reply.KindComment
 	if req.Kind != nil {
-		parsed, ok := ParseKind(*req.Kind)
-		if !ok || parsed != KindComment {
+		parsed, ok := reply.ParseKind(*req.Kind)
+		if !ok || parsed != reply.KindComment {
 			return ReplyJSON{}, errInvalidKind
 		}
 		kind = parsed
 	}
 
-	reply, err := h.repo.Create(ctx, articleID, userID, req.ParentID, kind, body)
+	item, err := h.repo.Create(ctx, articleID, userID, req.ParentID, kind, body)
 	if err != nil {
 		return ReplyJSON{}, err
 	}
 
+	return newReplyJSON(item), nil
+}
+
+func newReplyJSONs(replies []reply.Reply) []ReplyJSON {
+	items := make([]ReplyJSON, 0, len(replies))
+	for _, item := range replies {
+		items = append(items, newReplyJSON(item))
+	}
+	return items
+}
+
+func newReplyJSON(item reply.Reply) ReplyJSON {
 	return ReplyJSON{
-		ID:        reply.ID,
-		ArticleID: reply.ArticleID,
-		ParentID:  reply.ParentID,
-		Kind:      reply.Kind.String(),
-		Body:      reply.Body,
-		UserID:    reply.UserID,
-		UserName:  reply.UserName,
-		CreatedAt: reply.CreatedAt,
-		UpdatedAt: reply.UpdatedAt,
-	}, nil
+		ID:        item.ID,
+		ArticleID: item.ArticleID,
+		ParentID:  item.ParentID,
+		Kind:      item.Kind.String(),
+		Body:      item.Body,
+		UserID:    item.UserID,
+		UserName:  item.UserName,
+		CreatedAt: item.CreatedAt,
+		UpdatedAt: item.UpdatedAt,
+	}
 }
