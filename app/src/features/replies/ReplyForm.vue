@@ -3,29 +3,45 @@ import { computed, ref } from 'vue'
 import { api } from '@/api/client'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
 
+type ReplyKind = 'comment' | 'question' | 'answer'
+
 defineOptions({
-  name: 'CommentForm',
+  name: 'ReplyForm',
 })
 
 const props = defineProps<{
   articleId: number
   parentId: number | null
+  parentKind: ReplyKind | null
   autofocus?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'submitted', comment: ServerReplyJSONResponse): void
+  (e: 'submitted', reply: ServerReplyJSONResponse): void
 }>()
 
 const body = ref('')
 const submitting = ref(false)
 const submitError = ref<string | null>(null)
 
-const canSubmit = computed(() => !submitting.value && !!body.value.trim())
+// 記事直下投稿のときだけユーザーが選べる。返信時は親 kind から自動導出する。
+const selectedKind = ref<'comment' | 'question'>('comment')
 
-const placeholder = computed(() =>
-  props.parentId === null ? 'コメントを書く' : 'このコメントに返信する',
-)
+const resolvedKind = computed<ReplyKind>(() => {
+  if (props.parentKind === null) return selectedKind.value
+  if (props.parentKind === 'comment') return 'comment'
+  return 'answer'
+})
+
+const placeholder = computed(() => {
+  if (props.parentKind === null) {
+    return selectedKind.value === 'question' ? '質問を書く' : 'コメントを書く'
+  }
+  if (props.parentKind === 'comment') return 'このコメントに返信する'
+  return '回答を書く'
+})
+
+const canSubmit = computed(() => !submitting.value && !!body.value.trim())
 
 const submit = async () => {
   if (submitting.value) return
@@ -39,7 +55,7 @@ const submit = async () => {
       props.articleId,
       {
         parent_id: props.parentId ?? undefined,
-        kind: 'comment',
+        kind: resolvedKind.value,
         body: body.value,
       },
       { skipGlobalErrorHandler: true },
@@ -65,6 +81,17 @@ const submit = async () => {
     >
       {{ submitError }}
     </v-alert>
+
+    <v-btn-toggle
+      v-if="parentKind === null"
+      v-model="selectedKind"
+      mandatory
+      density="comfortable"
+      color="primary"
+    >
+      <v-btn value="comment">コメント</v-btn>
+      <v-btn value="question">質問</v-btn>
+    </v-btn-toggle>
 
     <v-textarea
       v-model="body"
