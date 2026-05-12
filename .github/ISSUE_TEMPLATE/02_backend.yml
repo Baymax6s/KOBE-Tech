@@ -1,0 +1,77 @@
+name: "バックエンド"
+description: "API・DB・認証などサーバー側の変更"
+title: "【バックエンド】"
+
+labels: []
+
+body:
+
+  - type: textarea
+    id: task
+    attributes:
+      label: やる事（task）
+      description: "筆記必須。ホワイトボードを見てタスクに対応した内容を書く"
+      placeholder: "例：コメントのエンドポイント作成、コメントのテーブル作成など"
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: 概要
+      description: "タスクの背景・目的・補足など"
+      placeholder: "背景・目的・補足など"
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件（Goal）
+      description: "ホワイトボードを見てタスクに対応したゴールを書く"
+      placeholder: |
+        - コメントが正常に作成できる
+        - エラー時に適切なエラーメッセージが表示される
+        - ログイン時のみアクセスできる
+
+  - type: textarea
+    id: test
+    attributes:
+      label: 動作確認手順
+      description: "タスクに対応した動作確認手順を記載する"
+      placeholder: |
+        1. バックエンド起動
+        2. ターミナルでcurlコマンドを叩く
+        3. 意図したレスポンスが返ってくることを確認
+
+  - type: textarea
+    id: files
+    attributes:
+      label: 作成・変更ファイル
+      description: "作成・変更予定のファイルを記載する"
+      placeholder: |
+        - api/internal/server/router.go
+        - api/internal/post_login/handler.go
+        - api/internal/post_login/model.go
+
+  - type: textarea
+    id: api
+    attributes:
+      label: API
+      description: "作成・変更するAPIを記載する"
+      placeholder: |
+        POST /api/auth/login
+        POST /api/articles/{article_id}/replies
+        GET /api/articles/{article_id}
+
+  - type: input
+    id: docs
+    attributes:
+      label: 参考ドキュメントURL
+      description: "figmaのDBや仕様書(テーブル作成issue)などのURLを記載する"
+      placeholder: "例：https://www.figma.com/file/xxxxxx/xxxxxx"
+
+  - type: textarea
+    id: memo
+    attributes:
+      label: その他・メモ
+      description: "原則、上記に書けるものはここに書かないこと！！"
+      placeholder: "注意点・技術メモ・相談事項など"
