@@ -34,10 +34,9 @@ onMounted(async () => {
     user.value = {
       id: 1,
       name: 'テストユーザー',
-      bio: 'こんにちは！プロフィールを書いてみてください！'
+      bio: 'こんにちは！プロフィールを書いてみてください！',
     }
     bio.value = user.value.bio
-
   } catch {
     error.value = 'プロフィールの取得に失敗しました'
   } finally {
@@ -71,7 +70,6 @@ const saveBio = async () => {
   <v-container class="py-8">
     <v-row justify="center">
       <v-col cols="12" md="8" lg="6">
-
         <div v-if="loading" class="d-flex justify-center py-12">
           <v-progress-circular indeterminate color="primary" />
         </div>
@@ -81,15 +79,8 @@ const saveBio = async () => {
         </v-alert>
 
         <v-card v-else-if="user" class="pa-6 text-center elevation-3">
-        
-          <v-avatar
-            size="70"
-            class="mx-auto mb-2"
-            color="indigo-lighten-1"
-          >
-            <v-icon size="40" color="white">
-              mdi-account-circle
-            </v-icon>
+          <v-avatar size="70" class="mx-auto mb-2" color="indigo-lighten-1">
+            <v-icon size="40" color="white"> mdi-account-circle </v-icon>
           </v-avatar>
 
           <h2 class="text-h5 font-weight-bold mb-1">
@@ -98,22 +89,15 @@ const saveBio = async () => {
 
           <v-divider class="my-4" />
 
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">
-            自己紹介
-          </h3>
+          <h3 class="text-subtitle-1 font-weight-bold mb-2">自己紹介</h3>
 
           <div class="text-left">
-
             <div v-if="!isEditing">
               <p class="mb-4">
                 {{ user.bio || '自己紹介はまだありません' }}
               </p>
 
-              <v-btn
-                variant="text"
-                color="primary"
-                @click="isEditing = true"
-              >
+              <v-btn variant="text" color="primary" @click="isEditing = true">
                 編集
               </v-btn>
             </div>
@@ -123,33 +107,25 @@ const saveBio = async () => {
                 v-model="bio"
                 :counter="maxLength"
                 :rules="[
-                  v => (v?.length <= maxLength) || `${maxLength}文字以内で入力してください`
+                  (v) =>
+                    v?.length <= maxLength ||
+                    `${maxLength}文字以内で入力してください`,
                 ]"
                 label="自己紹介"
                 variant="outlined"
                 class="mb-3"
               />
 
-              <v-btn
-                color="primary"
-                class="mr-2"
-                @click="saveBio"
-              >
+              <v-btn color="primary" class="mr-2" @click="saveBio">
                 完了
               </v-btn>
 
-              <v-btn
-                variant="text"
-                @click="isEditing = false"
-              >
+              <v-btn variant="text" @click="isEditing = false">
                 キャンセル
               </v-btn>
             </div>
-
           </div>
-
         </v-card>
-
       </v-col>
     </v-row>
   </v-container>
