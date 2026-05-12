@@ -26,6 +26,11 @@ const router = createRouter({
       component: () => import('@/features/articles/ArticlesView.vue'),
     },
     {
+      path: '/settings/password',
+      component: () => import('@/features/settings/PasswordChangeView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/articles/new',
       component: () => import('@/features/articles/NewArticleView.vue'),
       meta: { requiresAuth: true },
