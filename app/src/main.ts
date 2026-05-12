@@ -6,6 +6,17 @@ import './styles/tailwind.css'
 import './main.css'
 import App from './App.vue'
 
-const app = createApp(App)
-registerPlugins(app)
-app.mount('#app')
+async function bootstrap() {
+  const useMSW = import.meta.env.VITE_USE_MSW === 'true'
+
+  if (useMSW) {
+    const { worker } = await import('./mocks/browser')
+    await worker.start()
+  }
+
+  const app = createApp(App)
+  registerPlugins(app)
+  app.mount('#app')
+}
+
+bootstrap()
