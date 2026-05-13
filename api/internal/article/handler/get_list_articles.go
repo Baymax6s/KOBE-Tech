@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +30,7 @@ type ArticleListItemJSON struct {
 	CreatedAt  time.Time        `json:"created_at" binding:"required"`
 	UpdatedAt  time.Time        `json:"updated_at" binding:"required"`
 	LikesCount int64            `json:"likes_count" binding:"required"`
+	LikedByMe  bool             `json:"liked_by_me"`
 } // @name server.articleJSONResponse
 
 type ListArticlesJSONResponse struct {
@@ -45,7 +47,9 @@ type ListArticlesJSONResponse struct {
 //	@Failure		500	{object}	ArticleErrorResponse
 //	@Router			/api/articles [get]
 func (h *Handler) listArticlesHandler(c *gin.Context) {
-	response, err := h.ListArticles(c.Request.Context())
+	userID, _ := auth.OptionalUserID(c)
+
+	response, err := h.ListArticles(c.Request.Context(), userID)
 	if err != nil {
 		log.Printf("list articles: %v", err)
 		c.JSON(http.StatusInternalServerError, ArticleErrorResponse{
@@ -57,12 +61,12 @@ func (h *Handler) listArticlesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (h *Handler) ListArticles(ctx context.Context) (ListArticlesJSONResponse, error) {
+func (h *Handler) ListArticles(ctx context.Context, userID int64) (ListArticlesJSONResponse, error) {
 	if h == nil || h.repo == nil {
 		return ListArticlesJSONResponse{}, errors.New("article handler is not configured")
 	}
 
-	articles, err := h.repo.ListArticles(ctx)
+	articles, err := h.repo.ListArticles(ctx, userID)
 	if err != nil {
 		return ListArticlesJSONResponse{}, err
 	}
@@ -85,6 +89,7 @@ func newListArticlesJSONResponse(articles []article.Article) ListArticlesJSONRes
 			CreatedAt:  item.CreatedAt,
 			UpdatedAt:  item.UpdatedAt,
 			LikesCount: item.LikesCount,
+			LikedByMe:  item.LikedByMe,
 		})
 	}
 

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,6 +26,7 @@ type GetArticleJSONResponse struct {
 	CreatedAt  time.Time        `json:"created_at" binding:"required"`
 	UpdatedAt  time.Time        `json:"updated_at" binding:"required"`
 	LikesCount int64            `json:"likes_count" binding:"required"`
+	LikedByMe  bool             `json:"liked_by_me"`
 } // @name server.getArticleJSONResponse
 
 // getArticleHandler godoc
@@ -46,7 +48,9 @@ func (h *Handler) getArticleHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := h.GetArticle(c.Request.Context(), articleID)
+	userID, _ := auth.OptionalUserID(c)
+
+	response, err := h.GetArticle(c.Request.Context(), articleID, userID)
 	if err != nil {
 		switch {
 		case errors.Is(err, errArticleNotFound):
@@ -62,12 +66,12 @@ func (h *Handler) getArticleHandler(c *gin.Context) {
 
 var errArticleNotFound = errors.New("article not found")
 
-func (h *Handler) GetArticle(ctx context.Context, articleID int64) (GetArticleJSONResponse, error) {
+func (h *Handler) GetArticle(ctx context.Context, articleID int64, userID int64) (GetArticleJSONResponse, error) {
 	if h == nil || h.repo == nil {
 		return GetArticleJSONResponse{}, errors.New("get article handler is not configured")
 	}
 
-	item, err := h.repo.FindArticleByID(ctx, articleID)
+	item, err := h.repo.FindArticleByID(ctx, articleID, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return GetArticleJSONResponse{}, errArticleNotFound
@@ -87,5 +91,6 @@ func (h *Handler) GetArticle(ctx context.Context, articleID int64) (GetArticleJS
 		CreatedAt:  item.CreatedAt,
 		UpdatedAt:  item.UpdatedAt,
 		LikesCount: item.LikesCount,
+		LikedByMe:  item.LikedByMe,
 	}, nil
 }

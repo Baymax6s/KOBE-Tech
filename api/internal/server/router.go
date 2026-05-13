@@ -36,7 +36,8 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	api := router.Group("/api")
 
 	authRequired := api.Group("", auth.RequireUser(validator))
-	articleHandler.RegisterRoutes(api, authRequired)
+	optionalAuth := api.Group("", auth.OptionalUser(validator))
+	articleHandler.RegisterRoutes(optionalAuth, authRequired)
 	authHandler.RegisterRoutes(api, authRequired)
 	likeHandler.RegisterRoutes(authRequired)
 	replyHandler.RegisterRoutes(api, authRequired)

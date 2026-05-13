@@ -42,7 +42,7 @@ const formattedDate = useDateFormat(
 
       <div class="d-flex align-center">
         <v-icon
-          icon="mdi-heart-outline"
+          :icon="article.liked_by_me ? 'mdi-heart' : 'mdi-heart-outline'"
           size="small"
           color="red"
           class="me-1"

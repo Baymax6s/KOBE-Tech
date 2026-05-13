@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (r *Repository) FindArticleByID(ctx context.Context, id int64) (article.Article, error) {
+func (r *Repository) FindArticleByID(ctx context.Context, id int64, userID int64) (article.Article, error) {
 	if r == nil || r.db == nil {
 		return article.Article{}, errors.New("article repository is not configured")
 	}
@@ -24,7 +24,8 @@ func (r *Repository) FindArticleByID(ctx context.Context, id int64) (article.Art
 			a.updated_at,
 			COALESCE((SELECT COUNT(*) FROM likes WHERE article_id = a.id), 0),
 			COALESCE(tag_summary.tag_ids, ARRAY[]::integer[]),
-			COALESCE(tag_summary.tag_names, ARRAY[]::text[])
+			COALESCE(tag_summary.tag_names, ARRAY[]::text[]),
+			EXISTS(SELECT 1 FROM likes WHERE article_id = a.id AND user_id = $2)
 		FROM articles a
 		JOIN users u ON u.id = a.user_id
 		LEFT JOIN LATERAL (
@@ -41,7 +42,7 @@ func (r *Repository) FindArticleByID(ctx context.Context, id int64) (article.Art
 	var item article.Article
 	var tagIDs []int64
 	var tagNames []string
-	err := r.db.QueryRowContext(ctx, query, id).Scan(
+	err := r.db.QueryRowContext(ctx, query, id, userID).Scan(
 		&item.ID,
 		&item.Title,
 		&item.Content,
@@ -52,6 +53,7 @@ func (r *Repository) FindArticleByID(ctx context.Context, id int64) (article.Art
 		&item.LikesCount,
 		pq.Array(&tagIDs),
 		pq.Array(&tagNames),
+		&item.LikedByMe,
 	)
 	if err != nil {
 		return article.Article{}, err

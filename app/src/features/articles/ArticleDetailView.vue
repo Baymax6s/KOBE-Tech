@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDateFormat } from '@vueuse/core'
 import { api } from '@/api/client'
@@ -19,7 +19,7 @@ const auth = useAuthStore()
 const article = ref<ServerGetArticleJSONResponse | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
-const isLiked = ref(false)
+const isLiked = computed(() => article.value?.liked_by_me ?? false)
 const likeSubmitting = ref(false)
 const likeError = ref<string | null>(null)
 
@@ -38,21 +38,21 @@ const likeArticle = async () => {
   try {
     if (isLiked.value) {
       const response = await api.api.articlesLikeDelete(props.articleId)
-      isLiked.value = false
+      article.value.liked_by_me = false
       article.value.likes_count = response.data.likes_count
     } else {
       await api.api.articlesLikeCreate(props.articleId)
-      isLiked.value = true
+      article.value.liked_by_me = true
       article.value.likes_count = (article.value.likes_count ?? 0) + 1
     }
   } catch (err: unknown) {
     if (axios.isAxiosError(err) && err.response?.status === 409) {
-      isLiked.value = true
+      article.value.liked_by_me = true
       return
     }
 
     if (axios.isAxiosError(err) && err.response?.status === 404) {
-      isLiked.value = false
+      article.value.liked_by_me = false
       return
     }
 
@@ -81,7 +81,6 @@ watch(
     error.value = null
     likeError.value = null
     loading.value = true
-    isLiked.value = false
     likeSubmitting.value = false
 
     try {
