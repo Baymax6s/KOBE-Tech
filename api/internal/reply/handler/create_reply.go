@@ -20,8 +20,8 @@ type createReplyRequest struct {
 
 // createReplyHandler godoc
 //
-//	@Summary		Create a reply (comment) on an article
-//	@Description	記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
+//	@Summary		Create a reply on an article
+//	@Description	記事 / 既存返信への返信を投稿する。kind は comment / question / answer のいずれか。ルート投稿は comment か question、コメント配下は comment、質問・回答配下は answer のみ受け付ける。
 //	@Tags			replies
 //	@Accept			json
 //	@Produce		json
