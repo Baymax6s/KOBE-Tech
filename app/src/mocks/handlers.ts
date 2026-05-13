@@ -160,7 +160,7 @@ export const handlers = [
     return HttpResponse.json({ token })
   }),
 
-  http.get('*/api/auth/me', ({ request }) => {
+  http.get('*/api/auth/me', () => {
     const user = auth()
 
     if (!user) {
@@ -259,7 +259,7 @@ export const handlers = [
     })
   }),
 
-  http.post('*/api/articles/:id/like', ({ request, params }) => {
+  http.post('*/api/articles/:id/like', ({ params }) => {
     const user = auth()
 
     if (!user) {
@@ -333,7 +333,7 @@ export const handlers = [
    * =========================
    */
 
-  http.get('*/api/tags', ({ request }) => {
+  http.get('*/api/tags', () => {
     const user = auth()
 
     if (!user) {
