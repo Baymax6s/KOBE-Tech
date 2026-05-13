@@ -23,6 +23,8 @@ definitions:
         type: string
       id:
         type: integer
+      liked_by_me:
+        type: boolean
       likes_count:
         type: integer
       tags:
@@ -137,6 +139,8 @@ definitions:
         type: string
       id:
         type: integer
+      liked_by_me:
+        type: boolean
       likes_count:
         type: integer
       tags:
@@ -157,17 +161,18 @@ definitions:
     - title
     - updated_at
     type: object
-  server.likeCountResponse:
-    properties:
-      likes_count:
-        type: integer
-    required:
-    - likes_count
-    type: object
+
   server.likeErrorResponse:
     properties:
       message:
         type: string
+    type: object
+  server.likeResponse:
+    properties:
+      liked_by_me:
+        type: boolean
+      likes_count:
+        type: integer
     type: object
   server.listArticlesResponse:
     properties:
@@ -402,7 +407,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.likeCountResponse'
+            $ref: '#/definitions/server.likeResponse'
         "400":
           description: Bad Request
           schema:
@@ -435,8 +440,10 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.likeResponse'
         "400":
           description: Bad Request
           schema:
