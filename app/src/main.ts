@@ -10,12 +10,12 @@ async function bootstrap() {
   const useMSW = import.meta.env.VITE_USE_MSW === 'true'
 
   if (import.meta.env.DEV && useMSW) {
-  const { worker } = await import('./mocks/browser')
+    const { worker } = await import('./mocks/browser')
 
-  await worker.start({
-    onUnhandledRequest: 'bypass',
-  })
-}
+    await worker.start({
+      onUnhandledRequest: 'bypass',
+    })
+  }
 
   const app = createApp(App)
   registerPlugins(app)

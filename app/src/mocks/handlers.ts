@@ -94,7 +94,6 @@ const replies = [
 
 const likes = new Set<string>()
 
-
 /**
  * =====================================================
  * UTIL
@@ -149,7 +148,10 @@ export const handlers = [
     )
 
     if (!user) {
-      return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 })
+      return HttpResponse.json(
+        { message: 'Invalid credentials' },
+        { status: 401 },
+      )
     }
 
     const token = `mock-token-${user.id}`
