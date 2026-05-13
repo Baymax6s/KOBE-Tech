@@ -1,3 +1,64 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import axios from 'axios'
+import { api } from '@/api/client'
+
+const currentPassword = ref('')
+const newPassword = ref('')
+const submitting = ref(false)
+const newPasswordRules = [
+  (v: string) => !!v || '新しいパスワードは必須です',
+  (v: string) => (v && v.length >= 8) || '8文字以上で入力してください',
+]
+const errorMessage = ref<string | null>(null)
+const successMessage = ref<string | null>(null)
+
+const onSubmit = async () => {
+  if (submitting.value) return
+  errorMessage.value = null
+  successMessage.value = null
+
+  if (!currentPassword.value || !newPassword.value) {
+    errorMessage.value = '現在のパスワードと新しいパスワードを入力してください'
+    return
+  }
+  if (newPassword.value.length < 8) {
+    errorMessage.value = '新しいパスワードは8文字以上で入力してください'
+    return
+  }
+
+  submitting.value = true
+  try {
+    await api.instance.put(
+      '/api/auth/password',
+      {
+        current_password: currentPassword.value,
+        new_password: newPassword.value,
+      },
+      {
+        skipGlobalErrorHandler: true,
+      },
+    )
+    successMessage.value = 'パスワードを変更しました'
+    currentPassword.value = ''
+    newPassword.value = ''
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response?.status === 401) {
+      errorMessage.value =
+        e.response.data?.message ?? '現在のパスワードが正しくありません'
+    } else if (axios.isAxiosError(e) && e.response?.status === 400) {
+      errorMessage.value =
+        e.response.data?.message ?? '入力内容に誤りがあります'
+    } else {
+      errorMessage.value =
+        'パスワードの変更に失敗しました。時間をおいて再度お試しください'
+    }
+  } finally {
+    submitting.value = false
+  }
+}
+</script>
+
 <template>
   <v-container class="fill-height bg-grey-lighten-4" fluid>
     <v-row justify="center" align="center">
@@ -73,64 +134,3 @@
     </v-row>
   </v-container>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import axios from 'axios'
-import { api } from '@/api/client'
-
-const currentPassword = ref('')
-const newPassword = ref('')
-const submitting = ref(false)
-const newPasswordRules = [
-  (v: string) => !!v || '新しいパスワードは必須です',
-  (v: string) => (v && v.length >= 8) || '8文字以上で入力してください',
-]
-const errorMessage = ref<string | null>(null)
-const successMessage = ref<string | null>(null)
-
-const onSubmit = async () => {
-  if (submitting.value) return
-  errorMessage.value = null
-  successMessage.value = null
-
-  if (!currentPassword.value || !newPassword.value) {
-    errorMessage.value = '現在のパスワードと新しいパスワードを入力してください'
-    return
-  }
-  if (newPassword.value.length < 8) {
-    errorMessage.value = '新しいパスワードは8文字以上で入力してください'
-    return
-  }
-
-  submitting.value = true
-  try {
-    await api.instance.put(
-      '/api/auth/password',
-      {
-        current_password: currentPassword.value,
-        new_password: newPassword.value,
-      },
-      {
-        skipGlobalErrorHandler: true,
-      },
-    )
-    successMessage.value = 'パスワードを変更しました'
-    currentPassword.value = ''
-    newPassword.value = ''
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response?.status === 401) {
-      errorMessage.value =
-        e.response.data?.message ?? '現在のパスワードが正しくありません'
-    } else if (axios.isAxiosError(e) && e.response?.status === 400) {
-      errorMessage.value =
-        e.response.data?.message ?? '入力内容に誤りがあります'
-    } else {
-      errorMessage.value =
-        'パスワードの変更に失敗しました。時間をおいて再度お試しください'
-    }
-  } finally {
-    submitting.value = false
-  }
-}
-</script>
