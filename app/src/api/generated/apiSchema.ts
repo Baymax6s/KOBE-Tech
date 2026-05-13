@@ -72,6 +72,10 @@ export interface ServerLikeErrorResponse {
   message?: string;
 }
 
+export interface ServerLikeCountResponse {
+  likes_count: number;
+}
+
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
 }
@@ -389,6 +393,24 @@ export class Api<
         path: `/api/articles/${articleId}/like`,
         method: "POST",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Unlike an article API.
+     *
+     * @tags likes
+     * @name ArticlesLikeDelete
+     * @summary Unlike an article
+     * @request DELETE:/api/articles/{article_id}/like
+     * @secure
+     */
+    articlesLikeDelete: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerLikeCountResponse, ServerLikeErrorResponse>({
+        path: `/api/articles/${articleId}/like`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
         ...params,
       }),
 
