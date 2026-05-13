@@ -55,6 +55,23 @@ definitions:
     - id
     - name
     type: object
+  server.changePasswordErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.changePasswordRequest:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        type: string
+    type: object
+  server.changePasswordResponse:
+    properties:
+      message:
+        type: string
+    type: object
   server.createArticleRequest:
     properties:
       content:
@@ -548,6 +565,42 @@ paths:
       security:
       - BearerAuth: []
       summary: Get current user
+      tags:
+      - auth
+  /api/auth/password:
+    put:
+      consumes:
+      - application/json
+      description: Changes the authenticated user's password.
+      parameters:
+      - description: Change password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.changePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.changePasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.changePasswordErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.changePasswordErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.changePasswordErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
       tags:
       - auth
   /api/tags:
