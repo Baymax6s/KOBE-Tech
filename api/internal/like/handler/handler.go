@@ -15,4 +15,5 @@ func NewHandler(repo *repository.Repository) *Handler {
 
 func (h *Handler) RegisterRoutes(router gin.IRouter) {
 	router.POST("/articles/:article_id/like", h.createLikeHandler)
+	router.DELETE("/articles/:article_id/like", h.deleteLikeHandler)
 }
