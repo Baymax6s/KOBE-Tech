@@ -25,7 +25,7 @@ onMounted(async () => {
   try {
     // 後でこれ有効化
     /*
-    const res = await api.api.authMe()
+    const res = await api.api.authMeList()
     user.value = res.data
     bio.value = res.data.bio ?? ''
     */
@@ -70,13 +70,20 @@ const saveBio = async () => {
   <v-container class="py-8">
     <v-row justify="center">
       <v-col cols="12" md="8" lg="6">
+        
+        <v-alert
+          v-if="error"
+          type="error"
+          class="mb-4"
+          closable
+          @click:close="error = null"
+        >
+          {{ error }}
+        </v-alert>
+
         <div v-if="loading" class="d-flex justify-center py-12">
           <v-progress-circular indeterminate color="primary" />
         </div>
-
-        <v-alert v-else-if="error" type="error" class="mb-4">
-          {{ error }}
-        </v-alert>
 
         <v-card v-else-if="user" class="pa-6 text-center elevation-3">
           <v-avatar size="70" class="mx-auto mb-2" color="indigo-lighten-1">
