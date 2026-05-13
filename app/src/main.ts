@@ -9,10 +9,13 @@ import App from './App.vue'
 async function bootstrap() {
   const useMSW = import.meta.env.VITE_USE_MSW === 'true'
 
-  if (useMSW) {
-    const { worker } = await import('./mocks/browser')
-    await worker.start()
-  }
+  if (import.meta.env.DEV && useMSW) {
+  const { worker } = await import('./mocks/browser')
+
+  await worker.start({
+    onUnhandledRequest: 'bypass',
+  })
+}
 
   const app = createApp(App)
   registerPlugins(app)

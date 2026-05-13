@@ -1,7 +1,3 @@
-/* eslint-disable */
-/* tslint:disable */
-// @ts-nocheck
-
 import { http, HttpResponse } from 'msw'
 
 /**
@@ -10,7 +6,7 @@ import { http, HttpResponse } from 'msw'
  * =====================================================
  */
 
-let users = [
+const users = [
   {
     id: 1,
     name: 'mock-user',
@@ -27,11 +23,7 @@ let users = [
   },
 ]
 
-let sessions = new Map<string, number>()
-
-const MOCK_TOKEN = 'mock-jwt-token'
-
-let tags = [
+const tags = [
   { id: 1, name: 'dev' },
   { id: 2, name: 'frontend' },
   { id: 3, name: 'team' },
@@ -39,7 +31,7 @@ let tags = [
   { id: 5, name: 'typescript' },
 ]
 
-let articles = [
+const articles = [
   {
     id: 1,
     title: 'MSWを導入してみた',
@@ -75,7 +67,7 @@ let articles = [
   },
 ]
 
-let replies = [
+const replies = [
   {
     id: 1,
     article_id: 1,
@@ -100,25 +92,30 @@ let replies = [
   },
 ]
 
+const likes = new Set<string>()
+
+
 /**
  * =====================================================
  * UTIL
  * =====================================================
  */
 
-function auth(request: Request) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+function auth() {
+  const token = window.localStorage.getItem('mock_token')
 
-  if (token !== MOCK_TOKEN) return null
+  if (!token) return null
 
-  return users.find((u) => u.id === 1)
+  const userId = Number(token.replace('mock-token-', ''))
+
+  return users.find((u) => u.id === userId) ?? null
 }
 
 function now() {
   return new Date().toISOString()
 }
 
-function paginate(list: any[], page = 1, limit = 10) {
+function paginate<T>(list: T[], page = 1, limit = 10) {
   const start = (page - 1) * limit
   return {
     data: list.slice(start, start + limit),
@@ -141,35 +138,41 @@ export const handlers = [
    * =========================
    */
 
-  http.post('http://localhost:8080/api/auth/login', async ({ request }) => {
-    const body = await request.json()
+  http.post('*/api/auth/login', async ({ request }) => {
+    const body = (await request.json()) as {
+      name: string
+      password: string
+    }
 
     const user = users.find(
       (u) => u.name === body.name && u.password === body.password,
     )
 
     if (!user) {
-      return HttpResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 },
-      )
+      return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 })
     }
 
-    sessions.set(MOCK_TOKEN, user.id)
+    const token = `mock-token-${user.id}`
 
-    return HttpResponse.json({
-      token: MOCK_TOKEN,
-    })
+    // 👉 MSW内でブラウザlocalStorageに保存
+    window.localStorage.setItem('mock_token', token)
+
+    return HttpResponse.json({ token })
   }),
 
-  http.get('http://localhost:8080/api/auth/me', ({ request }) => {
-    const user = auth(request)
+  http.get('*/api/auth/me', ({ request }) => {
+    const user = auth()
 
     if (!user) {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    return HttpResponse.json(user)
+    return HttpResponse.json({
+      id: user.id,
+      name: user.name,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    })
   }),
 
   /**
@@ -178,7 +181,7 @@ export const handlers = [
    * =========================
    */
 
-  http.get('http://localhost:8080/api/articles', ({ request }) => {
+  http.get('*/api/articles', ({ request }) => {
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') || 1)
     const limit = Number(url.searchParams.get('limit') || 10)
@@ -202,14 +205,18 @@ export const handlers = [
     })
   }),
 
-  http.post('http://localhost:8080/api/articles', async ({ request }) => {
-    const user = auth(request)
+  http.post('*/api/articles', async ({ request }) => {
+    const user = auth()
 
     if (!user) {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as {
+      title: string
+      content: string
+      tags?: string[]
+    }
 
     const article = {
       id: articles.length + 1,
@@ -218,7 +225,7 @@ export const handlers = [
       user_id: user.id,
       likes_count: 0,
       tags: (body.tags || []).map((t, i) => ({
-        id: i + 1,
+        id: tags.length + i + 1,
         name: t,
       })),
       created_at: now(),
@@ -230,38 +237,53 @@ export const handlers = [
     return HttpResponse.json(article, { status: 201 })
   }),
 
-  http.get('http://localhost:8080/api/articles/:id', ({ params }) => {
+  http.get('*/api/articles/:id', ({ params }) => {
     const article = articles.find((a) => a.id === Number(params.id))
 
     if (!article) {
       return HttpResponse.json({ message: 'Not found' }, { status: 404 })
     }
 
+    const author = users.find((u) => u.id === article.user_id)
+
     return HttpResponse.json({
       ...article,
-      author: users.find((u) => u.id === article.user_id),
+      author: author
+        ? {
+            id: author.id,
+            name: author.name,
+            created_at: author.created_at,
+            updated_at: author.updated_at,
+          }
+        : null,
     })
   }),
 
-  http.post(
-    'http://localhost:8080/api/articles/:id/like',
-    ({ request, params }) => {
-      const user = auth(request)
-      if (!user) {
-        return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
-      }
+  http.post('*/api/articles/:id/like', ({ request, params }) => {
+    const user = auth()
 
-      const article = articles.find((a) => a.id === Number(params.id))
+    if (!user) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
 
-      if (!article) {
-        return HttpResponse.json({ message: 'Not found' }, { status: 404 })
-      }
+    const article = articles.find((a) => a.id === Number(params.id))
 
-      article.likes_count++
+    if (!article) {
+      return HttpResponse.json({ message: 'Not found' }, { status: 404 })
+    }
 
-      return new HttpResponse(null, { status: 204 })
-    },
-  ),
+    const key = `${user.id}-${article.id}`
+
+    if (likes.has(key)) {
+      return HttpResponse.json({ message: 'Already liked' }, { status: 409 })
+    }
+
+    likes.add(key)
+
+    article.likes_count++
+
+    return new HttpResponse(null, { status: 201 })
+  }),
 
   /**
    * =========================
@@ -269,40 +291,41 @@ export const handlers = [
    * =========================
    */
 
-  http.get('http://localhost:8080/api/articles/:id/replies', ({ params }) => {
+  http.get('*/api/articles/:id/replies', ({ params }) => {
     return HttpResponse.json({
       replies: replies.filter((r) => r.article_id === Number(params.id)),
     })
   }),
 
-  http.post(
-    'http://localhost:8080/api/articles/:id/replies',
-    async ({ request, params }) => {
-      const user = auth(request)
+  http.post('*/api/articles/:id/replies', async ({ request, params }) => {
+    const user = auth()
 
-      if (!user) {
-        return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
-      }
+    if (!user) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
 
-      const body = await request.json()
+    const body = (await request.json()) as {
+      body: string
+      kind?: string
+      parent_id?: number
+    }
 
-      const reply = {
-        id: replies.length + 1,
-        article_id: Number(params.id),
-        body: body.body,
-        kind: body.kind || 'comment',
-        parent_id: body.parent_id,
-        user_id: user.id,
-        user_name: user.name,
-        created_at: now(),
-        updated_at: now(),
-      }
+    const reply = {
+      id: replies.length + 1,
+      article_id: Number(params.id),
+      body: body.body,
+      kind: body.kind || 'comment',
+      parent_id: body.parent_id,
+      user_id: user.id,
+      user_name: user.name,
+      created_at: now(),
+      updated_at: now(),
+    }
 
-      replies.push(reply)
+    replies.push(reply)
 
-      return HttpResponse.json(reply, { status: 201 })
-    },
-  ),
+    return HttpResponse.json(reply, { status: 201 })
+  }),
 
   /**
    * =========================
@@ -310,8 +333,8 @@ export const handlers = [
    * =========================
    */
 
-  http.get('http://localhost:8080/api/tags', ({ request }) => {
-    const user = auth(request)
+  http.get('*/api/tags', ({ request }) => {
+    const user = auth()
 
     if (!user) {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
