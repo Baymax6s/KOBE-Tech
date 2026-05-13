@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
@@ -11,8 +12,8 @@ import (
 )
 
 type ChangePasswordRequest struct {
-	CurrentPassword string `json:"current_password"`
-	NewPassword     string `json:"new_password"`
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required" minLength:"8"`
 } // @name server.changePasswordRequest
 
 type ChangePasswordResponse struct {
@@ -71,10 +72,10 @@ func (h *Handler) ChangePassword(ctx context.Context, userID int64, currentPassw
 	}
 
 	if currentPassword == "" || newPassword == "" {
-		return errors.Join(errPasswordValidation, errors.New("current_password and new_password are required"))
+		return fmt.Errorf("current_password and new_password are required: %w", errPasswordValidation)
 	}
 	if len(newPassword) < 8 {
-		return errors.Join(errPasswordValidation, errors.New("new_password must be at least 8 characters"))
+		return fmt.Errorf("new_password must be at least 8 characters: %w", errPasswordValidation)
 	}
 
 	user, err := h.repo.FindByID(ctx, userID)
