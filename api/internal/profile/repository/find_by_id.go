@@ -14,7 +14,7 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.User, erro
     }
 
     const query = `
-        SELECT id, name, bio, created_at, updated_at
+        SELECT id, name, COALESCE(bio, ''), created_at, updated_at
         FROM users
         WHERE id = $1
     `
@@ -27,12 +27,14 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.User, erro
         &user.CreatedAt,
         &user.UpdatedAt,
     )
+    
     if err != nil {
-        if errors.Is(err, sql.ErrNoRows) {
-            return profile.User{}, ErrUserNotFound
-        }
-        return profile.User{}, err
+    if errors.Is(err, sql.ErrNoRows) {
+        return profile.User{}, ErrUserNotFound
     }
+    return profile.User{}, err
+}
+
 
     return user, nil
 }

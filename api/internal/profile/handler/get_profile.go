@@ -44,7 +44,11 @@ func (h *Handler) getProfileHandler(c *gin.Context) {
             c.JSON(http.StatusUnauthorized, ErrorResponse{Message: err.Error()})
             return
         }
-        c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed"})
+        
+        c.JSON(http.StatusInternalServerError, ErrorResponse{
+            Message: err.Error(),
+        })
+
         return
     }
 
