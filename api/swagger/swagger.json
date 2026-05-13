@@ -641,12 +641,17 @@
         },
         "server.changePasswordRequest": {
             "type": "object",
+            "required": [
+                "current_password",
+                "new_password"
+            ],
             "properties": {
                 "current_password": {
                     "type": "string"
                 },
                 "new_password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 8
                 }
             }
         },
