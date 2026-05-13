@@ -24,7 +24,12 @@ const goToLogin = () => {
 </script>
 <template>
   <v-app-bar app color="primary" dark>
-    <v-img src="/kdtech-icon.png" alt="Logo" max-width="200" class="mr-4" />
+    <v-img
+      src="/kdtech-icon.png"
+      alt="Logo"
+      max-width="200"
+      class="mr-4"
+    />
 
     <v-spacer></v-spacer>
 
@@ -45,7 +50,9 @@ const goToLogin = () => {
             <v-icon>mdi-account</v-icon>
           </template>
 
-          <v-list-item-title> プロフィール </v-list-item-title>
+          <v-list-item-title>
+            プロフィール
+          </v-list-item-title>
         </v-list-item>
 
         <v-list-item @click="goToPasswordSettings">
@@ -53,18 +60,29 @@ const goToLogin = () => {
             <v-icon>mdi-lock</v-icon>
           </template>
 
-          <v-list-item-title> パスワード変更 </v-list-item-title>
+          <v-list-item-title>
+            パスワード変更
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
 
     <!-- ログアウト -->
-    <v-btn v-if="auth.isAuthenticated" @click="logout" color="white">
+    <v-btn
+      v-if="auth.isAuthenticated"
+      @click="logout"
+      color="white"
+    >
       ログアウト
     </v-btn>
 
     <!-- ログイン -->
-    <v-btn v-else @click="goToLogin" color="white" variant="outlined">
+    <v-btn
+      v-else
+      @click="goToLogin"
+      color="white"
+      variant="outlined"
+    >
       ログイン
     </v-btn>
   </v-app-bar>
