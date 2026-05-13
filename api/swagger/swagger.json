@@ -781,6 +781,9 @@
         },
         "server.likeCountResponse": {
             "type": "object",
+            "required": [
+                "likes_count"
+            ],
             "properties": {
                 "likes_count": {
                     "type": "integer"

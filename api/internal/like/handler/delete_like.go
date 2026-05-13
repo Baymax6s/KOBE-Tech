@@ -11,7 +11,7 @@ import (
 )
 
 type LikeCountResponse struct {
-	LikesCount int64 `json:"likes_count"`
+	LikesCount int64 `json:"likes_count" binding:"required"`
 } // @name server.likeCountResponse
 
 // deleteLikeHandler godoc

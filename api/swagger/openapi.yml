@@ -161,6 +161,8 @@ definitions:
     properties:
       likes_count:
         type: integer
+    required:
+    - likes_count
     type: object
   server.likeErrorResponse:
     properties:

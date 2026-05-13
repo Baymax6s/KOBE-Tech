@@ -69,7 +69,7 @@ export interface ServerGetArticleJSONResponse {
 }
 
 export interface ServerLikeCountResponse {
-  likes_count?: number;
+  likes_count: number;
 }
 
 export interface ServerLikeErrorResponse {
