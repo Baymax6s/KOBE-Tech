@@ -62,7 +62,8 @@ const likeArticle = async () => {
       return
     }
 
-    likeError.value = 'いいねの処理に失敗しました。時間をおいて再度お試しください。'
+    likeError.value =
+      'いいねの処理に失敗しました。時間をおいて再度お試しください。'
   } finally {
     likeSubmitting.value = false
   }
