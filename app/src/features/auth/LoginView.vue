@@ -1,3 +1,44 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
+
+const name = ref('')
+const password = ref('')
+const submitting = ref(false)
+const errorMessage = ref<string | null>(null)
+
+const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
+
+const onSubmit = async () => {
+  if (submitting.value) return
+  submitting.value = true
+  errorMessage.value = null
+  try {
+    await auth.login(name.value, password.value)
+    const redirect =
+      typeof route.query.redirect === 'string'
+        ? route.query.redirect
+        : '/articles'
+    router.push(redirect)
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response?.status === 401) {
+      errorMessage.value =
+        e.response.data?.message ??
+        'ユーザー名またはパスワードが正しくありません'
+    } else {
+      errorMessage.value =
+        'ログインに失敗しました。時間をおいて再度お試しください'
+    }
+  } finally {
+    submitting.value = false
+  }
+}
+</script>
+
 <template>
   <v-container class="fill-height bg-grey-lighten-4" fluid>
     <v-row justify="center" align="center">
@@ -53,44 +94,3 @@
   </v-container>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
-import { useAuthStore } from '@/stores/auth'
-
-const name = ref('')
-const password = ref('')
-const submitting = ref(false)
-const errorMessage = ref<string | null>(null)
-
-const router = useRouter()
-const route = useRoute()
-const auth = useAuthStore()
-
-const onSubmit = async () => {
-  if (submitting.value) return
-  submitting.value = true
-  errorMessage.value = null
-  try {
-    await auth.login(name.value, password.value)
-    const redirect =
-      typeof route.query.redirect === 'string'
-        ? route.query.redirect
-        : '/articles'
-    router.push(redirect)
-  } catch (e) {
-    // 401 のような認証エラーはサーバのメッセージを優先、それ以外は汎用文言
-    if (axios.isAxiosError(e) && e.response?.status === 401) {
-      errorMessage.value =
-        e.response.data?.message ??
-        'ユーザー名またはパスワードが正しくありません'
-    } else {
-      errorMessage.value =
-        'ログインに失敗しました。時間をおいて再度お試しください'
-    }
-  } finally {
-    submitting.value = false
-  }
-}
-</script>
