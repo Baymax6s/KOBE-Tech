@@ -37,4 +37,3 @@ const goToLogin = () => {
     </v-btn>
   </v-app-bar>
 </template>
-
