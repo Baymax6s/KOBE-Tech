@@ -14,6 +14,11 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 } // @name server.likeErrorResponse
 
+type LikeResponse struct {
+	LikesCount int64 `json:"likes_count"`
+	LikedByMe  bool  `json:"liked_by_me"`
+} // @name server.likeResponse
+
 // createLikeHandler godoc
 //
 //	@Summary		Like an article
@@ -22,7 +27,7 @@ type ErrorResponse struct {
 //	@Produce		json
 //	@Param			article_id	path	int	true	"Article ID"
 //
-// @Success		201
+//	@Success		200			{object}	LikeResponse
 //
 //	@Failure		400			{object}	ErrorResponse
 //	@Failure		401			{object}	ErrorResponse
@@ -55,5 +60,11 @@ func (h *Handler) createLikeHandler(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	count, err := h.repo.CountByArticle(c.Request.Context(), articleID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed to count likes"})
+		return
+	}
+
+	c.JSON(http.StatusOK, LikeResponse{LikesCount: count, LikedByMe: true})
 }
