@@ -44,7 +44,7 @@ const formattedDate = useDateFormat(
         <v-icon
           icon="mdi-heart-outline"
           size="small"
-          color="red-lighten-2"
+          color="red"
           class="me-1"
         />
         <span>{{ article.likes_count ?? 0 }}</span>

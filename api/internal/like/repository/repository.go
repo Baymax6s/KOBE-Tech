@@ -9,6 +9,7 @@ var (
 	ErrArticleNotFound = errors.New("article not found")
 	ErrAlreadyLiked    = errors.New("already liked")
 	ErrUserNotFound    = errors.New("user not found")
+	ErrNotLiked        = errors.New("not liked")
 )
 
 type Repository struct {

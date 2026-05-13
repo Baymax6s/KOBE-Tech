@@ -136,6 +136,11 @@ definitions:
     - title
     - updated_at
     type: object
+  server.likeCountResponse:
+    properties:
+      likes_count:
+        type: integer
+    type: object
   server.likeErrorResponse:
     properties:
       message:
@@ -342,6 +347,42 @@ paths:
       tags:
       - articles
   /api/articles/{article_id}/like:
+    delete:
+      description: Unlike an article API.
+      parameters:
+      - description: Article ID
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.likeCountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Unlike an article
+      tags:
+      - articles
     post:
       description: Like an article API.
       parameters:
