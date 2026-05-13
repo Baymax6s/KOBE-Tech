@@ -42,6 +42,8 @@ func (h *Handler) deleteLikeHandler(c *gin.Context) {
 	err = h.repo.Delete(c.Request.Context(), articleID, userID)
 	if err != nil {
 		switch {
+		case errors.Is(err, repository.ErrArticleNotFound):
+			c.JSON(http.StatusNotFound, ErrorResponse{Message: err.Error()})
 		case errors.Is(err, repository.ErrNotLiked):
 			c.JSON(http.StatusNotFound, ErrorResponse{Message: err.Error()})
 		default:

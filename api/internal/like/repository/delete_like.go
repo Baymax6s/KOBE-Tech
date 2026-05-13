@@ -26,6 +26,14 @@ func (r *Repository) Delete(ctx context.Context, articleID, userID int64) error 
 	}
 
 	if rowsAffected == 0 {
+		const checkArticle = `SELECT EXISTS(SELECT 1 FROM articles WHERE id = $1)`
+		var exists bool
+		if err := r.db.QueryRowContext(ctx, checkArticle, articleID).Scan(&exists); err != nil {
+			return err
+		}
+		if !exists {
+			return ErrArticleNotFound
+		}
 		return ErrNotLiked
 	}
 
