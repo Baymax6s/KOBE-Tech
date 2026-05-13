@@ -5,12 +5,12 @@ import (
 	"errors"
 )
 
-var ErrUserNotFound = errors.New("user not found") 
+var ErrUserNotFound = errors.New("user not found")
 
 type Repository struct {
-    db *sql.DB
+	db *sql.DB
 }
 
 func NewRepository(db *sql.DB) *Repository {
-    return &Repository{db: db}
+	return &Repository{db: db}
 }

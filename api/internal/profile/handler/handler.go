@@ -6,16 +6,14 @@ import (
 )
 
 type Handler struct {
-    repo *repository.Repository
+	repo *repository.Repository
 }
 
 func NewHandler(repo *repository.Repository) *Handler {
-    return &Handler{repo: repo}
+	return &Handler{repo: repo}
 }
-
 
 func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
-    authRouter.GET("/profile", h.getProfileHandler)
-    authRouter.PUT("/profile/bio", h.updateBioHandler)
+	authRouter.GET("/profile", h.getProfileHandler)
+	authRouter.PUT("/profile/bio", h.updateBioHandler)
 }
-

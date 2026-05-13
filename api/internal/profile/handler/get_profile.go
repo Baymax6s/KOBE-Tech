@@ -13,15 +13,15 @@ import (
 )
 
 type ProfileJSON struct {
-    ID        int64     `json:"id"`
-    Name      string    `json:"name"`
-    Bio       string    `json:"bio"`
-    CreatedAt time.Time `json:"created_at"`
-    UpdatedAt time.Time `json:"updated_at"`
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Bio       string    `json:"bio"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type ErrorResponse struct {
-    Message string `json:"message"`
+	Message string `json:"message"`
 }
 
 // getProfileHandler godoc
@@ -36,39 +36,39 @@ type ErrorResponse struct {
 // @Security BearerAuth
 // @Router /api/profile [get]
 func (h *Handler) getProfileHandler(c *gin.Context) {
-    userID := auth.MustUserID(c)
+	userID := auth.MustUserID(c)
 
-    res, err := h.GetProfile(c.Request.Context(), userID)
-    if err != nil {
-        if errors.Is(err, repository.ErrUserNotFound) {
-            c.JSON(http.StatusUnauthorized, ErrorResponse{Message: err.Error()})
-            return
-        }
-        
-        c.JSON(http.StatusInternalServerError, ErrorResponse{
-            Message: err.Error(),
-        })
+	res, err := h.GetProfile(c.Request.Context(), userID)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			c.JSON(http.StatusUnauthorized, ErrorResponse{Message: err.Error()})
+			return
+		}
 
-        return
-    }
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
+			Message: err.Error(),
+		})
 
-    c.JSON(http.StatusOK, res)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func (h *Handler) GetProfile(ctx context.Context, userID int64) (ProfileJSON, error) {
-    user, err := h.repo.FindByID(ctx, userID)
-    if err != nil {
-        return ProfileJSON{}, err
-    }
-    return newProfileJSON(user), nil
+	user, err := h.repo.FindByID(ctx, userID)
+	if err != nil {
+		return ProfileJSON{}, err
+	}
+	return newProfileJSON(user), nil
 }
 
 func newProfileJSON(u profile.User) ProfileJSON {
-    return ProfileJSON{
-        ID:        u.ID,
-        Name:      u.Name,
-        Bio:       u.Bio,
-        CreatedAt: u.CreatedAt,
-        UpdatedAt: u.UpdatedAt,
-    }
+	return ProfileJSON{
+		ID:        u.ID,
+		Name:      u.Name,
+		Bio:       u.Bio,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
+	}
 }
