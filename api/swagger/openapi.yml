@@ -65,7 +65,11 @@ definitions:
       current_password:
         type: string
       new_password:
+        minLength: 8
         type: string
+    required:
+    - current_password
+    - new_password
     type: object
   server.changePasswordResponse:
     properties:
