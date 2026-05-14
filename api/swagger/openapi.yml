@@ -589,29 +589,6 @@ paths:
       summary: Get current user
       tags:
       - auth
-  /api/profile:
-    get:
-      description: ログインユーザーのプロフィール取得
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/server.profileJSON'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/server.profileErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/server.profileErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get profile
-      tags:
-      - profile
   /api/auth/password:
     put:
       consumes:
@@ -648,6 +625,29 @@ paths:
       summary: Change password
       tags:
       - auth
+  /api/profile:
+    get:
+      description: ログインユーザーのプロフィール取得
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.profileJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get profile
+      tags:
+      - profile
   /api/tags:
     get:
       description: Get tag candidates for creating articles.
