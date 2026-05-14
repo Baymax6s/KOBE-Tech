@@ -12,9 +12,10 @@ defineOptions({
   name: 'ReplySection',
 })
 
-const props = defineProps<{ articleId: number }>()
+const props = defineProps<{ articleId: number; articleAuthorId: number }>()
 
-const { isAuthenticated } = storeToRefs(useAuthStore())
+const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
 const route = useRoute()
 const loginRedirect = computed(
   () => `/login?redirect=${encodeURIComponent(route.fullPath)}`,
@@ -23,6 +24,10 @@ const loginRedirect = computed(
 const replies = ref<ServerReplyJSONResponse[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+const isQuestionAuthor = computed(() => {
+  return authStore.userId !== null && authStore.userId === props.articleAuthorId
+})
 
 const childrenByParent = computed(() => {
   const map = new Map<number, ServerReplyJSONResponse[]>()
@@ -85,6 +90,27 @@ const fetchReplies = async (id: number) => {
 
 const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
   replies.value = [...replies.value, newReply]
+}
+
+const toggleBestSubmitting = ref(false)
+
+const handleToggleBest = async (replyId: number) => {
+  if (toggleBestSubmitting.value) return
+  toggleBestSubmitting.value = true
+  try {
+    const reply = replies.value.find((r) => r.id === replyId)
+    if (!reply) return
+    if (reply.is_best) {
+      await api.api.articlesRepliesBestDelete(props.articleId, replyId)
+    } else {
+      await api.api.articlesRepliesBestCreate(props.articleId, replyId)
+    }
+    await fetchReplies(props.articleId)
+  } catch {
+    error.value = 'ベストアンサーの更新に失敗しました'
+  } finally {
+    toggleBestSubmitting.value = false
+  }
 }
 
 watch(
@@ -155,7 +181,9 @@ watch(
         :descendant-count-by-parent="descendantCountByParent"
         :depth="0"
         :article-id="articleId"
+        :is-question-author="isQuestionAuthor"
         @submitted="handleSubmitted"
+        @toggle-best="handleToggleBest"
       />
     </div>
   </section>

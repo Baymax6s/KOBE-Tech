@@ -4,6 +4,7 @@ import { api, AUTH_TOKEN_STORAGE_KEY } from '@/api/client'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY))
+  const userId = ref<number | null>(null)
 
   const isAuthenticated = computed(() => token.value !== null)
 
@@ -14,7 +15,18 @@ export const useAuthStore = defineStore('auth', () => {
 
   const clearToken = () => {
     token.value = null
+    userId.value = null
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
+  }
+
+  const fetchCurrentUser = async () => {
+    if (!token.value) return
+    try {
+      const { data } = await api.api.authMeList()
+      userId.value = data.id ?? null
+    } catch {
+      clearToken()
+    }
   }
 
   const login = async (name: string, password: string) => {
@@ -23,12 +35,15 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('トークンが返却されませんでした')
     }
     setToken(data.token)
+    await fetchCurrentUser()
   }
 
   return {
     token,
+    userId,
     isAuthenticated,
     login,
     clearToken,
+    fetchCurrentUser,
   }
 })
