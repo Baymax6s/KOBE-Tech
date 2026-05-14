@@ -13,4 +13,4 @@ export const users = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
-];
+]

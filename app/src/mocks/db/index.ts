@@ -1,7 +1,7 @@
-import { users } from './users';
-import { tags } from './tags';
-import { articles } from './articles';
-import { replies } from './replies';
+import { users } from './users'
+import { tags } from './tags'
+import { articles } from './articles'
+import { replies } from './replies'
 
 export const db = {
   users,
@@ -9,4 +9,4 @@ export const db = {
   articles,
   replies,
   likes: new Set<string>(),
-};
+}

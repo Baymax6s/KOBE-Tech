@@ -19,4 +19,4 @@ export const articles = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
-];
+]
