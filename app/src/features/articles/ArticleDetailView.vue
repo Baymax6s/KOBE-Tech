@@ -167,7 +167,10 @@ watch(
             </v-card>
 
             <div class="mt-10">
-              <ReplySection :article-id="article.id" :article-author-id="article.author.id" />
+              <ReplySection
+                :article-id="article.id"
+                :article-author-id="article.author.id"
+              />
             </div>
           </template>
         </v-col>

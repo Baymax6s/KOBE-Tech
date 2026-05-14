@@ -68,7 +68,10 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
   <v-card
     flat
     rounded="lg"
-    :class="['pa-4', reply.is_best ? 'bg-amber-lighten-5' : 'bg-grey-lighten-5']"
+    :class="[
+      'pa-4',
+      reply.is_best ? 'bg-amber-lighten-5' : 'bg-grey-lighten-5',
+    ]"
     :style="reply.is_best ? { borderLeft: '4px solid #FFC107' } : {}"
   >
     <div class="d-flex align-center ga-2 mb-2">
