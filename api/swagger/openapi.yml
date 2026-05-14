@@ -305,6 +305,8 @@ definitions:
     properties:
       bio:
         type: string
+    required:
+    - bio
     type: object
   server.updateBioResponse:
     properties:

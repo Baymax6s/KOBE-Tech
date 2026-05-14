@@ -167,7 +167,7 @@ export interface ServerTagsErrorResponse {
 }
 
 export interface ServerUpdateBioRequest {
-  bio?: string;
+  bio: string;
 }
 
 export interface ServerUpdateBioResponse {

@@ -12,7 +12,7 @@ import (
 )
 
 type UpdateBioRequest struct {
-	Bio string `json:"bio"`
+	Bio string `json:"bio" binding:"required"`
 } // @name server.updateBioRequest
 
 type UpdateBioResponse struct {

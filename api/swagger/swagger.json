@@ -1097,6 +1097,9 @@
         },
         "server.updateBioRequest": {
             "type": "object",
+            "required": [
+                "bio"
+            ],
             "properties": {
                 "bio": {
                     "type": "string"
