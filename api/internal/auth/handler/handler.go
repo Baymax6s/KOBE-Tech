@@ -18,4 +18,5 @@ func NewHandler(repo *repository.Repository, issuer *auth.Issuer) *Handler {
 func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
 	router.POST("/auth/login", h.loginHandler)
 	authRouter.GET("/auth/me", h.meHandler)
+	authRouter.PUT("/auth/password", h.changePasswordHandler)
 }
