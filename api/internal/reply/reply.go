@@ -13,7 +13,7 @@ const maxBodyLength = 2000
 var (
 	ErrInvalidBody = errors.New("body is required")
 	ErrBodyTooLong = fmt.Errorf("body must be %d characters or less", maxBodyLength)
-	ErrInvalidKind = errors.New("kind must be 'comment'")
+	ErrInvalidKind = errors.New("kind must be one of 'comment', 'question', 'answer'")
 )
 
 type Kind int16
@@ -71,11 +71,12 @@ func NormalizeCreateInput(body string, kindValue *string) (string, Kind, error) 
 		return "", 0, ErrBodyTooLong
 	}
 
-	// 今回スコープは comment のみ。kind 省略時は comment 扱い。
+	// kind 省略時は comment 扱い。値が指定された場合は comment / question / answer のいずれかを受け付ける。
+	// 親 reply との整合性（例: ルートに answer は不可）は repository 側で検証する。
 	kind := KindComment
 	if kindValue != nil {
 		parsed, ok := ParseKind(*kindValue)
-		if !ok || parsed != KindComment {
+		if !ok {
 			return "", 0, ErrInvalidKind
 		}
 		kind = parsed

@@ -303,7 +303,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。",
+                "description": "記事 / 既存返信への返信を投稿する。kind は comment / question / answer のいずれか。ルート投稿は comment か question、コメント配下は comment、質問・回答配下は answer のみ受け付ける。",
                 "consumes": [
                     "application/json"
                 ],
@@ -313,7 +313,7 @@
                 "tags": [
                     "replies"
                 ],
-                "summary": "Create a reply (comment) on an article",
+                "summary": "Create a reply on an article",
                 "parameters": [
                     {
                         "type": "integer",
@@ -818,6 +818,9 @@
         },
         "server.likeCountResponse": {
             "type": "object",
+            "required": [
+                "likes_count"
+            ],
             "properties": {
                 "likes_count": {
                     "type": "integer"

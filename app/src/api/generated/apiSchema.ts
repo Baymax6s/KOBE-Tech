@@ -68,12 +68,12 @@ export interface ServerGetArticleJSONResponse {
   updated_at: string;
 }
 
-export interface ServerLikeErrorResponse {
-  message?: string;
-}
-
 export interface ServerLikeCountResponse {
   likes_count: number;
+}
+
+export interface ServerLikeErrorResponse {
+  message?: string;
 }
 
 export interface ServerListArticlesResponse {
@@ -380,6 +380,24 @@ export class Api<
       }),
 
     /**
+     * @description Unlike an article API.
+     *
+     * @tags articles
+     * @name ArticlesLikeDelete
+     * @summary Unlike an article
+     * @request DELETE:/api/articles/{article_id}/like
+     * @secure
+     */
+    articlesLikeDelete: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerLikeCountResponse, ServerLikeErrorResponse>({
+        path: `/api/articles/${articleId}/like`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Like an article API.
      *
      * @tags articles
@@ -393,24 +411,6 @@ export class Api<
         path: `/api/articles/${articleId}/like`,
         method: "POST",
         secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description Unlike an article API.
-     *
-     * @tags likes
-     * @name ArticlesLikeDelete
-     * @summary Unlike an article
-     * @request DELETE:/api/articles/{article_id}/like
-     * @secure
-     */
-    articlesLikeDelete: (articleId: number, params: RequestParams = {}) =>
-      this.request<ServerLikeCountResponse, ServerLikeErrorResponse>({
-        path: `/api/articles/${articleId}/like`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
         ...params,
       }),
 
@@ -431,11 +431,11 @@ export class Api<
       }),
 
     /**
-     * @description 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
+     * @description 記事 / 既存返信への返信を投稿する。kind は comment / question / answer のいずれか。ルート投稿は comment か question、コメント配下は comment、質問・回答配下は answer のみ受け付ける。
      *
      * @tags replies
      * @name ArticlesRepliesCreate
-     * @summary Create a reply (comment) on an article
+     * @summary Create a reply on an article
      * @request POST:/api/articles/{article_id}/replies
      * @secure
      */

@@ -24,7 +24,12 @@ func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, 
 		return reply.Reply{}, err
 	}
 
-	if parentID != nil {
+	if parentID == nil {
+		// ルート投稿は comment か question のみ許可（answer は必ず親が必要）。
+		if kind != reply.KindComment && kind != reply.KindQuestion {
+			return reply.Reply{}, ErrInvalidRootKind
+		}
+	} else {
 		parentKind, parentArticleID, err := fetchParent(ctx, tx, *parentID)
 		if err != nil {
 			return reply.Reply{}, err
@@ -32,8 +37,16 @@ func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, 
 		if parentArticleID != articleID {
 			return reply.Reply{}, ErrParentMismatch
 		}
-		// 今回はコメントのみ。親が comment のときに限り comment を返信できる。
-		if parentKind != reply.KindComment || kind != reply.KindComment {
+		// 親 kind ごとに子 kind を一意に決める:
+		//   comment への返信は comment、question/answer への返信は answer。
+		// これによりスレッドの種別がフォーム送信のタイミングで競合しないことを保証する。
+		var expected reply.Kind
+		if parentKind == reply.KindComment {
+			expected = reply.KindComment
+		} else {
+			expected = reply.KindAnswer
+		}
+		if kind != expected {
 			return reply.Reply{}, ErrInvalidParent
 		}
 	}
