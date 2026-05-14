@@ -306,6 +306,11 @@ definitions:
       bio:
         type: string
     type: object
+  server.updateBioResponse:
+    properties:
+      message:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -678,9 +683,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'message: updated'
+          description: OK
           schema:
-            type: object
+            $ref: '#/definitions/server.updateBioResponse'
         "400":
           description: Bad Request
           schema:

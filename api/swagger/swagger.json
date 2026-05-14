@@ -583,9 +583,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "message: updated",
+                        "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/server.updateBioResponse"
                         }
                     },
                     "400": {
@@ -1099,6 +1099,14 @@
             "type": "object",
             "properties": {
                 "bio": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.updateBioResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

@@ -91,13 +91,7 @@ export interface ServerLikeResponse {
 
 export interface ServerLikeErrorResponse {
   message?: string;
->>>>>>> d64b8ec (exec:schema生成)
 }
-
-export interface ServerLikeErrorResponse {
-  message?: string;
-}
-
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
 }
@@ -174,6 +168,10 @@ export interface ServerTagsErrorResponse {
 
 export interface ServerUpdateBioRequest {
   bio?: string;
+}
+
+export interface ServerUpdateBioResponse {
+  message?: string;
 }
 
 import type {
@@ -635,7 +633,7 @@ export class Api<
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
-      this.request<object, ServerProfileErrorResponse>({
+      this.request<ServerUpdateBioResponse, ServerProfileErrorResponse>({
         path: `/api/profile/bio`,
         method: "PUT",
         body: request,
