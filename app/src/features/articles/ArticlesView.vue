@@ -148,12 +148,15 @@ onMounted(async () => {
         </v-alert>
 
         <div v-else class="d-flex flex-column ga-4">
+          
           <ArticleCard
             v-for="article in filteredArticles"
             :key="article.id"
             :article="article"
+            :selected-tags="selectedTags"
             @select-tag="toggleTag"
           />
+
 
           <v-alert
             v-if="filteredArticles.length === 0"

@@ -2,11 +2,21 @@
 import { useDateFormat } from '@vueuse/core'
 import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 
-const props = defineProps<{ article: ServerArticleJSONResponse }>()
+const props = defineProps<{
+  article: ServerArticleJSONResponse
+  selectedTags: string[]
+}>()
 
 const emit = defineEmits<{
   (e: 'select-tag', tagName: string): void
 }>()
+
+
+
+const isSelected = (tagName: string) =>
+  props.selectedTags.includes(tagName)
+
+
 
 const formattedDate = useDateFormat(
   () => props.article.created_at ?? '',
@@ -20,20 +30,21 @@ const formattedDate = useDateFormat(
       {{ article.title }}
     </v-card-title>
 
-    <v-card-text v-if="article.tags?.length" class="py-0 px-4">
-      <v-chip-group>
-        <v-chip
-          v-for="tag in article.tags"
+  <v-card-text v-if="article.tags?.length" class="py-0 px-4">
+    <div class="d-flex ga-1 flex-wrap">
+      <v-chip
+        v-for="tag in article.tags"
           :key="tag.id"
           size="x-small"
-          variant="outlined"
-          color="primary"
+          :variant="isSelected(tag.name) ? 'flat' : 'outlined'"
+          :color="isSelected(tag.name) ? 'primary' : undefined"
           @click.stop.prevent="emit('select-tag', tag.name)"
         >
           {{ tag.name }}
         </v-chip>
-      </v-chip-group>
+      </div>
     </v-card-text>
+
 
     <v-card-subtitle
       class="text-sm text-gray-500 d-flex align-center justify-space-between mt-2"
