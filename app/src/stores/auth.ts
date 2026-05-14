@@ -23,7 +23,9 @@ export const useAuthStore = defineStore('auth', () => {
   const fetchCurrentUser = async () => {
     if (!token.value) return
     try {
-      const { data } = await api.api.authMeList({ skipGlobalErrorHandler: true })
+      const { data } = await api.api.authMeList({
+        skipGlobalErrorHandler: true,
+      })
       userId.value = data.id ?? null
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
