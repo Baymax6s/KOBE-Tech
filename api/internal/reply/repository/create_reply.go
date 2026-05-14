@@ -27,7 +27,7 @@ func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, 
 	if parentID == nil {
 		// ルート投稿は comment か question のみ許可（answer は必ず親が必要）。
 		if kind != reply.KindComment && kind != reply.KindQuestion {
-			return reply.Reply{}, ErrInvalidParent
+			return reply.Reply{}, ErrInvalidRootKind
 		}
 	} else {
 		parentKind, parentArticleID, err := fetchParent(ctx, tx, *parentID)

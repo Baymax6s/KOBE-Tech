@@ -1,7 +1,18 @@
 -- 本マイグレーションで投入した質問 / 回答のみを削除する。
--- 親子関係は ON DELETE CASCADE なので、親（質問）の content を指定すれば子（回答）も連動して消える。
+-- ユーザー投稿との衝突を避けるため、対象記事 (article_id) と kind (1=質問, 2=回答) に
+-- スコープを限定したうえで、本マイグレーション固有の content を列挙する。
 DELETE FROM replies
-WHERE content IN (
+WHERE kind IN (1, 2)
+  AND article_id IN (
+        SELECT id FROM articles
+        WHERE title IN (
+            '神戸大学でのハッカソン体験記',
+            'Vue 3 + Vuetifyで学ぶフロントエンド開発',
+            'PostgreSQLのマイグレーション管理',
+            'Dockerで開発環境を統一する'
+        )
+    )
+  AND content IN (
         -- Article 1
         '次回参加するときに、当日までに練習しておくと良い技術スタックはありますか？',
         'チーム構成にもよりますが、最低限 Git の運用と、フロント・バックの最小サンプルを動かせるようにしておくと当日が楽です。',
