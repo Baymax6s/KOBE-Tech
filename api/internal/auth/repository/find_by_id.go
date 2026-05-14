@@ -13,10 +13,10 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (auth.User, error) 
 	}
 
 	const query = `
-		SELECT id, name, password_hash, created_at, updated_at
-		FROM users
-		WHERE id = $1
-	`
+        SELECT id, name, password_hash, created_at, updated_at
+        FROM users
+        WHERE id = $1
+    `
 
 	var user auth.User
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
