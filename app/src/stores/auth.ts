@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import axios from 'axios'
 import { api, AUTH_TOKEN_STORAGE_KEY } from '@/api/client'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -22,10 +23,12 @@ export const useAuthStore = defineStore('auth', () => {
   const fetchCurrentUser = async () => {
     if (!token.value) return
     try {
-      const { data } = await api.api.authMeList()
+      const { data } = await api.api.authMeList({ skipGlobalErrorHandler: true })
       userId.value = data.id ?? null
-    } catch {
-      clearToken()
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        clearToken()
+      }
     }
   }
 

@@ -101,9 +101,13 @@ const handleToggleBest = async (replyId: number) => {
     const reply = replies.value.find((r) => r.id === replyId)
     if (!reply) return
     if (reply.is_best) {
-      await api.api.articlesRepliesBestDelete(props.articleId, replyId)
+      await api.api.articlesRepliesBestDelete(props.articleId, replyId, {
+        skipGlobalErrorHandler: true,
+      })
     } else {
-      await api.api.articlesRepliesBestCreate(props.articleId, replyId)
+      await api.api.articlesRepliesBestCreate(props.articleId, replyId, {
+        skipGlobalErrorHandler: true,
+      })
     }
     await fetchReplies(props.articleId)
   } catch {

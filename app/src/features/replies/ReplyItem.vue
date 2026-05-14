@@ -36,7 +36,7 @@ const replyActionLabel = computed(() =>
   props.reply.kind === 'comment' ? 'コメントする' : '回答する',
 )
 
-// 投稿から 6 日以内は「N分前 / N時間前 / N日前」と表示し、7 日以上日以上経過したら絶対日付に切り替える。
+// 投稿から 6 日以内は「N分前 / N時間前 / N日前」と表示し、7 日以上経過したら絶対日付に切り替える。
 // useTimeAgo は内部で setInterval により値をリアクティブに更新するので、画面を開きっぱなしでも表示が古びない。
 const formattedDate = useTimeAgo(() => props.reply.created_at, {
   max: 6 * 24 * 60 * 60 * 1000,
