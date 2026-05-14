@@ -11,12 +11,7 @@ const emit = defineEmits<{
   (e: 'select-tag', tagName: string): void
 }>()
 
-
-
-const isSelected = (tagName: string) =>
-  props.selectedTags.includes(tagName)
-
-
+const isSelected = (tagName: string) => props.selectedTags.includes(tagName)
 
 const formattedDate = useDateFormat(
   () => props.article.created_at ?? '',
@@ -30,10 +25,10 @@ const formattedDate = useDateFormat(
       {{ article.title }}
     </v-card-title>
 
-  <v-card-text v-if="article.tags?.length" class="py-0 px-4">
-    <div class="d-flex ga-1 flex-wrap">
-      <v-chip
-        v-for="tag in article.tags"
+    <v-card-text v-if="article.tags?.length" class="py-0 px-4">
+      <div class="d-flex ga-1 flex-wrap">
+        <v-chip
+          v-for="tag in article.tags"
           :key="tag.id"
           size="x-small"
           :variant="isSelected(tag.name) ? 'flat' : 'outlined'"
@@ -44,7 +39,6 @@ const formattedDate = useDateFormat(
         </v-chip>
       </div>
     </v-card-text>
-
 
     <v-card-subtitle
       class="text-sm text-gray-500 d-flex align-center justify-space-between mt-2"
