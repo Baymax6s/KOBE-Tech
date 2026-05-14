@@ -52,3 +52,51 @@ mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```sh
 npm run generate:api
 ```
+
+### MSW の有効化
+
+MSW(Mock Service Worker) を利用する場合は `.env` を編集してください。
+
+```env
+VITE_USE_MSW=true
+```
+
+デフォルトでは `false` になっており、実APIを利用します。
+
+MSW を利用することで、backend 未実装時でも frontend 単体で動作確認できます。
+
+frontend の実装では、API 実装に加えて MSW のモック追加までをタスク範囲とします。
+
+## MSW 開発
+
+### ファイル構成
+
+```txt
+app/
+├── .env                  # VITE_USE_MSW=true / false
+└── src/
+    ├── mocks/
+    │   ├── handlers.ts   # MSW handler / モックAPI / モックデータ
+    │   └── browser.ts    # MSW worker セットアップ
+    └── main.ts           # .env を利用した MSW 有効化設定
+```
+
+### モックAPI作成
+
+モックAPIは基本的に `src/mocks/handlers.ts` で管理してください。
+
+`handlers.ts` では以下をまとめて管理しています。
+
+- MSW handler
+- モックAPI
+- モックデータ
+- utility関数
+
+handler は以下の形式で定義してください。
+
+```ts
+http.get('*/api/articles', ...)
+http.post('*/api/auth/login', ...)
+```
+
+frontend の実装では、API 実装に加えて MSW のモック追加までをタスク範囲とします。
