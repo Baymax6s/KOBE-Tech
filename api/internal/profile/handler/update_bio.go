@@ -13,7 +13,7 @@ import (
 
 type UpdateBioRequest struct {
 	Bio string `json:"bio"`
-}
+} // @name server.updateBioRequest
 
 func (h *Handler) updateBioHandler(c *gin.Context) {
 	userID := auth.MustUserID(c)

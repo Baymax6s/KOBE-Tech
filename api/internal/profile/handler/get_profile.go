@@ -18,11 +18,11 @@ type ProfileJSON struct {
 	Bio       string    `json:"bio"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
+} // @name server.profileJSON
 
 type ErrorResponse struct {
 	Message string `json:"message"`
-}
+} // @name server.profileErrorResponse
 
 // getProfileHandler godoc
 //
