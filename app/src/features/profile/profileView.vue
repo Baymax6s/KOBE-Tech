@@ -84,7 +84,7 @@ const saveBio = async () => {
           <v-progress-circular indeterminate color="primary" />
         </div>
 
-        <v-card v-else-if="user" class="pa-6 text-center elevation-3">
+        <v-card v-if="user" class="pa-6 text-center elevation-3">
           <v-avatar size="70" class="mx-auto mb-2" color="indigo-lighten-1">
             <v-icon size="40" color="white"> mdi-account-circle </v-icon>
           </v-avatar>
