@@ -26,8 +26,11 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 const isQuestionAuthor = computed(() => {
-  return authStore.userId !== null && replies.value.some(
-    (r) => r.kind === 'question' && r.user_id === authStore.userId
+  return (
+    authStore.userId !== null &&
+    replies.value.some(
+      (r) => r.kind === 'question' && r.user_id === authStore.userId,
+    )
   )
 })
 
