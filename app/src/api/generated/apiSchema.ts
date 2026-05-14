@@ -172,6 +172,10 @@ export interface ServerTagsErrorResponse {
   message?: string;
 }
 
+export interface ServerUpdateBioRequest {
+  bio?: string;
+}
+
 import type {
   AxiosInstance,
   AxiosRequestConfig,
@@ -614,6 +618,29 @@ export class Api<
         path: `/api/profile`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ログインユーザーの自己紹介を更新する
+     *
+     * @tags profile
+     * @name ProfileBioUpdate
+     * @summary Update bio
+     * @request PUT:/api/profile/bio
+     * @secure
+     */
+    profileBioUpdate: (
+      request: ServerUpdateBioRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<object, ServerProfileErrorResponse>({
+        path: `/api/profile/bio`,
+        method: "PUT",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

@@ -15,6 +15,20 @@ type UpdateBioRequest struct {
 	Bio string `json:"bio"`
 } // @name server.updateBioRequest
 
+// updateBioHandler godoc
+//
+// @Summary Update bio
+// @Description ログインユーザーの自己紹介を更新する
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Param request body UpdateBioRequest true "Update bio request"
+// @Success 200 {object} object "message: updated"
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /api/profile/bio [put]
 func (h *Handler) updateBioHandler(c *gin.Context) {
 	userID := auth.MustUserID(c)
 
