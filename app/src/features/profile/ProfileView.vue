@@ -2,13 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { api } from '@/api/client'
 
-type MeResponse = {
-  id: number
-  name: string
-  bio: string
+type ProfileResponse = {
+  id?: number
+  name?: string
+  bio?: string
 }
-
-type ProfileResponse = MeResponse
 
 const user = ref<ProfileResponse | null>(null)
 
@@ -25,7 +23,7 @@ onMounted(async () => {
   error.value = null
 
   try {
-    const res = await api.instance.get<ProfileResponse>('/api/profile')
+    const res = await api.api.profileList()
     user.value = res.data
     bio.value = res.data.bio ?? ''
   } catch {
@@ -39,7 +37,7 @@ const saveBio = async () => {
   if (bio.value.length > maxLength) return
 
   try {
-    await api.instance.put<{ message: string }>('/api/profile/bio', {
+    await api.api.profileUpdate({
       bio: bio.value,
     })
 
