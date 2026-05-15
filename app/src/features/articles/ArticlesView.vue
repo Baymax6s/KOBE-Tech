@@ -152,6 +152,7 @@ onMounted(async () => {
             v-for="article in filteredArticles"
             :key="article.id"
             :article="article"
+            :selected-tags="selectedTags"
             @select-tag="toggleTag"
           />
 
