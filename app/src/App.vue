@@ -8,6 +8,7 @@ const route = useRoute()
 const showHeader = computed(() => route.meta?.hideHeader !== true)
 const auth = useAuthStore()
 
+// リロード時にトークンはあるがuserIdがnullのため、全ページ共通でユーザー情報を復元する
 onMounted(() => {
   if (auth.isAuthenticated) {
     auth.fetchCurrentUser()
