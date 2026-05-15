@@ -6,7 +6,7 @@ import './styles/tailwind.css'
 import './main.css'
 import App from './App.vue'
 
-async function bootstrap() {
+async function main() {
   const useMSW = import.meta.env.VITE_USE_MSW === 'true'
 
   if (import.meta.env.DEV && useMSW) {
@@ -22,4 +22,4 @@ async function bootstrap() {
   app.mount('#app')
 }
 
-bootstrap()
+main()
