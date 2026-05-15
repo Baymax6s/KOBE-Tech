@@ -12,9 +12,27 @@ import (
 )
 
 type UpdateBioRequest struct {
-	Bio string `json:"bio"`
+	Bio string `json:"bio" binding:"required"`
 } // @name server.updateBioRequest
 
+type UpdateBioResponse struct {
+	Message string `json:"message"`
+} // @name server.updateBioResponse
+
+// updateBioHandler godoc
+//
+// @Summary Update bio
+// @Description ログインユーザーの自己紹介を更新する
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Param request body UpdateBioRequest true "Update bio request"
+// @Success 200 {object} UpdateBioResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Security BearerAuth
+// @Router /api/profile/bio [put]
 func (h *Handler) updateBioHandler(c *gin.Context) {
 	userID := auth.MustUserID(c)
 
@@ -43,19 +61,19 @@ func (h *Handler) updateBioHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *Handler) UpdateBio(ctx context.Context, userID int64, req UpdateBioRequest) (gin.H, error) {
+func (h *Handler) UpdateBio(ctx context.Context, userID int64, req UpdateBioRequest) (UpdateBioResponse, error) {
 	if h == nil || h.repo == nil {
-		return nil, errors.New("handler not configured")
+		return UpdateBioResponse{}, errors.New("handler not configured")
 	}
 
 	bio, err := profile.NormalizeBioInput(req.Bio)
 	if err != nil {
-		return nil, err
+		return UpdateBioResponse{}, err
 	}
 
 	if err := h.repo.UpdateBio(ctx, userID, bio); err != nil {
-		return nil, err
+		return UpdateBioResponse{}, err
 	}
 
-	return gin.H{"message": "updated"}, nil
+	return UpdateBioResponse{Message: "updated"}, nil
 }

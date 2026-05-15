@@ -301,6 +301,18 @@ definitions:
       message:
         type: string
     type: object
+  server.updateBioRequest:
+    properties:
+      bio:
+        type: string
+    required:
+    - bio
+    type: object
+  server.updateBioResponse:
+    properties:
+      message:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -655,6 +667,42 @@ paths:
       security:
       - BearerAuth: []
       summary: Get profile
+      tags:
+      - profile
+  /api/profile/bio:
+    put:
+      consumes:
+      - application/json
+      description: ログインユーザーの自己紹介を更新する
+      parameters:
+      - description: Update bio request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.updateBioRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.updateBioResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update bio
       tags:
       - profile
   /api/tags:

@@ -36,6 +36,20 @@ export interface ServerArticleTagJSONResponse {
   name: string;
 }
 
+export interface ServerChangePasswordErrorResponse {
+  message?: string;
+}
+
+export interface ServerChangePasswordRequest {
+  current_password: string;
+  /** @minLength 8 */
+  new_password: string;
+}
+
+export interface ServerChangePasswordResponse {
+  message?: string;
+}
+
 export interface ServerCreateArticleRequest {
   content?: string;
   tags?: string[];
@@ -78,7 +92,6 @@ export interface ServerLikeResponse {
 export interface ServerLikeErrorResponse {
   message?: string;
 }
-
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
 }
@@ -115,6 +128,18 @@ export interface ServerMeResponse {
   updated_at?: string;
 }
 
+export interface ServerProfileErrorResponse {
+  message?: string;
+}
+
+export interface ServerProfileJSON {
+  bio?: string;
+  created_at?: string;
+  id?: number;
+  name?: string;
+  updated_at?: string;
+}
+
 export interface ServerReplyErrorResponse {
   message?: string;
 }
@@ -138,6 +163,14 @@ export interface ServerTagJSONResponse {
 }
 
 export interface ServerTagsErrorResponse {
+  message?: string;
+}
+
+export interface ServerUpdateBioRequest {
+  bio: string;
+}
+
+export interface ServerUpdateBioResponse {
   message?: string;
 }
 
@@ -539,6 +572,73 @@ export class Api<
         path: `/api/auth/me`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Changes the authenticated user's password.
+     *
+     * @tags auth
+     * @name AuthPasswordUpdate
+     * @summary Change password
+     * @request PUT:/api/auth/password
+     * @secure
+     */
+    authPasswordUpdate: (
+      request: ServerChangePasswordRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        ServerChangePasswordResponse,
+        ServerChangePasswordErrorResponse
+      >({
+        path: `/api/auth/password`,
+        method: "PUT",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ログインユーザーのプロフィール取得
+     *
+     * @tags profile
+     * @name ProfileList
+     * @summary Get profile
+     * @request GET:/api/profile
+     * @secure
+     */
+    profileList: (params: RequestParams = {}) =>
+      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+        path: `/api/profile`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ログインユーザーの自己紹介を更新する
+     *
+     * @tags profile
+     * @name ProfileBioUpdate
+     * @summary Update bio
+     * @request PUT:/api/profile/bio
+     * @secure
+     */
+    profileBioUpdate: (
+      request: ServerUpdateBioRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ServerUpdateBioResponse, ServerProfileErrorResponse>({
+        path: `/api/profile/bio`,
+        method: "PUT",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

@@ -46,7 +46,7 @@ func (h *Handler) getProfileHandler(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
-			Message: err.Error(),
+			Message: "failed to get profile",
 		})
 
 		return
