@@ -50,6 +50,20 @@ export interface ServerChangePasswordResponse {
   message?: string;
 }
 
+export interface ServerChangePasswordErrorResponse {
+  message?: string;
+}
+
+export interface ServerChangePasswordRequest {
+  current_password: string;
+  /** @minLength 8 */
+  new_password: string;
+}
+
+export interface ServerChangePasswordResponse {
+  message?: string;
+}
+
 export interface ServerCreateArticleRequest {
   content?: string;
   tags?: string[];
@@ -127,6 +141,26 @@ export interface ServerMeResponse {
   id?: number;
   name?: string;
   updated_at?: string;
+}
+
+export interface ServerProfileErrorResponse {
+  message?: string;
+}
+
+export interface ServerProfileJSON {
+  bio?: string;
+  created_at?: string;
+  id?: number;
+  name?: string;
+  updated_at?: string;
+}
+
+export interface ServerUpdateBioRequest {
+  bio: string;
+}
+
+export interface ServerUpdateBioResponse {
+  message?: string;
 }
 
 export interface ServerProfileErrorResponse {
@@ -572,15 +606,15 @@ export class Api<
       }),
 
     /**
-     * @description ログインユーザーの自己紹介を更新する
+     * @description ログインユーザーの自己紹介を更新
      *
      * @tags profile
-     * @name ProfileBioUpdate
-     * @summary Update bio
-     * @request PUT:/api/profile/bio
+     * @name ProfileUpdate
+     * @summary Update profile bio
+     * @request PUT:/api/profile
      * @secure
      */
-    profileBioUpdate: (
+    profileUpdate: (
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
