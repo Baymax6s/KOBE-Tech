@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-// import { api } from '@/api/client' ← 後で有効化
+import { api } from '@/api/client'
 
 type MeResponse = {
   id: number
@@ -8,7 +8,9 @@ type MeResponse = {
   bio: string
 }
 
-const user = ref<MeResponse | null>(null)
+type ProfileResponse = MeResponse
+
+const user = ref<ProfileResponse | null>(null)
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -23,20 +25,9 @@ onMounted(async () => {
   error.value = null
 
   try {
-    // 後でこれ有効化
-    /*
-    const res = await api.api.authMeList()
+    const res = await api.instance.get<ProfileResponse>('/api/profile')
     user.value = res.data
     bio.value = res.data.bio ?? ''
-    */
-
-    // 仮（今だけ表示させる）
-    user.value = {
-      id: 1,
-      name: 'テストユーザー',
-      bio: 'こんにちは！プロフィールを書いてみてください！',
-    }
-    bio.value = user.value.bio
   } catch {
     error.value = 'プロフィールの取得に失敗しました'
   } finally {
@@ -48,12 +39,9 @@ const saveBio = async () => {
   if (bio.value.length > maxLength) return
 
   try {
-    // 後で有効化
-    /*
-    await api.api.authMeBioUpdate({
-      bio: bio.value
+    await api.instance.put<{ message: string }>('/api/profile/bio', {
+      bio: bio.value,
     })
-    */
 
     if (user.value) {
       user.value.bio = bio.value

@@ -35,4 +35,27 @@ export const profileHandlers = [
 
     return HttpResponse.json(user)
   }),
+
+  http.put('*/api/profile/bio', async ({ request }) => {
+    const user = auth()
+
+    if (!user) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = (await request.json()) as { bio?: string }
+
+    if (typeof body.bio !== 'string') {
+      return HttpResponse.json({ message: 'Invalid request' }, { status: 400 })
+    }
+
+    const existing = db.users.find((u) => u.id === user.id)
+    if (!existing) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    existing.bio = body.bio
+
+    return HttpResponse.json({ message: 'updated' })
+  }),
 ]
