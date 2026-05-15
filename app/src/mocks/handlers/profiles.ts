@@ -36,7 +36,7 @@ export const profileHandlers = [
     return HttpResponse.json(user)
   }),
 
-  http.put('*/api/profile/bio', async ({ request }) => {
+  http.put('*/api/profile', async ({ request }) => {
     const user = auth()
 
     if (!user) {
