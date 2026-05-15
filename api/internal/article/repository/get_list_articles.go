@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (r *Repository) ListArticles(ctx context.Context) ([]article.Article, error) {
+func (r *Repository) ListArticles(ctx context.Context, userID int64) ([]article.Article, error) {
 	if r == nil || r.db == nil {
 		return nil, errors.New("article repository is not configured")
 	}
@@ -22,7 +22,8 @@ func (r *Repository) ListArticles(ctx context.Context) ([]article.Article, error
 			a.updated_at,
 			COALESCE(l.like_count, 0),
 			COALESCE(tag_summary.tag_ids, ARRAY[]::integer[]),
-			COALESCE(tag_summary.tag_names, ARRAY[]::text[])
+			COALESCE(tag_summary.tag_names, ARRAY[]::text[]),
+			EXISTS(SELECT 1 FROM likes WHERE article_id = a.id AND user_id = $1)
 		FROM articles a
 		LEFT JOIN (
 			SELECT article_id, COUNT(*) AS like_count FROM likes GROUP BY article_id
@@ -39,7 +40,7 @@ func (r *Repository) ListArticles(ctx context.Context) ([]article.Article, error
 		ORDER BY a.created_at DESC, a.id DESC
 	`
 
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +61,7 @@ func (r *Repository) ListArticles(ctx context.Context) ([]article.Article, error
 			&item.LikesCount,
 			pq.Array(&tagIDs),
 			pq.Array(&tagNames),
+			&item.LikedByMe,
 		); err != nil {
 			return nil, err
 		}

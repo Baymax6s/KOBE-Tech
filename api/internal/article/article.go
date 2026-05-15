@@ -29,6 +29,7 @@ type Article struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	LikesCount int64
+	LikedByMe  bool
 }
 
 func NormalizeCreateInput(title, content string, tagNames []string) (string, string, []string, error) {

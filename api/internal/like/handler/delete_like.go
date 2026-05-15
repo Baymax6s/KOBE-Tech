@@ -10,10 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type LikeCountResponse struct {
-	LikesCount int64 `json:"likes_count" binding:"required"`
-} // @name server.likeCountResponse
-
 // deleteLikeHandler godoc
 //
 //	@Summary		Unlike an article
@@ -22,7 +18,7 @@ type LikeCountResponse struct {
 //	@Produce		json
 //	@Param			article_id	path	int	true	"Article ID"
 //
-//	@Success		200			{object}	LikeCountResponse
+//	@Success		200			{object}	LikeResponse
 //
 //	@Failure		400			{object}	ErrorResponse
 //	@Failure		401			{object}	ErrorResponse
@@ -58,5 +54,5 @@ func (h *Handler) deleteLikeHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, LikeCountResponse{LikesCount: count})
+	c.JSON(http.StatusOK, LikeResponse{LikesCount: count, LikedByMe: false})
 }

@@ -165,8 +165,11 @@
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeResponse"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -227,7 +230,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.likeCountResponse"
+                            "$ref": "#/definitions/server.likeResponse"
                         }
                     },
                     "400": {
@@ -633,6 +636,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "liked_by_me": {
+                    "type": "boolean"
+                },
                 "likes_count": {
                     "type": "integer"
                 },
@@ -799,6 +805,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "liked_by_me": {
+                    "type": "boolean"
+                },
                 "likes_count": {
                     "type": "integer"
                 },
@@ -816,22 +825,22 @@
                 }
             }
         },
-        "server.likeCountResponse": {
-            "type": "object",
-            "required": [
-                "likes_count"
-            ],
-            "properties": {
-                "likes_count": {
-                    "type": "integer"
-                }
-            }
-        },
         "server.likeErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "server.likeResponse": {
+            "type": "object",
+            "properties": {
+                "liked_by_me": {
+                    "type": "boolean"
+                },
+                "likes_count": {
+                    "type": "integer"
                 }
             }
         },

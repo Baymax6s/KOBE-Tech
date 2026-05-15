@@ -24,6 +24,7 @@ export interface ServerArticleJSONResponse {
   created_at: string;
   id: number;
   likes_count: number;
+  liked_by_me: boolean;
   tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
@@ -63,12 +64,14 @@ export interface ServerGetArticleJSONResponse {
   created_at: string;
   id: number;
   likes_count: number;
+  liked_by_me: boolean;
   tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
 }
 
-export interface ServerLikeCountResponse {
+export interface ServerLikeResponse {
+  liked_by_me: boolean;
   likes_count: number;
 }
 
@@ -389,7 +392,7 @@ export class Api<
      * @secure
      */
     articlesLikeDelete: (articleId: number, params: RequestParams = {}) =>
-      this.request<ServerLikeCountResponse, ServerLikeErrorResponse>({
+      this.request<ServerLikeResponse, ServerLikeErrorResponse>({
         path: `/api/articles/${articleId}/like`,
         method: "DELETE",
         secure: true,
@@ -407,14 +410,16 @@ export class Api<
      * @secure
      */
     articlesLikeCreate: (articleId: number, params: RequestParams = {}) =>
-      this.request<void, ServerLikeErrorResponse>({
+      this.request<ServerLikeResponse, ServerLikeErrorResponse>({
         path: `/api/articles/${articleId}/like`,
         method: "POST",
         secure: true,
+        format: "json",
         ...params,
       }),
 
     /**
+
      * @description 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
      *
      * @tags replies
