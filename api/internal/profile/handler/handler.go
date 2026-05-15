@@ -15,5 +15,5 @@ func NewHandler(repo *repository.Repository) *Handler {
 
 func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
 	authRouter.GET("/profile", h.getProfileHandler)
-	authRouter.PUT("/profile/bio", h.updateBioHandler)
+	authRouter.PUT("/profile", h.updateBioHandler)
 }
