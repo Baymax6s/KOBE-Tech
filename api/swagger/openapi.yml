@@ -161,7 +161,6 @@ definitions:
     - title
     - updated_at
     type: object
-
   server.likeErrorResponse:
     properties:
       message:

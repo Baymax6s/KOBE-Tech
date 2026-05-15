@@ -825,7 +825,6 @@
                 }
             }
         },
-
         "server.likeErrorResponse": {
             "type": "object",
             "properties": {
