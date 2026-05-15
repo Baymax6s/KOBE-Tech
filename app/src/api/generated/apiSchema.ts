@@ -23,8 +23,8 @@ export interface ServerArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  liked_by_me?: boolean;
   likes_count: number;
-  liked_by_me: boolean;
   tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
@@ -34,6 +34,20 @@ export interface ServerArticleJSONResponse {
 export interface ServerArticleTagJSONResponse {
   id: number;
   name: string;
+}
+
+export interface ServerChangePasswordErrorResponse {
+  message?: string;
+}
+
+export interface ServerChangePasswordRequest {
+  current_password: string;
+  /** @minLength 8 */
+  new_password: string;
+}
+
+export interface ServerChangePasswordResponse {
+  message?: string;
 }
 
 export interface ServerChangePasswordErrorResponse {
@@ -77,20 +91,20 @@ export interface ServerGetArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  liked_by_me?: boolean;
   likes_count: number;
-  liked_by_me: boolean;
   tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
 }
 
-export interface ServerLikeResponse {
-  liked_by_me: boolean;
-  likes_count: number;
-}
-
 export interface ServerLikeErrorResponse {
   message?: string;
+}
+
+export interface ServerLikeResponse {
+  liked_by_me?: boolean;
+  likes_count?: number;
 }
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
@@ -140,6 +154,26 @@ export interface ServerProfileJSON {
   updated_at?: string;
 }
 
+export interface ServerUpdateBioRequest {
+  bio: string;
+}
+
+export interface ServerUpdateBioResponse {
+  message?: string;
+}
+
+export interface ServerProfileErrorResponse {
+  message?: string;
+}
+
+export interface ServerProfileJSON {
+  bio?: string;
+  created_at?: string;
+  id?: number;
+  name?: string;
+  updated_at?: string;
+}
+
 export interface ServerReplyErrorResponse {
   message?: string;
 }
@@ -149,7 +183,6 @@ export interface ServerReplyJSONResponse {
   body: string;
   created_at: string;
   id: number;
-  is_best: boolean;
   kind: "comment" | "question" | "answer";
   parent_id?: number;
   updated_at: string;
@@ -453,7 +486,6 @@ export class Api<
       }),
 
     /**
-
      * @description 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
      *
      * @tags replies
@@ -489,50 +521,6 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Mark a reply as best answer.
-     *
-     * @tags replies
-     * @name ArticlesRepliesBestCreate
-     * @summary Mark reply as best answer
-     * @request PATCH:/api/articles/{article_id}/replies/{reply_id}/best
-     * @secure
-     */
-    articlesRepliesBestCreate: (
-      articleId: number,
-      replyId: number,
-      params: RequestParams = {},
-    ) =>
-      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
-        path: `/api/articles/${articleId}/replies/${replyId}/best`,
-        method: "PATCH",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Unmark a reply as best answer.
-     *
-     * @tags replies
-     * @name ArticlesRepliesBestDelete
-     * @summary Unmark reply as best answer
-     * @request DELETE:/api/articles/{article_id}/replies/{reply_id}/best
-     * @secure
-     */
-    articlesRepliesBestDelete: (
-      articleId: number,
-      replyId: number,
-      params: RequestParams = {},
-    ) =>
-      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
-        path: `/api/articles/${articleId}/replies/${replyId}/best`,
-        method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -621,20 +609,20 @@ export class Api<
       }),
 
     /**
-     * @description ログインユーザーの自己紹介を更新する
+     * @description ログインユーザーの自己紹介を更新
      *
      * @tags profile
-     * @name ProfileBioUpdate
-     * @summary Update bio
-     * @request PUT:/api/profile/bio
+     * @name ProfileUpdate
+     * @summary Update profile bio
+     * @request PUT:/api/profile
      * @secure
      */
-    profileBioUpdate: (
+    profileUpdate: (
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
       this.request<ServerUpdateBioResponse, ServerProfileErrorResponse>({
-        path: `/api/profile/bio`,
+        path: `/api/profile`,
         method: "PUT",
         body: request,
         secure: true,
