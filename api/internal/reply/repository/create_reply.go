@@ -58,13 +58,12 @@ func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, 
 	`
 
 	var item reply.Reply
-	var kindVal int16
 	var parentVal sql.NullInt64
-	err = tx.QueryRowContext(ctx, insertQuery, articleID, userID, nullableInt64(parentID), int16(kind), body).Scan(
+	err = tx.QueryRowContext(ctx, insertQuery, articleID, userID, nullableInt64(parentID), string(kind), body).Scan(
 		&item.ID,
 		&item.ArticleID,
 		&parentVal,
-		&kindVal,
+		&item.Kind,
 		&item.Body,
 		&item.UserID,
 		&item.CreatedAt,
@@ -86,7 +85,6 @@ func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, 
 		v := parentVal.Int64
 		item.ParentID = &v
 	}
-	item.Kind = reply.Kind(kindVal)
 
 	const userQuery = `SELECT name FROM users WHERE id = $1`
 	if err := tx.QueryRowContext(ctx, userQuery, userID).Scan(&item.UserName); err != nil {
@@ -112,16 +110,16 @@ func ensureArticleExists(ctx context.Context, tx *sql.Tx, articleID int64) error
 
 func fetchParent(ctx context.Context, tx *sql.Tx, parentID int64) (reply.Kind, int64, error) {
 	const query = `SELECT kind, article_id FROM replies WHERE id = $1`
-	var kindVal int16
+	var kind reply.Kind
 	var articleID int64
-	err := tx.QueryRowContext(ctx, query, parentID).Scan(&kindVal, &articleID)
+	err := tx.QueryRowContext(ctx, query, parentID).Scan(&kind, &articleID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return 0, 0, ErrParentNotFound
+		return "", 0, ErrParentNotFound
 	}
 	if err != nil {
-		return 0, 0, err
+		return "", 0, err
 	}
-	return reply.Kind(kindVal), articleID, nil
+	return kind, articleID, nil
 }
 
 func nullableInt64(v *int64) sql.NullInt64 {

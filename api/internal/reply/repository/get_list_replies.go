@@ -40,12 +40,11 @@ func (r *Repository) ListByArticleID(ctx context.Context, articleID int64) ([]re
 	for rows.Next() {
 		var item reply.Reply
 		var parent sql.NullInt64
-		var kindVal int16
 		if err := rows.Scan(
 			&item.ID,
 			&item.ArticleID,
 			&parent,
-			&kindVal,
+			&item.Kind,
 			&item.Body,
 			&item.UserID,
 			&item.UserName,
@@ -58,7 +57,6 @@ func (r *Repository) ListByArticleID(ctx context.Context, articleID int64) ([]re
 			v := parent.Int64
 			item.ParentID = &v
 		}
-		item.Kind = reply.Kind(kindVal)
 		replies = append(replies, item)
 	}
 	if err := rows.Err(); err != nil {
