@@ -141,10 +141,6 @@ export interface ServerProfileJSON {
   updated_at?: string;
 }
 
-export interface ServerUpdateBioRequest {
-  bio?: string;
-}
-
 export interface ServerReplyErrorResponse {
   message?: string;
 }
