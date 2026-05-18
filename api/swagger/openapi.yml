@@ -262,6 +262,8 @@ definitions:
         type: string
       id:
         type: integer
+      is_best:
+        type: boolean
       kind:
         enum:
         - comment
@@ -281,10 +283,18 @@ definitions:
     - body
     - created_at
     - id
+    - is_best
     - kind
     - updated_at
     - user_id
     - user_name
+    type: object
+  server.setBestAnswerResponse:
+    properties:
+      is_best:
+        type: boolean
+      reply_id:
+        type: integer
     type: object
   server.tagJSONResponse:
     properties:
@@ -300,6 +310,13 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  server.unsetBestAnswerResponse:
+    properties:
+      is_best:
+        type: boolean
+      reply_id:
+        type: integer
     type: object
   server.updateBioRequest:
     properties:
@@ -698,6 +715,83 @@ paths:
       summary: Update bio
       tags:
       - profile
+  /api/replies/{reply_id}/best:
+    post:
+      description: 質問に対する回答をベストアンサーに指定する。質問者のみ可能。
+      parameters:
+      - description: Reply ID
+        in: path
+        name: reply_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.setBestAnswerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+      summary: Mark a reply as best answer
+      tags:
+      - replies
+    put:
+      description: ベストアンサー指定を解除する。質問者のみ可能。
+      parameters:
+      - description: Reply ID
+        in: path
+        name: reply_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.unsetBestAnswerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+      summary: Unmark a reply as best answer
+      tags:
+      - replies
   /api/tags:
     get:
       description: Get tag candidates for creating articles.

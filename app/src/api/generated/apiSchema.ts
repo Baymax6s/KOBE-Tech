@@ -157,6 +157,11 @@ export interface ServerReplyJSONResponse {
   user_name: string;
 }
 
+export interface ServerSetBestAnswerResponse {
+  is_best?: boolean;
+  reply_id?: number;
+}
+
 export interface ServerTagJSONResponse {
   id: number;
   name: string;
@@ -164,6 +169,11 @@ export interface ServerTagJSONResponse {
 
 export interface ServerTagsErrorResponse {
   message?: string;
+}
+
+export interface ServerUnsetBestAnswerResponse {
+  is_best?: boolean;
+  reply_id?: number;
 }
 
 export interface ServerUpdateBioRequest {
@@ -590,6 +600,38 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 質問に対する回答をベストアンサーに指定する。質問者のみ可能。
+     *
+     * @tags replies
+     * @name RepliesBestCreate
+     * @summary Mark a reply as best answer
+     * @request POST:/api/replies/{reply_id}/best
+     */
+    repliesBestCreate: (replyId: number, params: RequestParams = {}) =>
+      this.request<ServerSetBestAnswerResponse, ServerReplyErrorResponse>({
+        path: `/api/replies/${replyId}/best`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ベストアンサー指定を解除する。質問者のみ可能。
+     *
+     * @tags replies
+     * @name RepliesBestUpdate
+     * @summary Unmark a reply as best answer
+     * @request PUT:/api/replies/{reply_id}/best
+     */
+    repliesBestUpdate: (replyId: number, params: RequestParams = {}) =>
+      this.request<ServerUnsetBestAnswerResponse, ServerReplyErrorResponse>({
+        path: `/api/replies/${replyId}/best`,
+        method: "PUT",
         format: "json",
         ...params,
       }),

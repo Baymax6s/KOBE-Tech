@@ -16,4 +16,6 @@ func NewHandler(repo *repository.Repository) *Handler {
 func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
 	router.GET("/articles/:article_id/replies", h.listRepliesHandler)
 	authRouter.POST("/articles/:article_id/replies", h.createReplyHandler)
+	authRouter.POST("/replies/:reply_id/best", h.setBestAnswerHandler)
+	authRouter.PUT("/replies/:reply_id/best", h.unsetBestAnswerHandler)
 }
