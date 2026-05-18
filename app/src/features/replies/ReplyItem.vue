@@ -11,12 +11,10 @@ const props = defineProps<{
   reply: ServerReplyJSONResponse
   canReply: boolean
   replying: boolean
-  isQuestionAuthor: boolean
 }>()
 
 defineEmits<{
   (e: 'toggle-reply'): void
-  (e: 'toggle-best'): void
 }>()
 
 const kindBadge = computed(() => {
@@ -65,28 +63,10 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
 </script>
 
 <template>
-  <v-card
-    flat
-    rounded="lg"
-    :class="[
-      'pa-4',
-      reply.is_best ? 'bg-amber-lighten-5' : 'bg-grey-lighten-5',
-    ]"
-    :style="reply.is_best ? { borderLeft: '4px solid #FFC107' } : {}"
-  >
+  <v-card flat rounded="lg" class="pa-4 bg-grey-lighten-5">
     <div class="d-flex align-center ga-2 mb-2">
       <v-chip :color="kindBadge.color" size="small" variant="tonal" label>
         {{ kindBadge.label }}
-      </v-chip>
-      <v-chip
-        v-if="reply.is_best"
-        color="amber"
-        size="small"
-        variant="flat"
-        label
-      >
-        <v-icon start icon="mdi-star" size="x-small" />
-        ベストアンサー
       </v-chip>
       <span class="text-body-2 font-weight-medium">
         {{ reply.user_name }}
@@ -100,9 +80,8 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
       {{ reply.body }}
     </div>
 
-    <div class="d-flex align-center ga-2">
+    <div v-if="canReply" class="d-flex">
       <v-btn
-        v-if="canReply"
         variant="text"
         size="small"
         color="primary"
@@ -110,16 +89,6 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
         @click="$emit('toggle-reply')"
       >
         {{ replying ? 'キャンセル' : replyActionLabel }}
-      </v-btn>
-      <v-btn
-        v-if="isQuestionAuthor && reply.kind === 'answer'"
-        variant="text"
-        size="small"
-        :color="reply.is_best ? 'amber' : 'grey'"
-        prepend-icon="mdi-star"
-        @click="$emit('toggle-best')"
-      >
-        {{ reply.is_best ? 'ベストアンサーを解除' : 'ベストアンサーに選択' }}
       </v-btn>
     </div>
   </v-card>

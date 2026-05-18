@@ -149,7 +149,6 @@ export interface ServerReplyJSONResponse {
   body: string;
   created_at: string;
   id: number;
-  is_best: boolean;
   kind: "comment" | "question" | "answer";
   parent_id?: number;
   updated_at: string;
@@ -489,50 +488,6 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Mark a reply as best answer.
-     *
-     * @tags replies
-     * @name ArticlesRepliesBestCreate
-     * @summary Mark reply as best answer
-     * @request PATCH:/api/articles/{article_id}/replies/{reply_id}/best
-     * @secure
-     */
-    articlesRepliesBestCreate: (
-      articleId: number,
-      replyId: number,
-      params: RequestParams = {},
-    ) =>
-      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
-        path: `/api/articles/${articleId}/replies/${replyId}/best`,
-        method: "PATCH",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Unmark a reply as best answer.
-     *
-     * @tags replies
-     * @name ArticlesRepliesBestDelete
-     * @summary Unmark reply as best answer
-     * @request DELETE:/api/articles/{article_id}/replies/{reply_id}/best
-     * @secure
-     */
-    articlesRepliesBestDelete: (
-      articleId: number,
-      replyId: number,
-      params: RequestParams = {},
-    ) =>
-      this.request<ServerReplyJSONResponse, ServerReplyErrorResponse>({
-        path: `/api/articles/${articleId}/replies/${replyId}/best`,
-        method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
