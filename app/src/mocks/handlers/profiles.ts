@@ -36,7 +36,28 @@ export const profileHandlers = [
     return HttpResponse.json(user)
   }),
 
-  
+  http.get('*/api/profile', () => {
+    const user = auth()
+
+    if (!user) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    const existing = db.users.find((u) => u.id === user.id)
+
+    if (!existing) {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    return HttpResponse.json({
+      id: existing.id,
+      name: existing.name,
+      bio: existing.bio,
+      created_at: existing.created_at,
+      updated_at: existing.updated_at,
+    })
+  }),
+
   http.put('*/api/profile/bio', async ({ request }) => {
     const user = auth()
 
@@ -64,5 +85,5 @@ export const profileHandlers = [
       created_at: existing.created_at,
       updated_at: existing.updated_at,
     })
-  })
+  }),
 ]
