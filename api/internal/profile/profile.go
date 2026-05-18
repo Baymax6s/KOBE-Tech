@@ -25,10 +25,6 @@ var (
 func NormalizeBioInput(bio string) (string, error) {
 	bio = strings.TrimSpace(bio)
 
-	if bio == "" {
-		return "", ErrInvalidBio
-	}
-
 	if utf8.RuneCountInString(bio) > maxBioLength {
 		return "", ErrBioTooLong
 	}
