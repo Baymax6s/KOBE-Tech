@@ -247,11 +247,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  server.updateBioRequest:
-    properties:
-      bio:
-        type: string
-    type: object
   server.replyErrorResponse:
     properties:
       message:
