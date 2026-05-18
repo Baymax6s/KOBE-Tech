@@ -46,15 +46,19 @@ const canMarkBest = computed(() => {
 })
 
 const submittingBest = ref(false)
+const bestError = ref<string | null>(null)
 
 const markAsBest = async () => {
   if (submittingBest.value) return
+  bestError.value = null
   submittingBest.value = true
   try {
-    await api.api.repliesBestCreate(props.reply.id)
+    await api.api.repliesBestCreate(props.reply.id, {
+      skipGlobalErrorHandler: true,
+    })
     emit('best-updated', props.reply.id, true)
   } catch {
-    // エラー処理
+    bestError.value = 'ベストアンサーの設定に失敗しました'
   } finally {
     submittingBest.value = false
   }
@@ -62,12 +66,15 @@ const markAsBest = async () => {
 
 const unmarkBest = async () => {
   if (submittingBest.value) return
+  bestError.value = null
   submittingBest.value = true
   try {
-    await api.api.repliesBestUpdate(props.reply.id)
+    await api.api.repliesBestUpdate(props.reply.id, {
+      skipGlobalErrorHandler: true,
+    })
     emit('best-updated', props.reply.id, false)
   } catch {
-    // エラー処理
+    bestError.value = 'ベストアンサーの解除に失敗しました'
   } finally {
     submittingBest.value = false
   }
@@ -133,6 +140,18 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
     <div class="text-body-2 mb-2" style="white-space: pre-wrap">
       {{ reply.body }}
     </div>
+
+    <v-alert
+      v-if="bestError"
+      type="error"
+      density="compact"
+      variant="tonal"
+      class="mb-2"
+      closable
+      @click:close="bestError = null"
+    >
+      {{ bestError }}
+    </v-alert>
 
     <div class="d-flex ga-2">
       <div v-if="canReply">
