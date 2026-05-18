@@ -12,12 +12,8 @@ import (
 )
 
 type UpdateBioRequest struct {
-	Bio string `json:"bio" binding:"required"`
+	Bio string `json:"bio"`
 } // @name server.updateBioRequest
-
-type UpdateBioResponse struct {
-	Message string `json:"message"`
-} // @name server.updateBioResponse
 
 // updateBioHandler godoc
 //
@@ -27,7 +23,7 @@ type UpdateBioResponse struct {
 // @Accept json
 // @Produce json
 // @Param request body UpdateBioRequest true "Update bio request"
-// @Success 200 {object} UpdateBioResponse
+// @Success 200 {object} ProfileJSON
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
@@ -61,19 +57,24 @@ func (h *Handler) updateBioHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *Handler) UpdateBio(ctx context.Context, userID int64, req UpdateBioRequest) (UpdateBioResponse, error) {
+func (h *Handler) UpdateBio(ctx context.Context, userID int64, req UpdateBioRequest) (ProfileJSON, error) {
 	if h == nil || h.repo == nil {
-		return UpdateBioResponse{}, errors.New("handler not configured")
+		return ProfileJSON{}, errors.New("handler not configured")
 	}
 
 	bio, err := profile.NormalizeBioInput(req.Bio)
 	if err != nil {
-		return UpdateBioResponse{}, err
+		return ProfileJSON{}, err
 	}
 
 	if err := h.repo.UpdateBio(ctx, userID, bio); err != nil {
-		return UpdateBioResponse{}, err
+		return ProfileJSON{}, err
 	}
 
-	return UpdateBioResponse{Message: "updated"}, nil
+	user, err := h.repo.FindByID(ctx, userID)
+	if err != nil {
+		return ProfileJSON{}, err
+	}
+
+	return newProfileJSON(user), nil
 }

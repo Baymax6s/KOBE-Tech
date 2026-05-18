@@ -167,11 +167,7 @@ export interface ServerTagsErrorResponse {
 }
 
 export interface ServerUpdateBioRequest {
-  bio: string;
-}
-
-export interface ServerUpdateBioResponse {
-  message?: string;
+  bio?: string;
 }
 
 import type {
@@ -588,7 +584,7 @@ export class Api<
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ServerUpdateBioResponse, ServerProfileErrorResponse>({
+      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile/bio`,
         method: "PUT",
         body: request,

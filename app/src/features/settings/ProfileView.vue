@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-// import { api } from '@/api/client' ← 後で有効化
+import { useRouter } from 'vue-router'
+import { api } from '@/api/client'
+import { useAuthStore } from '@/stores/auth'
 
-type MeResponse = {
-  id: number
-  name: string
-  bio: string
+type ProfileResponse = {
+  id?: number
+  name?: string
+  bio?: string
 }
 
-const user = ref<MeResponse | null>(null)
+const user = ref<ProfileResponse | null>(null)
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -18,25 +20,22 @@ const bio = ref('')
 
 const maxLength = 200
 
+const auth = useAuthStore()
+const router = useRouter()
+
 onMounted(async () => {
+  if (!auth.isAuthenticated) {
+    await router.push('/login')
+    return
+  }
+
   loading.value = true
   error.value = null
 
   try {
-    // 後でこれ有効化
-    /*
-    const res = await api.api.authMeList()
+    const res = await api.api.profileList()
     user.value = res.data
     bio.value = res.data.bio ?? ''
-    */
-
-    // 仮（今だけ表示させる）
-    user.value = {
-      id: 1,
-      name: 'テストユーザー',
-      bio: 'こんにちは！プロフィールを書いてみてください！',
-    }
-    bio.value = user.value.bio
   } catch {
     error.value = 'プロフィールの取得に失敗しました'
   } finally {
@@ -48,16 +47,13 @@ const saveBio = async () => {
   if (bio.value.length > maxLength) return
 
   try {
-    // 後で有効化
-    /*
-    await api.api.authMeBioUpdate({
-      bio: bio.value
+    const res = await api.api.profileBioUpdate({
+      bio: bio.value,
     })
-    */
 
-    if (user.value) {
-      user.value.bio = bio.value
-    }
+    // APIから返ってきた最新のデータで更新
+    user.value = res.data
+    bio.value = res.data.bio ?? ''
 
     isEditing.value = false
   } catch {

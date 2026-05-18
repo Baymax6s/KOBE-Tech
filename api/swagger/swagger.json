@@ -585,7 +585,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.updateBioResponse"
+                            "$ref": "#/definitions/server.profileJSON"
                         }
                     },
                     "400": {
@@ -1097,19 +1097,8 @@
         },
         "server.updateBioRequest": {
             "type": "object",
-            "required": [
-                "bio"
-            ],
             "properties": {
                 "bio": {
-                    "type": "string"
-                }
-            }
-        },
-        "server.updateBioResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
                     "type": "string"
                 }
             }

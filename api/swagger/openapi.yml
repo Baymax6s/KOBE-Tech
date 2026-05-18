@@ -305,13 +305,6 @@ definitions:
     properties:
       bio:
         type: string
-    required:
-    - bio
-    type: object
-  server.updateBioResponse:
-    properties:
-      message:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -687,7 +680,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.updateBioResponse'
+            $ref: '#/definitions/server.profileJSON'
         "400":
           description: Bad Request
           schema:
