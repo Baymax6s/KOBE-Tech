@@ -41,7 +41,7 @@ type ListArticlesJSONResponse struct {
 //
 //	@Summary		List articles
 //	@Description	Get article list API.
-//	@Tags			articles
+//	@Tags			article
 //	@Produce		json
 //	@Success		200	{object}	ListArticlesJSONResponse
 //	@Failure		500	{object}	ArticleErrorResponse

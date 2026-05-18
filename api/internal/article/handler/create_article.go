@@ -31,7 +31,7 @@ type CreateArticleJSONResponse struct {
 //
 //	@Summary		Create article
 //	@Description	Create article API.
-//	@Tags			articles
+//	@Tags			article
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		createArticleRequest	true	"Create article request"

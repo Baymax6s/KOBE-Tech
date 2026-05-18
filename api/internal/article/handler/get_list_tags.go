@@ -27,7 +27,7 @@ type ListTagsJSONResponse struct {
 //
 //	@Summary		List tags
 //	@Description	Get tag candidates for creating articles.
-//	@Tags			tags
+//	@Tags			article
 //	@Produce		json
 //	@Success		200	{object}	ListTagsJSONResponse
 //	@Failure		401	{object}	TagsErrorResponse
