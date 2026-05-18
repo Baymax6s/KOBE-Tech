@@ -11,8 +11,8 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/profile',
-      component: () => import('@/features/profile/ProfileView.vue'),
+      path: '/settings/profile',
+      component: () => import('@/features/settings/ProfileView.vue'),
       meta: { requiresAuth: true },
     },
     {
@@ -33,11 +33,6 @@ const router = createRouter({
     {
       path: '/settings/password',
       component: () => import('@/features/settings/PasswordChangeView.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/settings/profile',
-      component: () => import('@/features/settings/ProfileView.vue'),
       meta: { requiresAuth: true },
     },
     {
