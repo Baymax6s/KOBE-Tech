@@ -24,17 +24,17 @@ func (r *Repository) UnsetBestAnswer(ctx context.Context, replyID, userID int64)
 		FROM replies
 		WHERE id = $1
 	`
-	var kindVal int16
+	var kind reply.Kind
 	var parentID sql.NullInt64
 	var isBest bool
-	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kindVal, &parentID, &isBest)
+	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kind, &parentID, &isBest)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrReplyNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if reply.Kind(kindVal) != reply.KindAnswer {
+	if kind != reply.KindAnswer {
 		return ErrNotAnswer
 	}
 	if !isBest {
@@ -49,16 +49,16 @@ func (r *Repository) UnsetBestAnswer(ctx context.Context, replyID, userID int64)
 		FROM replies
 		WHERE id = $1
 	`
-	var parentKindVal int16
+	var parentKind reply.Kind
 	var questionUserID int64
-	err = tx.QueryRowContext(ctx, fetchParentQuery, parentID.Int64).Scan(&parentKindVal, &questionUserID)
+	err = tx.QueryRowContext(ctx, fetchParentQuery, parentID.Int64).Scan(&parentKind, &questionUserID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrParentNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if reply.Kind(parentKindVal) != reply.KindQuestion {
+	if parentKind != reply.KindQuestion {
 		return ErrNotAnswer
 	}
 
