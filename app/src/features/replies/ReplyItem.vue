@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useTimeAgo, type UseTimeAgoMessages } from '@vueuse/core'
+import { api } from '@/api/client'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
 
 defineOptions({
@@ -11,10 +12,13 @@ const props = defineProps<{
   reply: ServerReplyJSONResponse
   canReply: boolean
   replying: boolean
+  currentUserId: number | null
+  questionAuthorByReplyId: Map<number, number>
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'toggle-reply'): void
+  (e: 'best-updated', replyId: number, isBest: boolean): void
 }>()
 
 const kindBadge = computed(() => {
@@ -33,6 +37,41 @@ const kindBadge = computed(() => {
 const replyActionLabel = computed(() =>
   props.reply.kind === 'comment' ? 'コメントする' : '回答する',
 )
+
+const canMarkBest = computed(() => {
+  if (props.reply.kind !== 'answer') return false
+  if (props.currentUserId == null) return false
+  const questionUserId = props.questionAuthorByReplyId.get(props.reply.id)
+  return questionUserId != null && questionUserId === props.currentUserId
+})
+
+const submittingBest = ref(false)
+
+const markAsBest = async () => {
+  if (submittingBest.value) return
+  submittingBest.value = true
+  try {
+    await api.api.repliesBestCreate(props.reply.id)
+    emit('best-updated', props.reply.id, true)
+  } catch {
+    // エラー処理
+  } finally {
+    submittingBest.value = false
+  }
+}
+
+const unmarkBest = async () => {
+  if (submittingBest.value) return
+  submittingBest.value = true
+  try {
+    await api.api.repliesBestUpdate(props.reply.id)
+    emit('best-updated', props.reply.id, false)
+  } catch {
+    // エラー処理
+  } finally {
+    submittingBest.value = false
+  }
+}
 
 // 投稿から 6 日以内は「N分前 / N時間前 / N日前」と表示し、7 日以上経過したら絶対日付に切り替える。
 // useTimeAgo は内部で setInterval により値をリアクティブに更新するので、画面を開きっぱなしでも表示が古びない。
@@ -63,10 +102,25 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
 </script>
 
 <template>
-  <v-card flat rounded="lg" class="pa-4 bg-grey-lighten-5">
+  <v-card
+    flat
+    rounded="lg"
+    class="pa-4"
+    :class="reply.is_best ? 'bg-yellow-lighten-4' : 'bg-grey-lighten-5'"
+  >
     <div class="d-flex align-center ga-2 mb-2">
       <v-chip :color="kindBadge.color" size="small" variant="tonal" label>
         {{ kindBadge.label }}
+      </v-chip>
+      <v-chip
+        v-if="reply.is_best"
+        color="amber"
+        size="small"
+        variant="flat"
+        label
+      >
+        <v-icon start icon="mdi-crown" size="x-small" />
+        ベストアンサー
       </v-chip>
       <span class="text-body-2 font-weight-medium">
         {{ reply.user_name }}
@@ -80,16 +134,43 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
       {{ reply.body }}
     </div>
 
-    <div v-if="canReply" class="d-flex">
-      <v-btn
-        variant="text"
-        size="small"
-        color="primary"
-        :prepend-icon="replying ? 'mdi-close' : 'mdi-reply'"
-        @click="$emit('toggle-reply')"
-      >
-        {{ replying ? 'キャンセル' : replyActionLabel }}
-      </v-btn>
+    <div class="d-flex ga-2">
+      <div v-if="canReply">
+        <v-btn
+          variant="text"
+          size="small"
+          color="primary"
+          :prepend-icon="replying ? 'mdi-close' : 'mdi-reply'"
+          @click="$emit('toggle-reply')"
+        >
+          {{ replying ? 'キャンセル' : replyActionLabel }}
+        </v-btn>
+      </div>
+
+      <div v-if="canMarkBest">
+        <v-btn
+          v-if="reply.is_best"
+          variant="text"
+          size="small"
+          color="amber"
+          :loading="submittingBest"
+          prepend-icon="mdi-crown-off"
+          @click="unmarkBest"
+        >
+          取り消す
+        </v-btn>
+        <v-btn
+          v-else
+          variant="text"
+          size="small"
+          color="amber"
+          :loading="submittingBest"
+          prepend-icon="mdi-crown-outline"
+          @click="markAsBest"
+        >
+          ベストアンサーに選ぶ
+        </v-btn>
+      </div>
     </div>
   </v-card>
 </template>

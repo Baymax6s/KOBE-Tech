@@ -16,10 +16,13 @@ const props = defineProps<{
   descendantCountByParent: Map<number, number>
   depth: number
   articleId: number
+  currentUserId: number | null
+  questionAuthorByReplyId: Map<number, number>
 }>()
 
 const emit = defineEmits<{
   (e: 'submitted', reply: ServerReplyJSONResponse): void
+  (e: 'best-updated', replyId: number, isBest: boolean): void
 }>()
 
 const { isAuthenticated } = storeToRefs(useAuthStore())
@@ -45,6 +48,10 @@ const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
   showReplyForm.value = false
   expanded.value = true
 }
+
+const handleBestUpdated = (replyId: number, isBest: boolean) => {
+  emit('best-updated', replyId, isBest)
+}
 </script>
 
 <template>
@@ -53,7 +60,10 @@ const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
       :reply="reply"
       :can-reply="isAuthenticated"
       :replying="showReplyForm"
+      :current-user-id="currentUserId"
+      :question-author-by-reply-id="questionAuthorByReplyId"
       @toggle-reply="toggleReplyForm"
+      @best-updated="handleBestUpdated"
     />
 
     <div v-if="showReplyForm" class="ml-8">
@@ -76,7 +86,10 @@ const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
           :descendant-count-by-parent="descendantCountByParent"
           :depth="depth + 1"
           :article-id="articleId"
+          :current-user-id="currentUserId"
+          :question-author-by-reply-id="questionAuthorByReplyId"
           @submitted="emit('submitted', $event)"
+          @best-updated="handleBestUpdated"
         />
       </div>
       <v-btn
