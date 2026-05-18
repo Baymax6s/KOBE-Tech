@@ -16,12 +16,10 @@ const props = defineProps<{
   descendantCountByParent: Map<number, number>
   depth: number
   articleId: number
-  isQuestionAuthor: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'submitted', reply: ServerReplyJSONResponse): void
-  (e: 'toggle-best', replyId: number): void
 }>()
 
 const { isAuthenticated } = storeToRefs(useAuthStore())
@@ -47,10 +45,6 @@ const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
   showReplyForm.value = false
   expanded.value = true
 }
-
-const handleToggleBest = (replyId: number) => {
-  emit('toggle-best', replyId)
-}
 </script>
 
 <template>
@@ -59,9 +53,7 @@ const handleToggleBest = (replyId: number) => {
       :reply="reply"
       :can-reply="isAuthenticated"
       :replying="showReplyForm"
-      :is-question-author="isQuestionAuthor"
       @toggle-reply="toggleReplyForm"
-      @toggle-best="handleToggleBest(reply.id)"
     />
 
     <div v-if="showReplyForm" class="ml-8">
@@ -84,9 +76,7 @@ const handleToggleBest = (replyId: number) => {
           :descendant-count-by-parent="descendantCountByParent"
           :depth="depth + 1"
           :article-id="articleId"
-          :is-question-author="isQuestionAuthor"
           @submitted="emit('submitted', $event)"
-          @toggle-best="emit('toggle-best', $event)"
         />
       </div>
       <v-btn
