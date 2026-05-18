@@ -15,6 +15,7 @@ var (
 	ErrNotAnswer             = errors.New("reply is not an answer")
 	ErrNotQuestionAuthor     = errors.New("only the question author can mark a best answer")
 	ErrBestAnswerAlreadySet  = errors.New("best answer already exists for this question")
+	ErrNotBestAnswer         = errors.New("reply is not marked as best answer")
 )
 
 type Repository struct {
