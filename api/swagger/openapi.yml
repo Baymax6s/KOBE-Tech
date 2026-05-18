@@ -251,13 +251,6 @@ definitions:
     properties:
       bio:
         type: string
-    required:
-      - bio
-    type: object
-  server.updateBioResponse:
-    properties:
-      message:
-        type: string
     type: object
   server.replyErrorResponse:
     properties:
