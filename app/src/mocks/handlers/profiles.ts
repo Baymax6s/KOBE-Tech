@@ -36,7 +36,8 @@ export const profileHandlers = [
     return HttpResponse.json(user)
   }),
 
-  http.put('*/api/profile', async ({ request }) => {
+  
+  http.put('*/api/profile/bio', async ({ request }) => {
     const user = auth()
 
     if (!user) {
@@ -56,6 +57,12 @@ export const profileHandlers = [
 
     existing.bio = body.bio
 
-    return HttpResponse.json({ message: 'updated' })
-  }),
+    return HttpResponse.json({
+      id: existing.id,
+      name: existing.name,
+      bio: existing.bio,
+      created_at: existing.created_at,
+      updated_at: existing.updated_at,
+    })
+  })
 ]
