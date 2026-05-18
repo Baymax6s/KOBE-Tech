@@ -1,5 +1,5 @@
 -- replies (コメント / 質問 / 回答) の seed
--- kind: 'comment' = コメント, 'question' = 質問, 'answer' = 回答
+-- kind: 0 = comment, 1 = question, 2 = answer
 -- parent_id を持つ返信は親の id を受ける必要があるため DO ブロックで記述する。
 DO $$
 DECLARE
@@ -39,7 +39,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article1_id, v_user01_id,
             '楽しそうですね！どんなお題のハッカソンだったんですか？',
-            'comment', NULL,
+            0, NULL,
             '2026-04-02 10:00:00+09'::timestamptz,
             '2026-04-02 10:00:00+09'::timestamptz)
     RETURNING id INTO v_a1_comment1_id;
@@ -47,7 +47,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article1_id, v_admin_id,
             '教育系のWebアプリ開発がテーマでした。発表もかなり盛り上がりましたよ！',
-            'comment', v_a1_comment1_id,
+            0, v_a1_comment1_id,
             '2026-04-02 12:30:00+09'::timestamptz,
             '2026-04-02 12:30:00+09'::timestamptz);
 
@@ -55,7 +55,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article1_id, v_user02_id,
             'チームメンバーは何人くらいでしたか？役割分担も気になります。',
-            'question', NULL,
+            1, NULL,
             '2026-04-03 09:00:00+09'::timestamptz,
             '2026-04-03 09:00:00+09'::timestamptz)
     RETURNING id INTO v_a1_question1_id;
@@ -63,7 +63,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, is_best, kind, parent_id, created_at, updated_at)
     VALUES (v_article1_id, v_admin_id,
             '4人チームで、フロント2名・バック1名・デザイン1名の構成でした。',
-            TRUE, 'answer', v_a1_question1_id,
+            TRUE, 2, v_a1_question1_id,
             '2026-04-03 11:00:00+09'::timestamptz,
             '2026-04-03 11:00:00+09'::timestamptz);
 
@@ -72,7 +72,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article2_id, v_user02_id,
             '丁寧な記事ありがとうございます。手元でも動かせました！',
-            'comment', NULL,
+            0, NULL,
             '2026-04-11 10:00:00+09'::timestamptz,
             '2026-04-11 10:00:00+09'::timestamptz);
 
@@ -80,7 +80,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article2_id, v_user03_id,
             'gin と echo だと、最初に触るならどちらがおすすめですか？',
-            'question', NULL,
+            1, NULL,
             '2026-04-12 14:00:00+09'::timestamptz,
             '2026-04-12 14:00:00+09'::timestamptz)
     RETURNING id INTO v_a2_question1_id;
@@ -88,7 +88,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article2_id, v_user01_id,
             '用途次第ですが、最初はシンプルさで gin から入るのが追いやすいと思います。',
-            'answer', v_a2_question1_id,
+            2, v_a2_question1_id,
             '2026-04-12 16:00:00+09'::timestamptz,
             '2026-04-12 16:00:00+09'::timestamptz)
     RETURNING id INTO v_a2_answer1_id;
@@ -96,7 +96,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article2_id, v_user03_id,
             'なるほど、ありがとうございます！週末に触ってみます。',
-            'answer', v_a2_answer1_id,
+            2, v_a2_answer1_id,
             '2026-04-12 18:00:00+09'::timestamptz,
             '2026-04-12 18:00:00+09'::timestamptz);
 
@@ -104,7 +104,7 @@ BEGIN
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
     VALUES (v_article3_id, v_admin_id,
             'Composition API のあたり、初学者にも追える説明でとても助かりました。',
-            'comment', NULL,
+            0, NULL,
             '2026-04-16 11:00:00+09'::timestamptz,
             '2026-04-16 11:00:00+09'::timestamptz);
 END $$;
