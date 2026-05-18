@@ -23,7 +23,7 @@ type LikeResponse struct {
 //
 //	@Summary		Like an article
 //	@Description	Like an article API.
-//	@Tags			articles
+//	@Tags			like
 //	@Produce		json
 //	@Param			article_id	path	int	true	"Article ID"
 //

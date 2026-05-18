@@ -33,7 +33,7 @@ type GetArticleJSONResponse struct {
 //
 //	@Summary		Get article
 //	@Description	Get article detail API.
-//	@Tags			articles
+//	@Tags			article
 //	@Produce		json
 //	@Param			article_id	path		int	true	"Article ID"
 //	@Success		200			{object}	GetArticleJSONResponse

@@ -23,8 +23,8 @@ export interface ServerArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  liked_by_me?: boolean;
   likes_count: number;
-  liked_by_me: boolean;
   tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
@@ -77,21 +77,22 @@ export interface ServerGetArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  liked_by_me?: boolean;
   likes_count: number;
-  liked_by_me: boolean;
   tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
 }
 
-export interface ServerLikeResponse {
-  liked_by_me: boolean;
-  likes_count: number;
-}
-
 export interface ServerLikeErrorResponse {
   message?: string;
 }
+
+export interface ServerLikeResponse {
+  liked_by_me?: boolean;
+  likes_count?: number;
+}
+
 export interface ServerListArticlesResponse {
   articles?: ServerArticleJSONResponse[];
 }
@@ -363,7 +364,7 @@ export class Api<
     /**
      * @description Get article list API.
      *
-     * @tags articles
+     * @tags article
      * @name ArticlesList
      * @summary List articles
      * @request GET:/api/articles
@@ -379,7 +380,7 @@ export class Api<
     /**
      * @description Create article API.
      *
-     * @tags articles
+     * @tags article
      * @name ArticlesCreate
      * @summary Create article
      * @request POST:/api/articles
@@ -402,7 +403,7 @@ export class Api<
     /**
      * @description Get article detail API.
      *
-     * @tags articles
+     * @tags article
      * @name ArticlesDetail
      * @summary Get article
      * @request GET:/api/articles/{article_id}
@@ -418,7 +419,7 @@ export class Api<
     /**
      * @description Unlike an article API.
      *
-     * @tags articles
+     * @tags like
      * @name ArticlesLikeDelete
      * @summary Unlike an article
      * @request DELETE:/api/articles/{article_id}/like
@@ -436,7 +437,7 @@ export class Api<
     /**
      * @description Like an article API.
      *
-     * @tags articles
+     * @tags like
      * @name ArticlesLikeCreate
      * @summary Like an article
      * @request POST:/api/articles/{article_id}/like
@@ -452,10 +453,9 @@ export class Api<
       }),
 
     /**
-
      * @description 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
      *
-     * @tags replies
+     * @tags reply
      * @name ArticlesRepliesList
      * @summary List replies of an article
      * @request GET:/api/articles/{article_id}/replies
@@ -471,7 +471,7 @@ export class Api<
     /**
      * @description 記事 / 既存返信への返信を投稿する。kind は comment / question / answer のいずれか。ルート投稿は comment か question、コメント配下は comment、質問・回答配下は answer のみ受け付ける。
      *
-     * @tags replies
+     * @tags reply
      * @name ArticlesRepliesCreate
      * @summary Create a reply on an article
      * @request POST:/api/articles/{article_id}/replies
@@ -601,7 +601,7 @@ export class Api<
     /**
      * @description Get tag candidates for creating articles.
      *
-     * @tags tags
+     * @tags article
      * @name TagsList
      * @summary List tags
      * @request GET:/api/tags

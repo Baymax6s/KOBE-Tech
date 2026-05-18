@@ -19,7 +19,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "article"
                 ],
                 "summary": "List articles",
                 "responses": {
@@ -51,7 +51,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "article"
                 ],
                 "summary": "Create article",
                 "parameters": [
@@ -100,7 +100,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "article"
                 ],
                 "summary": "Get article",
                 "parameters": [
@@ -152,7 +152,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "like"
                 ],
                 "summary": "Like an article",
                 "parameters": [
@@ -214,7 +214,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "like"
                 ],
                 "summary": "Unlike an article",
                 "parameters": [
@@ -267,7 +267,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "replies"
+                    "reply"
                 ],
                 "summary": "List replies of an article",
                 "parameters": [
@@ -314,7 +314,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "replies"
+                    "reply"
                 ],
                 "summary": "Create a reply on an article",
                 "parameters": [
@@ -621,7 +621,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "tags"
+                    "article"
                 ],
                 "summary": "List tags",
                 "responses": {

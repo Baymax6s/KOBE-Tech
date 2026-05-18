@@ -38,12 +38,16 @@ const likeArticle = async () => {
   try {
     if (isLiked.value) {
       const response = await api.api.articlesLikeDelete(props.articleId)
-      article.value.liked_by_me = response.data.liked_by_me
-      article.value.likes_count = response.data.likes_count
+      article.value.liked_by_me =
+        response.data.liked_by_me ?? article.value.liked_by_me
+      article.value.likes_count =
+        response.data.likes_count ?? article.value.likes_count
     } else {
       const response = await api.api.articlesLikeCreate(props.articleId)
-      article.value.liked_by_me = response.data.liked_by_me
-      article.value.likes_count = response.data.likes_count
+      article.value.liked_by_me =
+        response.data.liked_by_me ?? article.value.liked_by_me
+      article.value.likes_count =
+        response.data.likes_count ?? article.value.likes_count
     }
   } catch (err: unknown) {
     if (axios.isAxiosError(err) && err.response?.status === 409) {

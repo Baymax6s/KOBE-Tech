@@ -36,7 +36,7 @@ type ErrorResponse struct {
 //
 //	@Summary		List replies of an article
 //	@Description	記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
-//	@Tags			replies
+//	@Tags			reply
 //	@Produce		json
 //	@Param			article_id	path		int	true	"Article ID"
 //	@Success		200			{object}	ListRepliesJSONResponse

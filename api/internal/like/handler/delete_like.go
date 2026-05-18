@@ -14,7 +14,7 @@ import (
 //
 //	@Summary		Unlike an article
 //	@Description	Unlike an article API.
-//	@Tags			articles
+//	@Tags			like
 //	@Produce		json
 //	@Param			article_id	path	int	true	"Article ID"
 //
