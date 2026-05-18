@@ -39,6 +39,7 @@ type Reply struct {
 	ParentID  *int64
 	Kind      Kind
 	Body      string
+	IsBest    bool
 	UserID    int64
 	UserName  string
 	CreatedAt time.Time

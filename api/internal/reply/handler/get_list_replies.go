@@ -18,6 +18,7 @@ type ReplyJSON struct {
 	ParentID  *int64    `json:"parent_id,omitempty"`
 	Kind      string    `json:"kind" binding:"required" enums:"comment,question,answer"`
 	Body      string    `json:"body" binding:"required"`
+	IsBest    bool      `json:"is_best" binding:"required"`
 	UserID    int64     `json:"user_id" binding:"required"`
 	UserName  string    `json:"user_name" binding:"required"`
 	CreatedAt time.Time `json:"created_at" binding:"required"`
@@ -88,6 +89,7 @@ func newReplyJSON(item reply.Reply) ReplyJSON {
 		ParentID:  item.ParentID,
 		Kind:      string(item.Kind),
 		Body:      item.Body,
+		IsBest:    item.IsBest,
 		UserID:    item.UserID,
 		UserName:  item.UserName,
 		CreatedAt: item.CreatedAt,
