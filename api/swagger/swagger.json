@@ -609,6 +609,122 @@
                 }
             }
         },
+        "/api/replies/{reply_id}/best": {
+            "put": {
+                "description": "ベストアンサー指定を解除する。質問者のみ可能。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "summary": "Unmark a reply as best answer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "reply_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.unsetBestAnswerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "質問に対する回答をベストアンサーに指定する。質問者のみ可能。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "summary": "Mark a reply as best answer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "reply_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.setBestAnswerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/tags": {
             "get": {
                 "security": [
@@ -1032,6 +1148,7 @@
                 "body",
                 "created_at",
                 "id",
+                "is_best",
                 "kind",
                 "updated_at",
                 "user_id",
@@ -1049,6 +1166,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "is_best": {
+                    "type": "boolean"
                 },
                 "kind": {
                     "type": "string",
@@ -1072,6 +1192,17 @@
                 }
             }
         },
+        "server.setBestAnswerResponse": {
+            "type": "object",
+            "properties": {
+                "is_best": {
+                    "type": "boolean"
+                },
+                "reply_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "server.tagJSONResponse": {
             "type": "object",
             "required": [
@@ -1092,6 +1223,17 @@
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "server.unsetBestAnswerResponse": {
+            "type": "object",
+            "properties": {
+                "is_best": {
+                    "type": "boolean"
+                },
+                "reply_id": {
+                    "type": "integer"
                 }
             }
         },
