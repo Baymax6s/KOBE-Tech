@@ -86,7 +86,7 @@ func newReplyJSON(item reply.Reply) ReplyJSON {
 		ID:        item.ID,
 		ArticleID: item.ArticleID,
 		ParentID:  item.ParentID,
-		Kind:      item.Kind.String(),
+		Kind:      string(item.Kind),
 		Body:      item.Body,
 		UserID:    item.UserID,
 		UserName:  item.UserName,

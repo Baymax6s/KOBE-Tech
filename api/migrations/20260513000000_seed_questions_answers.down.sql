@@ -1,8 +1,8 @@
 -- 本マイグレーションで投入した質問 / 回答のみを削除する。
--- ユーザー投稿との衝突を避けるため、対象記事 (article_id) と kind (1=質問, 2=回答) に
+-- ユーザー投稿との衝突を避けるため、対象記事 (article_id) と kind ('question', 'answer') に
 -- スコープを限定したうえで、本マイグレーション固有の content を列挙する。
 DELETE FROM replies
-WHERE kind IN (1, 2)
+WHERE kind IN ('question', 'answer')
   AND article_id IN (
         SELECT id FROM articles
         WHERE title IN (

@@ -16,37 +16,20 @@ var (
 	ErrInvalidKind = errors.New("kind must be one of 'comment', 'question', 'answer'")
 )
 
-type Kind int16
+type Kind string
 
 const (
-	KindComment  Kind = 0
-	KindQuestion Kind = 1
-	KindAnswer   Kind = 2
+	KindComment  Kind = "comment"
+	KindQuestion Kind = "question"
+	KindAnswer   Kind = "answer"
 )
 
-func (k Kind) String() string {
-	switch k {
-	case KindComment:
-		return "comment"
-	case KindQuestion:
-		return "question"
-	case KindAnswer:
-		return "answer"
-	default:
-		return ""
-	}
-}
-
 func ParseKind(s string) (Kind, bool) {
-	switch s {
-	case "comment":
-		return KindComment, true
-	case "question":
-		return KindQuestion, true
-	case "answer":
-		return KindAnswer, true
+	switch Kind(s) {
+	case KindComment, KindQuestion, KindAnswer:
+		return Kind(s), true
 	default:
-		return 0, false
+		return "", false
 	}
 }
 
@@ -65,10 +48,10 @@ type Reply struct {
 func NormalizeCreateInput(body string, kindValue *string) (string, Kind, error) {
 	body = strings.TrimSpace(body)
 	if body == "" {
-		return "", 0, ErrInvalidBody
+		return "", "", ErrInvalidBody
 	}
 	if utf8.RuneCountInString(body) > maxBodyLength {
-		return "", 0, ErrBodyTooLong
+		return "", "", ErrBodyTooLong
 	}
 
 	// kind 省略時は comment 扱い。値が指定された場合は comment / question / answer のいずれかを受け付ける。
@@ -77,7 +60,7 @@ func NormalizeCreateInput(body string, kindValue *string) (string, Kind, error) 
 	if kindValue != nil {
 		parsed, ok := ParseKind(*kindValue)
 		if !ok {
-			return "", 0, ErrInvalidKind
+			return "", "", ErrInvalidKind
 		}
 		kind = parsed
 	}
