@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { api } from '@/api/client'
+
+const router = useRouter()
 
 const currentPassword = ref('')
 const newPassword = ref('')
@@ -39,9 +42,7 @@ const onSubmit = async () => {
         skipGlobalErrorHandler: true,
       },
     )
-    successMessage.value = 'パスワードを変更しました'
-    currentPassword.value = ''
-    newPassword.value = ''
+    router.push('/login')
   } catch (e) {
     if (axios.isAxiosError(e) && e.response?.status === 401) {
       errorMessage.value =
