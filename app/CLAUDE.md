@@ -1,3 +1,3 @@
 # CLAUDE.md
 
-フロントエンドのルールは [`.claude/skills/vuetify-rules`](../.claude/skills/vuetify-rules/SKILL.md) を参照してください。
+このディレクトリのルールは [`AGENTS.md`](AGENTS.md) を参照してください（Claude Code / Codex / OpenCode 共通）。
