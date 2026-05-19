@@ -3,8 +3,10 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { api } from '@/api/client'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const currentPassword = ref('')
 const newPassword = ref('')
@@ -42,6 +44,7 @@ const onSubmit = async () => {
         skipGlobalErrorHandler: true,
       },
     )
+    authStore.clearToken()
     router.push('/login')
   } catch (e) {
     if (axios.isAxiosError(e) && e.response?.status === 401) {
