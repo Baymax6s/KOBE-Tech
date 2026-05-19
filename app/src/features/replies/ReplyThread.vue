@@ -128,6 +128,16 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       >
         返信 {{ hiddenCount }} 件を表示
       </v-btn>
+      <v-btn
+        v-else-if="depth === 0 && localReveal"
+        variant="text"
+        size="small"
+        color="primary"
+        prepend-icon="mdi-chevron-up"
+        @click="localReveal = false"
+      >
+        返信を隠す
+      </v-btn>
     </div>
   </div>
 </template>
