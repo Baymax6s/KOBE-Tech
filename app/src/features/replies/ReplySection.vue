@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { api } from '@/api/client'
@@ -23,6 +23,17 @@ const loginRedirect = computed(
 const replies = ref<ServerReplyJSONResponse[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+const currentUserId = ref<number | null>(null)
+
+onMounted(async () => {
+  if (!isAuthenticated.value) return
+  try {
+    const res = await api.api.authMeList({ skipGlobalErrorHandler: true })
+    currentUserId.value = res.data.id ?? null
+  } catch {
+    currentUserId.value = null
+  }
+})
 
 const childrenByParent = computed(() => {
   const map = new Map<number, ServerReplyJSONResponse[]>()
@@ -68,6 +79,21 @@ const rootReplies = computed(() =>
     ),
 )
 
+// 各リプライについて、その親が質問（kind=question）なら親の user_id を記録する Map。
+// key = 子の reply.id, value = 質問の user_id。
+const questionAuthorByReplyId = computed(() => {
+  const map = new Map<number, number>()
+  const replyMap = new Map(replies.value.map((r) => [r.id, r]))
+  for (const r of replies.value) {
+    if (r.parent_id == null) continue
+    const parent = replyMap.get(r.parent_id)
+    if (parent && parent.kind === 'question') {
+      map.set(r.id, parent.user_id)
+    }
+  }
+  return map
+})
+
 const fetchReplies = async (id: number) => {
   loading.value = true
   error.value = null
@@ -85,6 +111,12 @@ const fetchReplies = async (id: number) => {
 
 const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
   replies.value = [...replies.value, newReply]
+}
+
+const handleBestUpdated = (replyId: number, isBest: boolean) => {
+  replies.value = replies.value.map((r) =>
+    r.id === replyId ? { ...r, is_best: isBest } : r,
+  )
 }
 
 watch(
@@ -155,7 +187,10 @@ watch(
         :descendant-count-by-parent="descendantCountByParent"
         :depth="0"
         :article-id="articleId"
+        :current-user-id="currentUserId"
+        :question-author-by-reply-id="questionAuthorByReplyId"
         @submitted="handleSubmitted"
+        @best-updated="handleBestUpdated"
       />
     </div>
   </section>

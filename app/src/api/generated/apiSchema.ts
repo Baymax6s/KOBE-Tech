@@ -150,6 +150,7 @@ export interface ServerReplyJSONResponse {
   body: string;
   created_at: string;
   id: number;
+  is_best: boolean;
   kind: "comment" | "question" | "answer";
   parent_id?: number;
   updated_at: string;
