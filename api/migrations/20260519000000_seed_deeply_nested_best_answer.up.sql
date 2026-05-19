@@ -30,11 +30,13 @@ BEGIN
         RETURN;
     END IF;
 
+    -- 20260518 のマイグレーションで kind は VARCHAR ('comment' / 'question' / 'answer') に変更済み。
+    -- 整数リテラル (1,2) では chk_replies_kind に弾かれるので、必ず文字列で渡す。
     INSERT INTO replies (article_id, user_id, content, is_best, kind, parent_id, created_at, updated_at)
     VALUES (
         v_article1_id, v_admin_id,
         '最小サンプルは「フロントが Hello を表示」「バックが GET /ping で pong を返す」「両者を fetch で繋ぐ」の 3 点セットで十分です。当日の認識合わせがぐっと早くなります。',
-        TRUE, 2, v_parent_id,
+        TRUE, 'answer', v_parent_id,
         '2026-04-05 16:00:00+09'::timestamptz,
         '2026-04-05 16:00:00+09'::timestamptz
     );
