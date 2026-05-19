@@ -14,7 +14,9 @@ const props = defineProps<{
   reply: ServerReplyJSONResponse
   childrenByParent: Map<number, ServerReplyJSONResponse[]>
   descendantCountByParent: Map<number, number>
-  subtreeHasBestByReplyId: Map<number, boolean>
+  bestAnswerPathIds: Set<number>
+  hiddenDescendantCountByReplyId: Map<number, number>
+  revealAll: boolean
   depth: number
   articleId: number
   currentUserId: number | null
@@ -32,16 +34,29 @@ const children = computed<ServerReplyJSONResponse[]>(
   () => props.childrenByParent.get(props.reply.id) ?? [],
 )
 
-const descendantCount = computed(
-  () => props.descendantCountByParent.get(props.reply.id) ?? 0,
+// localReveal はルートで「N 件を表示」が押されたかどうか。
+// 一度 true になったら戻さない（閉じるボタンは設けない）。
+const localReveal = ref(false)
+
+// 親が全表示モードなら自分も全表示。ルート側でのみ localReveal を持つ運用にする。
+const effectiveReveal = computed(() => props.revealAll || localReveal.value)
+
+// 初期表示で見せる子の集合。
+// 全表示モードなら children すべて、そうでなければベストアンサー経路に乗っている子だけ。
+const visibleChildren = computed(() =>
+  effectiveReveal.value
+    ? children.value
+    : children.value.filter((c) => props.bestAnswerPathIds.has(c.id)),
 )
 
-// depth 0 のみ初期折りたたみ。クリックで自分以下のサブツリーをまとめて開く。
-// ただしサブツリーにベストアンサーが含まれる場合は、閲覧者にすぐ見せたいので初期展開する。
-const expanded = ref(
-  props.depth >= 1 ||
-    (props.subtreeHasBestByReplyId.get(props.reply.id) ?? false),
+// 隠れている件数はサブツリー全体で集計済みのものを参照する。
+// ネストの奥（例: ベストアンサーの下の返信）も合算したうえで、ボタン 1 つで全部開けるようにするため。
+const hiddenCount = computed(() =>
+  effectiveReveal.value
+    ? 0
+    : (props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0),
 )
+
 const showReplyForm = ref(false)
 
 const toggleReplyForm = () => {
@@ -51,7 +66,7 @@ const toggleReplyForm = () => {
 const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
   emit('submitted', newReply)
   showReplyForm.value = false
-  expanded.value = true
+  localReveal.value = true
 }
 
 const handleBestUpdated = (replyId: number, isBest: boolean) => {
@@ -82,14 +97,19 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
     </div>
 
     <div v-if="children.length > 0" class="ml-8">
-      <div v-if="expanded" class="d-flex flex-column ga-3">
+      <div
+        v-if="visibleChildren.length > 0"
+        class="d-flex flex-column ga-3 mb-2"
+      >
         <ReplyThread
-          v-for="child in children"
+          v-for="child in visibleChildren"
           :key="child.id"
           :reply="child"
           :children-by-parent="childrenByParent"
           :descendant-count-by-parent="descendantCountByParent"
-          :subtree-has-best-by-reply-id="subtreeHasBestByReplyId"
+          :best-answer-path-ids="bestAnswerPathIds"
+          :hidden-descendant-count-by-reply-id="hiddenDescendantCountByReplyId"
+          :reveal-all="effectiveReveal"
           :depth="depth + 1"
           :article-id="articleId"
           :current-user-id="currentUserId"
@@ -99,14 +119,14 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
         />
       </div>
       <v-btn
-        v-else
+        v-if="depth === 0 && hiddenCount > 0"
         variant="text"
         size="small"
         color="primary"
         prepend-icon="mdi-chevron-down"
-        @click="expanded = true"
+        @click="localReveal = true"
       >
-        返信 {{ descendantCount }} 件を表示
+        返信 {{ hiddenCount }} 件を表示
       </v-btn>
     </div>
   </div>

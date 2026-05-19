@@ -79,23 +79,46 @@ const rootReplies = computed(() =>
     ),
 )
 
-// 各リプライについて、そのサブツリー内に is_best=true のリプライが含まれるかを示す Map。
-// ベストアンサーは閲覧者が最初に読みたい情報なので、含むサブツリーはルートで初期展開する。
-const subtreeHasBestByReplyId = computed(() => {
-  const result = new Map<number, boolean>()
-  const replyMap = new Map(replies.value.map((r) => [r.id, r]))
-  const dfs = (id: number): boolean => {
+// ベストアンサー自身と、その全祖先の id 集合。
+// 初期表示ではこの集合に含まれるリプライだけを見せ、他は「N 件を表示」ボタンの裏に隠す。
+// 「ベストアンサーへの導線だけ最短で見せる」UX のためにこの経路を保持しておく。
+const bestAnswerPathIds = computed(() => {
+  const set = new Set<number>()
+  const parentMap = new Map<number, number | null>(
+    replies.value.map((r) => [r.id, r.parent_id ?? null]),
+  )
+  for (const r of replies.value) {
+    if (!r.is_best) continue
+    let cur: number | null = r.id
+    while (cur != null && !set.has(cur)) {
+      set.add(cur)
+      cur = parentMap.get(cur) ?? null
+    }
+  }
+  return set
+})
+
+// 各リプライについて、そのサブツリーで「ベストアンサー経路に乗っていない子孫」の総数。
+// ネストの奥に隠れている件数もまとめて数えたいので、メモ化付き DFS で一括算出する。
+// これをルートの「返信 N 件を表示」ボタンのカウントに使うことで、ボタンを 1 つだけ出せる。
+const hiddenDescendantCountByReplyId = computed(() => {
+  const result = new Map<number, number>()
+  const compute = (id: number): number => {
     const cached = result.get(id)
     if (cached !== undefined) return cached
-    let has = replyMap.get(id)?.is_best === true
     const kids = childrenByParent.value.get(id) ?? []
+    let total = 0
     for (const k of kids) {
-      if (dfs(k.id)) has = true
+      if (bestAnswerPathIds.value.has(k.id)) {
+        total += compute(k.id)
+      } else {
+        total += 1 + (descendantCountByParent.value.get(k.id) ?? 0)
+      }
     }
-    result.set(id, has)
-    return has
+    result.set(id, total)
+    return total
   }
-  for (const r of replies.value) dfs(r.id)
+  for (const r of replies.value) compute(r.id)
   return result
 })
 
@@ -205,7 +228,9 @@ watch(
         :reply="reply"
         :children-by-parent="childrenByParent"
         :descendant-count-by-parent="descendantCountByParent"
-        :subtree-has-best-by-reply-id="subtreeHasBestByReplyId"
+        :best-answer-path-ids="bestAnswerPathIds"
+        :hidden-descendant-count-by-reply-id="hiddenDescendantCountByReplyId"
+        :reveal-all="false"
         :depth="0"
         :article-id="articleId"
         :current-user-id="currentUserId"
