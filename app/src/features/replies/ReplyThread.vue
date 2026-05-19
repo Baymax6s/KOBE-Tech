@@ -34,8 +34,8 @@ const children = computed<ServerReplyJSONResponse[]>(
   () => props.childrenByParent.get(props.reply.id) ?? [],
 )
 
-// localReveal はルートで「N 件を表示」が押されたかどうか。
-// 一度 true になったら戻さない（閉じるボタンは設けない）。
+// localReveal はルートで「N 件を表示」が押されているかどうか。
+// 「返信を隠す」で false に戻り、初期状態に戻せる。
 const localReveal = ref(false)
 
 // 親が全表示モードなら自分も全表示。ルート側でのみ localReveal を持つ運用にする。
