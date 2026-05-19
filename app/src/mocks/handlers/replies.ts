@@ -45,20 +45,34 @@ export const replyHandlers = [
       return HttpResponse.json({ message: 'reply not found' }, { status: 404 })
     }
     if (reply.kind !== 'answer' || reply.parent_id == null) {
-      return HttpResponse.json({ message: 'reply is not an answer' }, { status: 400 })
+      return HttpResponse.json(
+        { message: 'reply is not an answer' },
+        { status: 400 },
+      )
     }
 
     const parent = db.replies.find((r) => r.id === reply.parent_id)
     if (!parent || parent.kind !== 'question') {
-      return HttpResponse.json({ message: 'reply is not an answer' }, { status: 400 })
+      return HttpResponse.json(
+        { message: 'reply is not an answer' },
+        { status: 400 },
+      )
     }
     if (parent.user_id !== user.id) {
-      return HttpResponse.json({ message: 'only the question author can mark a best answer' }, { status: 403 })
+      return HttpResponse.json(
+        { message: 'only the question author can mark a best answer' },
+        { status: 403 },
+      )
     }
 
-    const existingBest = db.replies.find((r) => r.parent_id === reply.parent_id && r.is_best)
+    const existingBest = db.replies.find(
+      (r) => r.parent_id === reply.parent_id && r.is_best,
+    )
     if (existingBest) {
-      return HttpResponse.json({ message: 'best answer already exists for this question' }, { status: 409 })
+      return HttpResponse.json(
+        { message: 'best answer already exists for this question' },
+        { status: 409 },
+      )
     }
 
     reply.is_best = true
@@ -76,21 +90,36 @@ export const replyHandlers = [
       return HttpResponse.json({ message: 'reply not found' }, { status: 404 })
     }
     if (reply.kind !== 'answer') {
-      return HttpResponse.json({ message: 'reply is not an answer' }, { status: 400 })
+      return HttpResponse.json(
+        { message: 'reply is not an answer' },
+        { status: 400 },
+      )
     }
     if (!reply.is_best) {
-      return HttpResponse.json({ message: 'reply is not marked as best answer' }, { status: 409 })
+      return HttpResponse.json(
+        { message: 'reply is not marked as best answer' },
+        { status: 409 },
+      )
     }
     if (reply.parent_id == null) {
-      return HttpResponse.json({ message: 'reply is not an answer' }, { status: 400 })
+      return HttpResponse.json(
+        { message: 'reply is not an answer' },
+        { status: 400 },
+      )
     }
 
     const parent = db.replies.find((r) => r.id === reply.parent_id)
     if (!parent || parent.kind !== 'question') {
-      return HttpResponse.json({ message: 'reply is not an answer' }, { status: 400 })
+      return HttpResponse.json(
+        { message: 'reply is not an answer' },
+        { status: 400 },
+      )
     }
     if (parent.user_id !== user.id) {
-      return HttpResponse.json({ message: 'only the question author can mark a best answer' }, { status: 403 })
+      return HttpResponse.json(
+        { message: 'only the question author can mark a best answer' },
+        { status: 403 },
+      )
     }
 
     reply.is_best = false
