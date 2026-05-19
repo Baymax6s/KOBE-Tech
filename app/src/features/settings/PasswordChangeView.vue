@@ -44,10 +44,11 @@ const onSubmit = async () => {
         skipGlobalErrorHandler: true,
       },
     )
-    authStore.clearToken()
     successMessage.value = 'パスワードを変更しました'
     currentPassword.value = ''
     newPassword.value = ''
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    authStore.clearToken()
     router.push('/login')
   } catch (e) {
     if (axios.isAxiosError(e) && e.response?.status === 401) {
