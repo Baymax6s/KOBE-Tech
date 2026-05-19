@@ -14,6 +14,7 @@ const props = defineProps<{
   reply: ServerReplyJSONResponse
   childrenByParent: Map<number, ServerReplyJSONResponse[]>
   descendantCountByParent: Map<number, number>
+  subtreeHasBestByReplyId: Map<number, boolean>
   depth: number
   articleId: number
   currentUserId: number | null
@@ -36,7 +37,11 @@ const descendantCount = computed(
 )
 
 // depth 0 のみ初期折りたたみ。クリックで自分以下のサブツリーをまとめて開く。
-const expanded = ref(props.depth >= 1)
+// ただしサブツリーにベストアンサーが含まれる場合は、閲覧者にすぐ見せたいので初期展開する。
+const expanded = ref(
+  props.depth >= 1 ||
+    (props.subtreeHasBestByReplyId.get(props.reply.id) ?? false),
+)
 const showReplyForm = ref(false)
 
 const toggleReplyForm = () => {
@@ -84,6 +89,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
           :reply="child"
           :children-by-parent="childrenByParent"
           :descendant-count-by-parent="descendantCountByParent"
+          :subtree-has-best-by-reply-id="subtreeHasBestByReplyId"
           :depth="depth + 1"
           :article-id="articleId"
           :current-user-id="currentUserId"

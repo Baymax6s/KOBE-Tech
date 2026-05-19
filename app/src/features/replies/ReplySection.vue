@@ -79,6 +79,26 @@ const rootReplies = computed(() =>
     ),
 )
 
+// 各リプライについて、そのサブツリー内に is_best=true のリプライが含まれるかを示す Map。
+// ベストアンサーは閲覧者が最初に読みたい情報なので、含むサブツリーはルートで初期展開する。
+const subtreeHasBestByReplyId = computed(() => {
+  const result = new Map<number, boolean>()
+  const replyMap = new Map(replies.value.map((r) => [r.id, r]))
+  const dfs = (id: number): boolean => {
+    const cached = result.get(id)
+    if (cached !== undefined) return cached
+    let has = replyMap.get(id)?.is_best === true
+    const kids = childrenByParent.value.get(id) ?? []
+    for (const k of kids) {
+      if (dfs(k.id)) has = true
+    }
+    result.set(id, has)
+    return has
+  }
+  for (const r of replies.value) dfs(r.id)
+  return result
+})
+
 // 各リプライについて、その親が質問（kind=question）なら親の user_id を記録する Map。
 // key = 子の reply.id, value = 質問の user_id。
 const questionAuthorByReplyId = computed(() => {
@@ -185,6 +205,7 @@ watch(
         :reply="reply"
         :children-by-parent="childrenByParent"
         :descendant-count-by-parent="descendantCountByParent"
+        :subtree-has-best-by-reply-id="subtreeHasBestByReplyId"
         :depth="0"
         :article-id="articleId"
         :current-user-id="currentUserId"
