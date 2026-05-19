@@ -45,6 +45,9 @@ const onSubmit = async () => {
       },
     )
     authStore.clearToken()
+    successMessage.value = 'パスワードを変更しました'
+    currentPassword.value = ''
+    newPassword.value = ''
     router.push('/login')
   } catch (e) {
     if (axios.isAxiosError(e) && e.response?.status === 401) {
