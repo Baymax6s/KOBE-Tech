@@ -79,6 +79,49 @@ const rootReplies = computed(() =>
     ),
 )
 
+// ベストアンサー自身と、その全祖先の id 集合。
+// 初期表示ではこの集合に含まれるリプライだけを見せ、他は「N 件を表示」ボタンの裏に隠す。
+// 「ベストアンサーへの導線だけ最短で見せる」UX のためにこの経路を保持しておく。
+const bestAnswerPathIds = computed(() => {
+  const set = new Set<number>()
+  const parentMap = new Map<number, number | null>(
+    replies.value.map((r) => [r.id, r.parent_id ?? null]),
+  )
+  for (const r of replies.value) {
+    if (!r.is_best) continue
+    let cur: number | null = r.id
+    while (cur != null && !set.has(cur)) {
+      set.add(cur)
+      cur = parentMap.get(cur) ?? null
+    }
+  }
+  return set
+})
+
+// 各リプライについて、そのサブツリーで「ベストアンサー経路に乗っていない子孫」の総数。
+// ネストの奥に隠れている件数もまとめて数えたいので、メモ化付き DFS で一括算出する。
+// これをルートの「返信 N 件を表示」ボタンのカウントに使うことで、ボタンを 1 つだけ出せる。
+const hiddenDescendantCountByReplyId = computed(() => {
+  const result = new Map<number, number>()
+  const compute = (id: number): number => {
+    const cached = result.get(id)
+    if (cached !== undefined) return cached
+    const kids = childrenByParent.value.get(id) ?? []
+    let total = 0
+    for (const k of kids) {
+      if (bestAnswerPathIds.value.has(k.id)) {
+        total += compute(k.id)
+      } else {
+        total += 1 + (descendantCountByParent.value.get(k.id) ?? 0)
+      }
+    }
+    result.set(id, total)
+    return total
+  }
+  for (const r of replies.value) compute(r.id)
+  return result
+})
+
 // 各リプライについて、その親が質問（kind=question）なら親の user_id を記録する Map。
 // key = 子の reply.id, value = 質問の user_id。
 const questionAuthorByReplyId = computed(() => {
@@ -185,6 +228,9 @@ watch(
         :reply="reply"
         :children-by-parent="childrenByParent"
         :descendant-count-by-parent="descendantCountByParent"
+        :best-answer-path-ids="bestAnswerPathIds"
+        :hidden-descendant-count-by-reply-id="hiddenDescendantCountByReplyId"
+        :reveal-all="false"
         :depth="0"
         :article-id="articleId"
         :current-user-id="currentUserId"
