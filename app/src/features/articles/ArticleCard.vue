@@ -2,11 +2,16 @@
 import { useDateFormat } from '@vueuse/core'
 import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 
-const props = defineProps<{ article: ServerArticleJSONResponse }>()
+const props = defineProps<{
+  article: ServerArticleJSONResponse
+  selectedTags: string[]
+}>()
 
 const emit = defineEmits<{
   (e: 'select-tag', tagName: string): void
 }>()
+
+const isSelected = (tagName: string) => props.selectedTags.includes(tagName)
 
 const formattedDate = useDateFormat(
   () => props.article.created_at ?? '',
@@ -21,18 +26,18 @@ const formattedDate = useDateFormat(
     </v-card-title>
 
     <v-card-text v-if="article.tags?.length" class="py-0 px-4">
-      <v-chip-group>
+      <div class="d-flex ga-1 flex-wrap">
         <v-chip
           v-for="tag in article.tags"
           :key="tag.id"
           size="x-small"
-          variant="outlined"
-          color="primary"
+          :variant="isSelected(tag.name) ? 'flat' : 'outlined'"
+          :color="isSelected(tag.name) ? 'primary' : undefined"
           @click.stop.prevent="emit('select-tag', tag.name)"
         >
           {{ tag.name }}
         </v-chip>
-      </v-chip-group>
+      </div>
     </v-card-text>
 
     <v-card-subtitle
@@ -42,9 +47,9 @@ const formattedDate = useDateFormat(
 
       <div class="d-flex align-center">
         <v-icon
-          icon="mdi-heart-outline"
+          :icon="article.liked_by_me ? 'mdi-heart' : 'mdi-heart-outline'"
           size="small"
-          color="red-lighten-2"
+          color="red"
           class="me-1"
         />
         <span>{{ article.likes_count ?? 0 }}</span>

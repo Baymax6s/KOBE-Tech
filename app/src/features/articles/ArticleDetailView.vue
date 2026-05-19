@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDateFormat } from '@vueuse/core'
 import { api } from '@/api/client'
 import type { ServerGetArticleJSONResponse } from '@/api/generated/apiSchema'
-import CommentSection from '@/features/comments/CommentSection.vue'
+import ReplySection from '@/features/replies/ReplySection.vue'
 import { useAuthStore } from '@/stores/auth'
 
 defineOptions({ name: 'ArticleDetailView' })
@@ -19,12 +19,12 @@ const auth = useAuthStore()
 const article = ref<ServerGetArticleJSONResponse | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
-const isLiked = ref(false)
+const isLiked = computed(() => article.value?.liked_by_me ?? false)
 const likeSubmitting = ref(false)
 const likeError = ref<string | null>(null)
 
 const likeArticle = async () => {
-  if (!article.value || isLiked.value || likeSubmitting.value) return
+  if (!article.value || likeSubmitting.value) return
 
   likeError.value = null
 
@@ -36,12 +36,27 @@ const likeArticle = async () => {
   likeSubmitting.value = true
 
   try {
-    await api.api.articlesLikeCreate(props.articleId)
-    isLiked.value = true
-    article.value.likes_count = (article.value.likes_count ?? 0) + 1
+    if (isLiked.value) {
+      const response = await api.api.articlesLikeDelete(props.articleId)
+      article.value.liked_by_me =
+        response.data.liked_by_me ?? article.value.liked_by_me
+      article.value.likes_count =
+        response.data.likes_count ?? article.value.likes_count
+    } else {
+      const response = await api.api.articlesLikeCreate(props.articleId)
+      article.value.liked_by_me =
+        response.data.liked_by_me ?? article.value.liked_by_me
+      article.value.likes_count =
+        response.data.likes_count ?? article.value.likes_count
+    }
   } catch (err: unknown) {
     if (axios.isAxiosError(err) && err.response?.status === 409) {
-      isLiked.value = true
+      article.value.liked_by_me = true
+      return
+    }
+
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      article.value.liked_by_me = false
       return
     }
 
@@ -51,7 +66,8 @@ const likeArticle = async () => {
       return
     }
 
-    likeError.value = 'いいねに失敗しました。時間をおいて再度お試しください。'
+    likeError.value =
+      'いいねの処理に失敗しました。時間をおいて再度お試しください。'
   } finally {
     likeSubmitting.value = false
   }
@@ -69,7 +85,6 @@ watch(
     error.value = null
     likeError.value = null
     loading.value = true
-    isLiked.value = false
     likeSubmitting.value = false
 
     try {
@@ -131,9 +146,8 @@ watch(
                 <v-btn
                   variant="text"
                   icon
-                  color="red-lighten-2"
+                  color="red"
                   :loading="likeSubmitting"
-                  :disabled="isLiked"
                   @click="likeArticle"
                 >
                   <v-icon :icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'" />
@@ -156,7 +170,7 @@ watch(
             </v-card>
 
             <div class="mt-10">
-              <CommentSection :article-id="article.id" />
+              <ReplySection :article-id="article.id" />
             </div>
           </template>
         </v-col>

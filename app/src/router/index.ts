@@ -11,6 +11,11 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/settings/profile',
+      component: () => import('@/features/settings/ProfileView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/about',
       // 遅延読み込み: アクセス時に初めてJSを読み込むので初期表示が速くなる
       component: () => import('@/features/about/AboutView.vue'),
@@ -24,6 +29,11 @@ const router = createRouter({
     {
       path: '/articles',
       component: () => import('@/features/articles/ArticlesView.vue'),
+    },
+    {
+      path: '/settings/password',
+      component: () => import('@/features/settings/PasswordChangeView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/articles/new',

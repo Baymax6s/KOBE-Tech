@@ -56,3 +56,31 @@ func extractBearerToken(header string) (string, bool) {
 	}
 	return parts[1], true
 }
+
+func OptionalUser(v *Validator) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, ok := extractBearerToken(c.GetHeader("Authorization"))
+		if !ok {
+			c.Next()
+			return
+		}
+
+		userID, err := v.ValidateToken(token)
+		if err != nil {
+			c.Next()
+			return
+		}
+
+		c.Set(userIDContextKey, userID)
+		c.Next()
+	}
+}
+
+func OptionalUserID(c *gin.Context) (int64, bool) {
+	v, exists := c.Get(userIDContextKey)
+	if !exists {
+		return 0, false
+	}
+	userID, ok := v.(int64)
+	return userID, ok
+}

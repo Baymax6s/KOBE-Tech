@@ -4,29 +4,26 @@ import (
 	"database/sql"
 	"net/http"
 
+	articlehandler "github.com/Baymax6s/KOBE-Tech/api/internal/article/handler"
+	articlerepository "github.com/Baymax6s/KOBE-Tech/api/internal/article/repository"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
-	getarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_article"
-	me "github.com/Baymax6s/KOBE-Tech/api/internal/get_auth_me"
-	listarticle "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_article"
-	listreply "github.com/Baymax6s/KOBE-Tech/api/internal/get_list_reply"
-	gettags "github.com/Baymax6s/KOBE-Tech/api/internal/get_tags"
-	postarticle "github.com/Baymax6s/KOBE-Tech/api/internal/post_article"
-	postlike "github.com/Baymax6s/KOBE-Tech/api/internal/post_like"
-	login "github.com/Baymax6s/KOBE-Tech/api/internal/post_login"
-	postreply "github.com/Baymax6s/KOBE-Tech/api/internal/post_reply"
+	authhandler "github.com/Baymax6s/KOBE-Tech/api/internal/auth/handler"
+	authrepository "github.com/Baymax6s/KOBE-Tech/api/internal/auth/repository"
+	likehandler "github.com/Baymax6s/KOBE-Tech/api/internal/like/handler"
+	likerepository "github.com/Baymax6s/KOBE-Tech/api/internal/like/repository"
+	profilehandler "github.com/Baymax6s/KOBE-Tech/api/internal/profile/handler"
+	profilerepository "github.com/Baymax6s/KOBE-Tech/api/internal/profile/repository"
+	replyhandler "github.com/Baymax6s/KOBE-Tech/api/internal/reply/handler"
+	replyrepository "github.com/Baymax6s/KOBE-Tech/api/internal/reply/repository"
 	"github.com/gin-gonic/gin"
 )
 
 func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http.Handler {
-	listArticleHandler := listarticle.NewHandler(listarticle.NewRepository(db))
-	getArticleHandler := getarticle.NewHandler(getarticle.NewRepository(db))
-	postArticleHandler := postarticle.NewHandler(postarticle.NewRepository(db))
-	postLikeHandler := postlike.NewHandler(postlike.NewRepository(db))
-	postReplyHandler := postreply.NewHandler(postreply.NewRepository(db))
-	loginHandler := login.NewHandler(login.NewRepository(db), issuer)
-	meHandler := me.NewHandler(me.NewRepository(db))
-	getTagsHandler := gettags.NewHandler(gettags.NewRepository(db))
-	listReplyHandler := listreply.NewHandler(listreply.NewRepository(db))
+	articleHandler := articlehandler.NewHandler(articlerepository.NewRepository(db))
+	authHandler := authhandler.NewHandler(authrepository.NewRepository(db), issuer)
+	likeHandler := likehandler.NewHandler(likerepository.NewRepository(db))
+	replyHandler := replyhandler.NewHandler(replyrepository.NewRepository(db))
+	profileHandler := profilehandler.NewHandler(profilerepository.NewRepository(db))
 
 	router := gin.Default()
 	router.Use(corsMiddleware())
@@ -37,17 +34,14 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	registerSwaggerRoutes(router)
 
 	api := router.Group("/api")
-	listArticleHandler.RegisterRoutes(api)
-	getArticleHandler.RegisterRoutes(api)
-	listReplyHandler.RegisterRoutes(api)
-	loginHandler.RegisterRoutes(api)
 
 	authRequired := api.Group("", auth.RequireUser(validator))
-	postArticleHandler.RegisterRoutes(authRequired)
-	postLikeHandler.RegisterRoutes(authRequired)
-	postReplyHandler.RegisterRoutes(authRequired)
-	meHandler.RegisterRoutes(authRequired)
-	getTagsHandler.RegisterRoutes(authRequired)
+	optionalAuth := api.Group("", auth.OptionalUser(validator))
+	articleHandler.RegisterRoutes(optionalAuth, authRequired)
+	authHandler.RegisterRoutes(api, authRequired)
+	likeHandler.RegisterRoutes(authRequired)
+	replyHandler.RegisterRoutes(api, authRequired)
+	profileHandler.RegisterRoutes(api, authRequired)
 
 	return router
 }

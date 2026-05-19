@@ -19,7 +19,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "article"
                 ],
                 "summary": "List articles",
                 "responses": {
@@ -51,7 +51,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "article"
                 ],
                 "summary": "Create article",
                 "parameters": [
@@ -100,7 +100,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "article"
                 ],
                 "summary": "Get article",
                 "parameters": [
@@ -152,7 +152,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "articles"
+                    "like"
                 ],
                 "summary": "Like an article",
                 "parameters": [
@@ -165,8 +165,11 @@
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeResponse"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -199,6 +202,62 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Unlike an article API.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "Unlike an article",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Article ID",
+                        "name": "article_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.likeErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/api/articles/{article_id}/replies": {
@@ -208,7 +267,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "replies"
+                    "reply"
                 ],
                 "summary": "List replies of an article",
                 "parameters": [
@@ -247,7 +306,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。",
+                "description": "記事 / 既存返信への返信を投稿する。kind は comment / question / answer のいずれか。ルート投稿は comment か question、コメント配下は comment、質問・回答配下は answer のみ受け付ける。",
                 "consumes": [
                     "application/json"
                 ],
@@ -255,9 +314,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "replies"
+                    "reply"
                 ],
-                "summary": "Create a reply (comment) on an article",
+                "summary": "Create a reply on an article",
                 "parameters": [
                     {
                         "type": "integer",
@@ -399,6 +458,273 @@
                 }
             }
         },
+        "/api/auth/password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Changes the authenticated user's password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Change password",
+                "parameters": [
+                    {
+                        "description": "Change password request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.changePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.changePasswordResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.changePasswordErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.changePasswordErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.changePasswordErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ログインユーザーのプロフィール取得",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Get profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileJSON"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/bio": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ログインユーザーの自己紹介を更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Update bio",
+                "parameters": [
+                    {
+                        "description": "Update bio request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.updateBioRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileJSON"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/replies/{reply_id}/best": {
+            "put": {
+                "description": "ベストアンサー指定を解除する。質問者のみ可能。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "summary": "Unmark a reply as best answer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "reply_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.unsetBestAnswerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "質問に対する回答をベストアンサーに指定する。質問者のみ可能。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "replies"
+                ],
+                "summary": "Mark a reply as best answer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "reply_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.setBestAnswerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.replyErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/tags": {
             "get": {
                 "security": [
@@ -411,7 +737,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "tags"
+                    "article"
                 ],
                 "summary": "List tags",
                 "responses": {
@@ -483,6 +809,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "liked_by_me": {
+                    "type": "boolean"
+                },
                 "likes_count": {
                     "type": "integer"
                 },
@@ -514,6 +843,38 @@
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.changePasswordErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.changePasswordRequest": {
+            "type": "object",
+            "required": [
+                "current_password",
+                "new_password"
+            ],
+            "properties": {
+                "current_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "server.changePasswordResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
@@ -617,6 +978,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "liked_by_me": {
+                    "type": "boolean"
+                },
                 "likes_count": {
                     "type": "integer"
                 },
@@ -639,6 +1003,17 @@
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "server.likeResponse": {
+            "type": "object",
+            "properties": {
+                "liked_by_me": {
+                    "type": "boolean"
+                },
+                "likes_count": {
+                    "type": "integer"
                 }
             }
         },
@@ -730,6 +1105,34 @@
                 }
             }
         },
+        "server.profileErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.profileJSON": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "server.replyErrorResponse": {
             "type": "object",
             "properties": {
@@ -745,6 +1148,7 @@
                 "body",
                 "created_at",
                 "id",
+                "is_best",
                 "kind",
                 "updated_at",
                 "user_id",
@@ -762,6 +1166,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "is_best": {
+                    "type": "boolean"
                 },
                 "kind": {
                     "type": "string",
@@ -785,6 +1192,17 @@
                 }
             }
         },
+        "server.setBestAnswerResponse": {
+            "type": "object",
+            "properties": {
+                "is_best": {
+                    "type": "boolean"
+                },
+                "reply_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "server.tagJSONResponse": {
             "type": "object",
             "required": [
@@ -804,6 +1222,25 @@
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.unsetBestAnswerResponse": {
+            "type": "object",
+            "properties": {
+                "is_best": {
+                    "type": "boolean"
+                },
+                "reply_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.updateBioRequest": {
+            "type": "object",
+            "properties": {
+                "bio": {
                     "type": "string"
                 }
             }

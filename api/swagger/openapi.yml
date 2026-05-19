@@ -23,6 +23,8 @@ definitions:
         type: string
       id:
         type: integer
+      liked_by_me:
+        type: boolean
       likes_count:
         type: integer
       tags:
@@ -54,6 +56,27 @@ definitions:
     required:
     - id
     - name
+    type: object
+  server.changePasswordErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.changePasswordRequest:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        minLength: 8
+        type: string
+    required:
+    - current_password
+    - new_password
+    type: object
+  server.changePasswordResponse:
+    properties:
+      message:
+        type: string
     type: object
   server.createArticleRequest:
     properties:
@@ -116,6 +139,8 @@ definitions:
         type: string
       id:
         type: integer
+      liked_by_me:
+        type: boolean
       likes_count:
         type: integer
       tags:
@@ -140,6 +165,13 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  server.likeResponse:
+    properties:
+      liked_by_me:
+        type: boolean
+      likes_count:
+        type: integer
     type: object
   server.listArticlesResponse:
     properties:
@@ -197,6 +229,24 @@ definitions:
       updated_at:
         type: string
     type: object
+  server.profileErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  server.profileJSON:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   server.replyErrorResponse:
     properties:
       message:
@@ -212,6 +262,8 @@ definitions:
         type: string
       id:
         type: integer
+      is_best:
+        type: boolean
       kind:
         enum:
         - comment
@@ -231,10 +283,18 @@ definitions:
     - body
     - created_at
     - id
+    - is_best
     - kind
     - updated_at
     - user_id
     - user_name
+    type: object
+  server.setBestAnswerResponse:
+    properties:
+      is_best:
+        type: boolean
+      reply_id:
+        type: integer
     type: object
   server.tagJSONResponse:
     properties:
@@ -249,6 +309,18 @@ definitions:
   server.tagsErrorResponse:
     properties:
       message:
+        type: string
+    type: object
+  server.unsetBestAnswerResponse:
+    properties:
+      is_best:
+        type: boolean
+      reply_id:
+        type: integer
+    type: object
+  server.updateBioRequest:
+    properties:
+      bio:
         type: string
     type: object
 host: localhost:8080
@@ -274,7 +346,7 @@ paths:
             $ref: '#/definitions/server.articleErrorResponse'
       summary: List articles
       tags:
-      - articles
+      - article
     post:
       consumes:
       - application/json
@@ -309,7 +381,7 @@ paths:
       - BearerAuth: []
       summary: Create article
       tags:
-      - articles
+      - article
   /api/articles/{article_id}:
     get:
       description: Get article detail API.
@@ -340,8 +412,44 @@ paths:
             $ref: '#/definitions/server.articleErrorResponse'
       summary: Get article
       tags:
-      - articles
+      - article
   /api/articles/{article_id}/like:
+    delete:
+      description: Unlike an article API.
+      parameters:
+      - description: Article ID
+        in: path
+        name: article_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.likeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.likeErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Unlike an article
+      tags:
+      - like
     post:
       description: Like an article API.
       parameters:
@@ -353,8 +461,10 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.likeResponse'
         "400":
           description: Bad Request
           schema:
@@ -379,7 +489,7 @@ paths:
       - BearerAuth: []
       summary: Like an article
       tags:
-      - articles
+      - like
   /api/articles/{article_id}/replies:
     get:
       description: 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
@@ -406,11 +516,12 @@ paths:
             $ref: '#/definitions/server.replyErrorResponse'
       summary: List replies of an article
       tags:
-      - replies
+      - reply
     post:
       consumes:
       - application/json
-      description: 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
+      description: 記事 / 既存返信への返信を投稿する。kind は comment / question / answer のいずれか。ルート投稿は
+        comment か question、コメント配下は comment、質問・回答配下は answer のみ受け付ける。
       parameters:
       - description: Article ID
         in: path
@@ -448,9 +559,9 @@ paths:
             $ref: '#/definitions/server.replyErrorResponse'
       security:
       - BearerAuth: []
-      summary: Create a reply (comment) on an article
+      summary: Create a reply on an article
       tags:
-      - replies
+      - reply
   /api/auth/login:
     post:
       consumes:
@@ -509,6 +620,178 @@ paths:
       summary: Get current user
       tags:
       - auth
+  /api/auth/password:
+    put:
+      consumes:
+      - application/json
+      description: Changes the authenticated user's password.
+      parameters:
+      - description: Change password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.changePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.changePasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.changePasswordErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.changePasswordErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.changePasswordErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - auth
+  /api/profile:
+    get:
+      description: ログインユーザーのプロフィール取得
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.profileJSON'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get profile
+      tags:
+      - profile
+  /api/profile/bio:
+    put:
+      consumes:
+      - application/json
+      description: ログインユーザーの自己紹介を更新する
+      parameters:
+      - description: Update bio request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.updateBioRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.profileJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update bio
+      tags:
+      - profile
+  /api/replies/{reply_id}/best:
+    post:
+      description: 質問に対する回答をベストアンサーに指定する。質問者のみ可能。
+      parameters:
+      - description: Reply ID
+        in: path
+        name: reply_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.setBestAnswerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+      summary: Mark a reply as best answer
+      tags:
+      - replies
+    put:
+      description: ベストアンサー指定を解除する。質問者のみ可能。
+      parameters:
+      - description: Reply ID
+        in: path
+        name: reply_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.unsetBestAnswerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.replyErrorResponse'
+      summary: Unmark a reply as best answer
+      tags:
+      - replies
   /api/tags:
     get:
       description: Get tag candidates for creating articles.
@@ -531,7 +814,7 @@ paths:
       - BearerAuth: []
       summary: List tags
       tags:
-      - tags
+      - article
 schemes:
 - http
 securityDefinitions:

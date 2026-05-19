@@ -23,6 +23,7 @@ export interface ServerArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  liked_by_me?: boolean;
   likes_count: number;
   tags: ServerArticleTagJSONResponse[];
   title: string;
@@ -33,6 +34,20 @@ export interface ServerArticleJSONResponse {
 export interface ServerArticleTagJSONResponse {
   id: number;
   name: string;
+}
+
+export interface ServerChangePasswordErrorResponse {
+  message?: string;
+}
+
+export interface ServerChangePasswordRequest {
+  current_password: string;
+  /** @minLength 8 */
+  new_password: string;
+}
+
+export interface ServerChangePasswordResponse {
+  message?: string;
 }
 
 export interface ServerCreateArticleRequest {
@@ -62,6 +77,7 @@ export interface ServerGetArticleJSONResponse {
   content: string;
   created_at: string;
   id: number;
+  liked_by_me?: boolean;
   likes_count: number;
   tags: ServerArticleTagJSONResponse[];
   title: string;
@@ -70,6 +86,11 @@ export interface ServerGetArticleJSONResponse {
 
 export interface ServerLikeErrorResponse {
   message?: string;
+}
+
+export interface ServerLikeResponse {
+  liked_by_me?: boolean;
+  likes_count?: number;
 }
 
 export interface ServerListArticlesResponse {
@@ -108,6 +129,18 @@ export interface ServerMeResponse {
   updated_at?: string;
 }
 
+export interface ServerProfileErrorResponse {
+  message?: string;
+}
+
+export interface ServerProfileJSON {
+  bio?: string;
+  created_at?: string;
+  id?: number;
+  name?: string;
+  updated_at?: string;
+}
+
 export interface ServerReplyErrorResponse {
   message?: string;
 }
@@ -117,11 +150,17 @@ export interface ServerReplyJSONResponse {
   body: string;
   created_at: string;
   id: number;
+  is_best: boolean;
   kind: "comment" | "question" | "answer";
   parent_id?: number;
   updated_at: string;
   user_id: number;
   user_name: string;
+}
+
+export interface ServerSetBestAnswerResponse {
+  is_best?: boolean;
+  reply_id?: number;
 }
 
 export interface ServerTagJSONResponse {
@@ -131,6 +170,15 @@ export interface ServerTagJSONResponse {
 
 export interface ServerTagsErrorResponse {
   message?: string;
+}
+
+export interface ServerUnsetBestAnswerResponse {
+  is_best?: boolean;
+  reply_id?: number;
+}
+
+export interface ServerUpdateBioRequest {
+  bio?: string;
 }
 
 import type {
@@ -323,7 +371,7 @@ export class Api<
     /**
      * @description Get article list API.
      *
-     * @tags articles
+     * @tags article
      * @name ArticlesList
      * @summary List articles
      * @request GET:/api/articles
@@ -339,7 +387,7 @@ export class Api<
     /**
      * @description Create article API.
      *
-     * @tags articles
+     * @tags article
      * @name ArticlesCreate
      * @summary Create article
      * @request POST:/api/articles
@@ -362,7 +410,7 @@ export class Api<
     /**
      * @description Get article detail API.
      *
-     * @tags articles
+     * @tags article
      * @name ArticlesDetail
      * @summary Get article
      * @request GET:/api/articles/{article_id}
@@ -376,26 +424,45 @@ export class Api<
       }),
 
     /**
+     * @description Unlike an article API.
+     *
+     * @tags like
+     * @name ArticlesLikeDelete
+     * @summary Unlike an article
+     * @request DELETE:/api/articles/{article_id}/like
+     * @secure
+     */
+    articlesLikeDelete: (articleId: number, params: RequestParams = {}) =>
+      this.request<ServerLikeResponse, ServerLikeErrorResponse>({
+        path: `/api/articles/${articleId}/like`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Like an article API.
      *
-     * @tags articles
+     * @tags like
      * @name ArticlesLikeCreate
      * @summary Like an article
      * @request POST:/api/articles/{article_id}/like
      * @secure
      */
     articlesLikeCreate: (articleId: number, params: RequestParams = {}) =>
-      this.request<void, ServerLikeErrorResponse>({
+      this.request<ServerLikeResponse, ServerLikeErrorResponse>({
         path: `/api/articles/${articleId}/like`,
         method: "POST",
         secure: true,
+        format: "json",
         ...params,
       }),
 
     /**
      * @description 記事に紐づく返信（コメント / 質問 / 回答）を全件取得する。
      *
-     * @tags replies
+     * @tags reply
      * @name ArticlesRepliesList
      * @summary List replies of an article
      * @request GET:/api/articles/{article_id}/replies
@@ -409,11 +476,11 @@ export class Api<
       }),
 
     /**
-     * @description 記事 / 既存コメントへのコメントを投稿する。今回のスコープは kind = comment のみ。
+     * @description 記事 / 既存返信への返信を投稿する。kind は comment / question / answer のいずれか。ルート投稿は comment か question、コメント配下は comment、質問・回答配下は answer のみ受け付ける。
      *
-     * @tags replies
+     * @tags reply
      * @name ArticlesRepliesCreate
-     * @summary Create a reply (comment) on an article
+     * @summary Create a reply on an article
      * @request POST:/api/articles/{article_id}/replies
      * @secure
      */
@@ -472,9 +539,108 @@ export class Api<
       }),
 
     /**
+     * @description Changes the authenticated user's password.
+     *
+     * @tags auth
+     * @name AuthPasswordUpdate
+     * @summary Change password
+     * @request PUT:/api/auth/password
+     * @secure
+     */
+    authPasswordUpdate: (
+      request: ServerChangePasswordRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        ServerChangePasswordResponse,
+        ServerChangePasswordErrorResponse
+      >({
+        path: `/api/auth/password`,
+        method: "PUT",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ログインユーザーのプロフィール取得
+     *
+     * @tags profile
+     * @name ProfileList
+     * @summary Get profile
+     * @request GET:/api/profile
+     * @secure
+     */
+    profileList: (params: RequestParams = {}) =>
+      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+        path: `/api/profile`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ログインユーザーの自己紹介を更新する
+     *
+     * @tags profile
+     * @name ProfileBioUpdate
+     * @summary Update bio
+     * @request PUT:/api/profile/bio
+     * @secure
+     */
+    profileBioUpdate: (
+      request: ServerUpdateBioRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+        path: `/api/profile/bio`,
+        method: "PUT",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 質問に対する回答をベストアンサーに指定する。質問者のみ可能。
+     *
+     * @tags replies
+     * @name RepliesBestCreate
+     * @summary Mark a reply as best answer
+     * @request POST:/api/replies/{reply_id}/best
+     */
+    repliesBestCreate: (replyId: number, params: RequestParams = {}) =>
+      this.request<ServerSetBestAnswerResponse, ServerReplyErrorResponse>({
+        path: `/api/replies/${replyId}/best`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ベストアンサー指定を解除する。質問者のみ可能。
+     *
+     * @tags replies
+     * @name RepliesBestUpdate
+     * @summary Unmark a reply as best answer
+     * @request PUT:/api/replies/{reply_id}/best
+     */
+    repliesBestUpdate: (replyId: number, params: RequestParams = {}) =>
+      this.request<ServerUnsetBestAnswerResponse, ServerReplyErrorResponse>({
+        path: `/api/replies/${replyId}/best`,
+        method: "PUT",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Get tag candidates for creating articles.
      *
-     * @tags tags
+     * @tags article
      * @name TagsList
      * @summary List tags
      * @request GET:/api/tags

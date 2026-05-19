@@ -1,0 +1,58 @@
+name: フロントエンド
+description: UI・UX・画面まわりの機能追加・修正
+title: "【フロントエンド】"
+
+labels: []
+
+body:
+
+  - type: textarea
+    id: task
+    attributes:
+      label: やる事（task）
+      description: "筆記必須。ホワイトボードを見てタスクに対応した内容を書く"
+      placeholder: "例：ボタンのUI作成、レスポンシブ対応など"
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: 概要
+      description: "タスクの背景・目的・補足など"
+      placeholder: "背景・目的・補足など"
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件（Goal）
+      description: "ホワイトボードを見てタスクに対応したゴールを書く"
+      placeholder: |
+        - ボタンがクリックできる
+        - エラー時にメッセージ表示される
+        - 画面遷移する
+
+  - type: textarea
+    id: test
+    attributes:
+      label: 動作確認手順
+      description: "タスクに対応した動作確認手順を記載する"
+      placeholder: |
+        1. ローカル起動
+        2. 該当ページを開く
+        3. ボタンを押す
+        4. 正常に動作することを確認
+
+  - type: input
+    id: docs
+    attributes:
+      label: 参考ドキュメントURL
+      description: "figmaデザインや仕様書などのURLを記載する"
+      placeholder: "例：https://www.figma.com/file/xxxxxx/xxxxxx"
+
+  - type: textarea
+    id: memo
+    attributes:
+      label: その他・メモ
+      description: "原則、上記に書けるものはここに書かないこと！！"
+      placeholder: "注意点・技術メモ・相談事項など"

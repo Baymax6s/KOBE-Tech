@@ -52,3 +52,115 @@ mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```sh
 npm run generate:api
 ```
+
+### MSW の有効化
+
+MSW(Mock Service Worker) を利用する場合は `.env` を編集してください。
+
+```env
+VITE_USE_MSW=true
+```
+
+デフォルトでは `false` になっており、実APIを利用します。
+
+MSW を利用することで、backend 未実装時でも frontend 単体で動作確認できます。
+
+frontend の実装では、API 実装に加えて MSW のモック追加までをタスク範囲とします。
+
+## MSW 開発
+
+### ファイル構成
+
+```txt
+app/
+├── .env                         # VITE_USE_MSW=true / false
+└── src/
+    ├── mocks/
+    │   ├── db/                  # モックデータ管理
+    │   │   ├── articles.ts
+    │   │   ├── replies.ts
+    │   │   ├── tags.ts
+    │   │   ├── users.ts
+    │   │   └── index.ts
+    │   │
+    │   ├── handlers/            # API handler管理
+    │   │   ├── articles.ts
+    │   │   ├── profiles.ts
+    │   │   ├── replies.ts
+    │   │   └── tags.ts
+    │   │
+    │   ├── browser.ts           # MSW worker セットアップ
+    │   ├── handlers.ts          # handler 集約
+    │   └── utils.ts             # 共通 utility
+    │
+    └── main.ts                  # .env を利用した MSW 有効化設定
+```
+
+---
+
+### モックAPI作成
+
+MSW の handler は `src/mocks/handlers/` 配下で機能ごとに分割して管理してください。
+
+例:
+
+- `handlers/articles.ts`
+- `handlers/replies.ts`
+- `handlers/tags.ts`
+
+`src/mocks/handlers.ts` では、各 handler を集約して export します。
+
+```ts
+import { articleHandlers } from './handlers/articles'
+import { replyHandlers } from './handlers/replies'
+
+export const handlers = [...articleHandlers, ...replyHandlers]
+```
+
+---
+
+### モックデータ管理
+
+モックデータは `src/mocks/db/` 配下で管理してください。
+
+例:
+
+- `db/articles.ts`
+- `db/replies.ts`
+- `db/tags.ts`
+- `db/users.ts`
+
+`db/index.ts` では各モックデータを集約します。
+
+```ts
+import { articles } from './articles'
+import { replies } from './replies'
+
+export const db = {
+  articles,
+  replies,
+}
+```
+
+---
+
+### handler 定義
+
+handler は以下の形式で定義してください。
+
+```ts
+http.get('*/api/articles', ...)
+http.post('*/api/auth/login', ...)
+```
+
+---
+
+### 開発ルール
+
+frontend 実装では、API 実装に加えて MSW のモック追加までをタスク範囲とします。
+
+新しい API を追加する場合は、以下も合わせて追加してください。
+
+- handler
+- モックデータ
+- 必要に応じた utility

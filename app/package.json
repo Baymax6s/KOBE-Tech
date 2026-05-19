@@ -38,6 +38,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.9.0",
     "globals": "^17.5.0",
+    "msw": "^2.14.6",
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.8.3",
     "swagger-typescript-api": "^13.6.10",
@@ -53,5 +54,10 @@
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
