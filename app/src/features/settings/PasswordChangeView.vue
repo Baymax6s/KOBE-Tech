@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { api } from '@/api/client'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 const currentPassword = ref('')
 const newPassword = ref('')
@@ -42,6 +47,9 @@ const onSubmit = async () => {
     successMessage.value = 'パスワードを変更しました'
     currentPassword.value = ''
     newPassword.value = ''
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    authStore.clearToken()
+    router.push('/login')
   } catch (e) {
     if (axios.isAxiosError(e) && e.response?.status === 401) {
       errorMessage.value =
