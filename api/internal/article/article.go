@@ -52,18 +52,21 @@ func NormalizeTagNames(tagNames []string) ([]string, error) {
 	seen := make(map[string]struct{}, len(tagNames))
 
 	for _, tagName := range tagNames {
-		normalizedTagName := strings.ToLower(strings.TrimSpace(tagName))
+		normalizedTagName := strings.TrimSpace(tagName)
 		if normalizedTagName == "" {
 			return nil, ErrInvalidTagName
 		}
 		if utf8.RuneCountInString(normalizedTagName) > maxTagNameLength {
 			return nil, ErrInvalidTagName
 		}
-		if _, ok := seen[normalizedTagName]; ok {
+		// 表示用に原文ケースを残す。重複判定は DB の UNIQUE(LOWER(name)) と揃えて
+		// 大文字小文字を区別しない。
+		dedupKey := strings.ToLower(normalizedTagName)
+		if _, ok := seen[dedupKey]; ok {
 			continue
 		}
 
-		seen[normalizedTagName] = struct{}{}
+		seen[dedupKey] = struct{}{}
 		normalizedTagNames = append(normalizedTagNames, normalizedTagName)
 	}
 

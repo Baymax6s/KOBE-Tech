@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (r *Repository) ListArticles(ctx context.Context, userID int64) ([]article.Article, error) {
+func (r *Repository) ListArticles(ctx context.Context, userID int64, tagNames []string) ([]article.Article, error) {
 	if r == nil || r.db == nil {
 		return nil, errors.New("article repository is not configured")
 	}
@@ -37,10 +37,28 @@ func (r *Repository) ListArticles(ctx context.Context, userID int64) ([]article.
 			JOIN tags t ON t.id = article_tag.tag_id
 			GROUP BY article_tag.article_id
 		) tag_summary ON tag_summary.article_id = a.id
-		ORDER BY a.created_at DESC, a.id DESC
 	`
 
-	rows, err := r.db.QueryContext(ctx, query, userID)
+	args := []any{userID}
+	if len(tagNames) > 0 {
+		// 指定された tag をすべて持つ記事のみに絞る（AND セマンティクス）。
+		// 大文字小文字は区別しないので比較は LOWER(name) で行い、tagNames も lowercase 済みを渡す。
+		// HAVING COUNT(DISTINCT LOWER(t.name)) = $3 で「一致した tag の種類数 == 要求された tag 数」を担保。
+		query += `
+		WHERE a.id IN (
+			SELECT article_tag.article_id
+			FROM article_tags article_tag
+			JOIN tags t ON t.id = article_tag.tag_id
+			WHERE LOWER(t.name) = ANY($2::text[])
+			GROUP BY article_tag.article_id
+			HAVING COUNT(DISTINCT LOWER(t.name)) = $3
+		)
+		`
+		args = append(args, pq.Array(tagNames), len(tagNames))
+	}
+	query += ` ORDER BY a.created_at DESC, a.id DESC`
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

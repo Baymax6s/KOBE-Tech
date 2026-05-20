@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ArticleCard from './ArticleCard.vue'
 import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
 
-type ArticleTag = NonNullable<ServerArticleJSONResponse['tags']>[number]
+const route = useRoute()
+const router = useRouter()
 
 const articles = ref<ServerArticleJSONResponse[]>([])
 const loading = ref(false)
@@ -14,17 +16,31 @@ const error = ref<string | null>(null)
 const showCreatedAlert = ref(false)
 const notificationStore = useArticleNotificationStore()
 
-const selectedTags = ref<string[]>([])
-const tagCandidates = ref<string[]>([])
+// URL の ?tag=... を唯一の真実として selectedTags を扱う。
+// リロード / ブックマーク / 共有リンクで絞り込み状態を再現できるようにするため、
+// ローカル ref ではなく route.query と双方向にバインドする。
+const selectedTags = computed<string[]>({
+  get() {
+    const q = route.query.tag
+    if (Array.isArray(q)) {
+      return q.filter((t): t is string => typeof t === 'string' && t.length > 0)
+    }
+    if (typeof q === 'string' && q.length > 0) return [q]
+    return []
+  },
+  set(next) {
+    // フィルタ操作 1 回ごとに履歴を積むと「戻る」が壊れるので push ではなく replace。
+    void router.replace({
+      query: { ...route.query, tag: next.length ? next : undefined },
+    })
+  },
+})
 
 const toggleTag = (tagName: string) => {
-  const index = selectedTags.value.indexOf(tagName)
-
-  if (index === -1) {
-    selectedTags.value.push(tagName)
-  } else {
-    selectedTags.value.splice(index, 1)
-  }
+  const current = selectedTags.value
+  const index = current.indexOf(tagName)
+  selectedTags.value =
+    index === -1 ? [...current, tagName] : current.filter((_, i) => i !== index)
 }
 
 const clearTag = () => {
@@ -43,41 +59,29 @@ const articleTagNames = computed(() => {
   return [...tagNames].sort((a, b) => a.localeCompare(b))
 })
 
-const filterTagItems = computed(() => {
-  if (tagCandidates.value.length > 0) {
-    return tagCandidates.value
-  }
-
-  return articleTagNames.value
-})
-
-const filteredArticles = computed(() => {
-  if (selectedTags.value.length === 0) return articles.value
-
-  return articles.value.filter((article) =>
-    selectedTags.value.every((tagName) =>
-      article.tags?.some((tag: ArticleTag) => tag.name === tagName),
-    ),
-  )
-})
-
-onMounted(async () => {
-  if (notificationStore.consumeCreated()) {
-    showCreatedAlert.value = true
-  }
-
+const fetchArticles = async () => {
   loading.value = true
+  error.value = null
   try {
-    const response = await api.api.articlesList()
+    const response = await api.api.articlesList({
+      tag: selectedTags.value.length ? selectedTags.value : undefined,
+    })
     articles.value = response.data.articles ?? []
   } catch {
     error.value = '記事の取得に失敗しました。時間をおいて再度お試しください。'
   } finally {
     loading.value = false
   }
+}
 
-  tagCandidates.value = []
+onMounted(() => {
+  if (notificationStore.consumeCreated()) {
+    showCreatedAlert.value = true
+  }
 })
+
+// URL の tag クエリが変わるたびにサーバ側で再フィルタした結果を取得する。
+watch(selectedTags, () => void fetchArticles(), { immediate: true })
 </script>
 
 <template>
@@ -96,7 +100,7 @@ onMounted(async () => {
 
         <v-select
           v-model="selectedTags"
-          :items="filterTagItems"
+          :items="articleTagNames"
           label="タグで絞り込み"
           prepend-inner-icon="mdi-tag-outline"
           variant="outlined"
@@ -149,18 +153,14 @@ onMounted(async () => {
 
         <div v-else class="d-flex flex-column ga-4">
           <ArticleCard
-            v-for="article in filteredArticles"
+            v-for="article in articles"
             :key="article.id"
             :article="article"
             :selected-tags="selectedTags"
             @select-tag="toggleTag"
           />
 
-          <v-alert
-            v-if="filteredArticles.length === 0"
-            type="info"
-            variant="tonal"
-          >
+          <v-alert v-if="articles.length === 0" type="info" variant="tonal">
             該当する記事はありません
           </v-alert>
         </div>

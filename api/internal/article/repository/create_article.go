@@ -61,10 +61,12 @@ func (r *Repository) CreateArticle(ctx context.Context, title, content string, u
 }
 
 func upsertTag(ctx context.Context, tx *sql.Tx, name string) (article.Tag, error) {
+	// "Vue" と "vue" を同一タグとして扱うため、検索も衝突判定も LOWER(name) で行う。
+	// 既存行が見つかった場合は最初に登録された原文ケース（tag.Name）をそのまま返す。
 	const selectQuery = `
 		SELECT id, name
 		FROM tags
-		WHERE name = $1
+		WHERE LOWER(name) = LOWER($1)
 	`
 
 	var tag article.Tag
@@ -79,7 +81,7 @@ func upsertTag(ctx context.Context, tx *sql.Tx, name string) (article.Tag, error
 	const insertQuery = `
 		INSERT INTO tags (name, created_at, updated_at)
 		VALUES ($1, NOW(), NOW())
-		ON CONFLICT (name) DO NOTHING
+		ON CONFLICT (LOWER(name)) DO NOTHING
 		RETURNING id, name
 	`
 
