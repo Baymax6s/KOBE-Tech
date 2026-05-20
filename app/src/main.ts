@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { registerPlugins } from '@/plugins'
 
 import 'unfonts.css'
+import 'highlight.js/styles/github.css'
 import './styles/tailwind.css'
 import './main.css'
 import App from './App.vue'
