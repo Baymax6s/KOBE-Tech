@@ -9,14 +9,14 @@ WHERE at.article_id = a.id
   AND (a.title, u.name, t.name) IN (
     ('神戸大学でのハッカソン体験記',           'admin',  'ハッカソン'),
     ('神戸大学でのハッカソン体験記',           'admin',  '神戸大学'),
-    ('Goで作るREST API入門',                   'user01', 'Go'),
-    ('Goで作るREST API入門',                   'user01', 'REST API'),
-    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'user02', 'Vue'),
-    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'user02', 'フロントエンド'),
-    ('PostgreSQLのマイグレーション管理',       'user03', 'PostgreSQL'),
-    ('PostgreSQLのマイグレーション管理',       'user03', 'マイグレーション'),
-    ('Dockerで開発環境を統一する',             'user01', 'Docker'),
-    ('Dockerで開発環境を統一する',             'user01', '開発環境')
+    ('Goで作るREST API入門',                   '田中太郎', 'Go'),
+    ('Goで作るREST API入門',                   '田中太郎', 'REST API'),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', '山田花子', 'Vue'),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', '山田花子', 'フロントエンド'),
+    ('PostgreSQLのマイグレーション管理',       '佐藤次郎', 'PostgreSQL'),
+    ('PostgreSQLのマイグレーション管理',       '佐藤次郎', 'マイグレーション'),
+    ('Dockerで開発環境を統一する',             '田中太郎', 'Docker'),
+    ('Dockerで開発環境を統一する',             '田中太郎', '開発環境')
   );
 
 -- tags の削除は、他の article_tags から参照されていないものだけに限定する。

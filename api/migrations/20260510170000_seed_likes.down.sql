@@ -5,18 +5,18 @@ USING articles a, users u
 WHERE l.article_id = a.id
   AND l.user_id    = u.id
   AND (a.title, u.name) IN (
-    ('神戸大学でのハッカソン体験記',          'user01'),
-    ('神戸大学でのハッカソン体験記',          'user02'),
-    ('神戸大学でのハッカソン体験記',          'user03'),
+    ('神戸大学でのハッカソン体験記',          '田中太郎'),
+    ('神戸大学でのハッカソン体験記',          '山田花子'),
+    ('神戸大学でのハッカソン体験記',          '佐藤次郎'),
     ('Goで作るREST API入門',                  'admin'),
-    ('Goで作るREST API入門',                  'user02'),
-    ('Goで作るREST API入門',                  'user03'),
+    ('Goで作るREST API入門',                  '山田花子'),
+    ('Goで作るREST API入門',                  '佐藤次郎'),
     ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'admin'),
-    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'user01'),
-    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'user03'),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', '田中太郎'),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', '佐藤次郎'),
     ('PostgreSQLのマイグレーション管理',      'admin'),
-    ('PostgreSQLのマイグレーション管理',      'user01'),
+    ('PostgreSQLのマイグレーション管理',      '田中太郎'),
     ('Dockerで開発環境を統一する',            'admin'),
-    ('Dockerで開発環境を統一する',            'user02'),
-    ('Dockerで開発環境を統一する',            'user03')
+    ('Dockerで開発環境を統一する',            '山田花子'),
+    ('Dockerで開発環境を統一する',            '佐藤次郎')
   );
