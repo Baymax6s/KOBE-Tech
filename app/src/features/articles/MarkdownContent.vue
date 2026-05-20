@@ -129,7 +129,7 @@ const loadLanguage = (lang: string): Promise<void> => {
   return promise
 }
 
-const md = new MarkdownIt({
+const md: MarkdownIt = new MarkdownIt({
   html: false,
   linkify: true,
   breaks: false,
