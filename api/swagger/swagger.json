@@ -14,7 +14,7 @@
     "paths": {
         "/api/articles": {
             "get": {
-                "description": "Get article list API.",
+                "description": "Get article list API. Supports filtering by tag name (AND).",
                 "produces": [
                     "application/json"
                 ],
@@ -22,11 +22,29 @@
                     "article"
                 ],
                 "summary": "List articles",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Filter by tag name (multiple = AND)",
+                        "name": "tag",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/server.listArticlesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.articleErrorResponse"
                         }
                     },
                     "500": {
@@ -727,12 +745,7 @@
         },
         "/api/tags": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get tag candidates for creating articles.",
+                "description": "Get all tag names. Used for tag candidates on the article list / create screens. No auth required.",
                 "produces": [
                     "application/json"
                 ],
@@ -745,12 +758,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/server.listTagsResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/server.tagsErrorResponse"
                         }
                     },
                     "500": {

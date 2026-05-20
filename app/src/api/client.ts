@@ -15,6 +15,10 @@ export const AUTH_TOKEN_STORAGE_KEY = 'auth_token'
 
 export const api = new Api({ baseURL })
 
+// 配列クエリは `?tag=a&tag=b`（OpenAPI の collectionFormat: multi）形式で送る。
+// axios のデフォルトは `tag[]=a&tag[]=b` で、Gin の c.QueryArray("tag") が拾えないため。
+api.instance.defaults.paramsSerializer = { indexes: null }
+
 type ApiErrorHandler = (status: number | null) => void
 
 let apiErrorHandler: ApiErrorHandler | null = null

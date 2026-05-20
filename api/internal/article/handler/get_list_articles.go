@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/article"
@@ -40,16 +41,26 @@ type ListArticlesJSONResponse struct {
 // listArticlesHandler godoc
 //
 //	@Summary		List articles
-//	@Description	Get article list API.
+//	@Description	Get article list API. Supports filtering by tag name (AND).
 //	@Tags			article
 //	@Produce		json
+//	@Param			tag	query		[]string	false	"Filter by tag name (multiple = AND)"	collectionFormat(multi)
 //	@Success		200	{object}	ListArticlesJSONResponse
+//	@Failure		400	{object}	ArticleErrorResponse
 //	@Failure		500	{object}	ArticleErrorResponse
 //	@Router			/api/articles [get]
 func (h *Handler) listArticlesHandler(c *gin.Context) {
 	userID, _ := auth.OptionalUserID(c)
 
-	response, err := h.ListArticles(c.Request.Context(), userID)
+	tagNames, err := normalizeFilterTagNames(c.QueryArray("tag"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ArticleErrorResponse{
+			Message: "invalid tag query parameter",
+		})
+		return
+	}
+
+	response, err := h.ListArticles(c.Request.Context(), userID, tagNames)
 	if err != nil {
 		log.Printf("list articles: %v", err)
 		c.JSON(http.StatusInternalServerError, ArticleErrorResponse{
@@ -61,17 +72,41 @@ func (h *Handler) listArticlesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (h *Handler) ListArticles(ctx context.Context, userID int64) (ListArticlesJSONResponse, error) {
+func (h *Handler) ListArticles(ctx context.Context, userID int64, tagNames []string) (ListArticlesJSONResponse, error) {
 	if h == nil || h.repo == nil {
 		return ListArticlesJSONResponse{}, errors.New("article handler is not configured")
 	}
 
-	articles, err := h.repo.ListArticles(ctx, userID)
+	articles, err := h.repo.ListArticles(ctx, userID, tagNames)
 	if err != nil {
 		return ListArticlesJSONResponse{}, err
 	}
 
 	return newListArticlesJSONResponse(articles), nil
+}
+
+// normalizeFilterTagNames は ?tag=... のクエリパラメータを SQL の LOWER(t.name) 比較に揃える。
+// trim / 長さ / 重複の検証は NormalizeTagNames に任せ、最後に lowercase だけ施す。
+// 空文字は「絞り込み無し」の意味なので、エラーにせず除外してから渡す。
+func normalizeFilterTagNames(raw []string) ([]string, error) {
+	filtered := make([]string, 0, len(raw))
+	for _, t := range raw {
+		if strings.TrimSpace(t) == "" {
+			continue
+		}
+		filtered = append(filtered, t)
+	}
+	if len(filtered) == 0 {
+		return nil, nil
+	}
+	normalized, err := article.NormalizeTagNames(filtered)
+	if err != nil {
+		return nil, err
+	}
+	for i, n := range normalized {
+		normalized[i] = strings.ToLower(n)
+	}
+	return normalized, nil
 }
 
 func newListArticlesJSONResponse(articles []article.Article) ListArticlesJSONResponse {

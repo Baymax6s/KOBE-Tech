@@ -26,13 +26,11 @@ type ListTagsJSONResponse struct {
 // listTagsHandler godoc
 //
 //	@Summary		List tags
-//	@Description	Get tag candidates for creating articles.
+//	@Description	Get all tag names. Used for tag candidates on the article list / create screens. No auth required.
 //	@Tags			article
 //	@Produce		json
 //	@Success		200	{object}	ListTagsJSONResponse
-//	@Failure		401	{object}	TagsErrorResponse
 //	@Failure		500	{object}	TagsErrorResponse
-//	@Security		BearerAuth
 //	@Router			/api/tags [get]
 func (h *Handler) listTagsHandler(c *gin.Context) {
 	response, err := h.ListTags(c.Request.Context())

@@ -369,17 +369,24 @@ export class Api<
 > extends HttpClient<SecurityDataType> {
   api = {
     /**
-     * @description Get article list API.
+     * @description Get article list API. Supports filtering by tag name (AND).
      *
      * @tags article
      * @name ArticlesList
      * @summary List articles
      * @request GET:/api/articles
      */
-    articlesList: (params: RequestParams = {}) =>
+    articlesList: (
+      query?: {
+        /** Filter by tag name (multiple = AND) */
+        tag?: string[];
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<ServerListArticlesResponse, ServerArticleErrorResponse>({
         path: `/api/articles`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -638,19 +645,17 @@ export class Api<
       }),
 
     /**
-     * @description Get tag candidates for creating articles.
+     * @description Get all tag names. Used for tag candidates on the article list / create screens. No auth required.
      *
      * @tags article
      * @name TagsList
      * @summary List tags
      * @request GET:/api/tags
-     * @secure
      */
     tagsList: (params: RequestParams = {}) =>
       this.request<ServerListTagsResponse, ServerTagsErrorResponse>({
         path: `/api/tags`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
