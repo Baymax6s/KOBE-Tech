@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { MdEditor, type ToolbarNames } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
 import MarkdownContent from './MarkdownContent.vue'
@@ -31,6 +33,31 @@ const submitting = ref(false)
 const submitError = ref<string | null>(null)
 const tagCandidates = ref<string[]>([])
 const bodyTab = ref<BodyTab>('edit')
+
+// プレビューは既存の MarkdownContent (記事詳細と同じレンダラ) で表示するため、
+// MdEditor 側のプレビュー / 全画面 / カタログ系ツールバーは除外する。
+const editorToolbars: ToolbarNames[] = [
+  'bold',
+  'underline',
+  'italic',
+  'strikeThrough',
+  '-',
+  'title',
+  'sub',
+  'sup',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  'task',
+  '-',
+  'codeRow',
+  'code',
+  'link',
+  'table',
+  '-',
+  'revoke',
+  'next',
+]
 
 const canSubmit = computed(
   () => !submitting.value && !!form.title.trim() && !!form.body.trim(),
@@ -139,20 +166,18 @@ onMounted(async () => {
             <v-tab value="preview">プレビュー</v-tab>
           </v-tabs>
 
-          <!-- v-window のスライドアニメは不要、かつ textarea の入力状態を保つため v-show で切替 -->
+          <!-- v-window のスライドアニメは不要、かつ編集中のカーソル位置・履歴を保つため v-show で切替 -->
           <div class="body-area">
-            <v-textarea
+            <MdEditor
               v-show="bodyTab === 'edit'"
               v-model="form.body"
+              language="en-US"
+              theme="light"
+              :toolbars="editorToolbars"
+              :preview="false"
+              :show-code-row-number="false"
               placeholder="本文を入力（Markdown）"
-              aria-label="本文"
-              variant="plain"
-              density="comfortable"
-              no-resize
-              maxlength="10000"
-              :rules="[(v) => !!v || '本文は必須です']"
-              validate-on="input"
-              class="body-input"
+              class="body-editor"
             />
 
             <div v-show="bodyTab === 'preview'" class="body-preview pa-2">
@@ -219,19 +244,10 @@ onMounted(async () => {
   line-height: 1.3;
 }
 
-/* v-textarea の wrapper 階層に高さを伝搬させ、textarea 本体だけがスクロールするようにする。
-   :deep() を多段に書く必要があるのは Vuetify が v-input → v-field → ... と
-   wrapper を入れ子に持つため。 */
-.body-input,
-.body-input :deep(.v-input__control),
-.body-input :deep(.v-field),
-.body-input :deep(.v-field__field) {
+/* MdEditor は内部でツールバー + エディタの flex レイアウトを完結させているので、
+   外側に 100% の高さを渡すだけで残り領域いっぱいに広がる。 */
+.body-editor {
   height: 100%;
-}
-.body-input :deep(textarea) {
-  height: 100% !important;
-  overflow-y: auto !important;
-  resize: none;
 }
 
 .body-preview {
