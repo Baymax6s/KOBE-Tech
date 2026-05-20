@@ -66,6 +66,7 @@ const canSubmit = computed(
 const submit = async () => {
   if (submitting.value) return
   if (!formRef.value) return
+  if (!form.body.trim()) return
 
   const { valid } = await formRef.value.validate()
   if (!valid) return
