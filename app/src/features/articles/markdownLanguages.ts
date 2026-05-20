@@ -83,3 +83,28 @@ export const LANGUAGE_ALIASES: Record<string, string> = {
   txt: 'plaintext',
   toml: 'ini',
 }
+
+// アプリで利用可能な言語を「canonical 名」と「その alias 群」の組で公開する。
+// LANGUAGE_IMPORTERS / LANGUAGE_ALIASES を真のソースとして派生させるので、
+// 言語を追加・削除すれば SupportedLanguagesDialog の表示も自動的に追随する。
+export type SupportedLanguage = {
+  name: string
+  aliases: string[]
+}
+
+const aliasesByCanonical = Object.entries(LANGUAGE_ALIASES).reduce<
+  Record<string, string[]>
+>((acc, [alias, canonical]) => {
+  if (!acc[canonical]) acc[canonical] = []
+  acc[canonical].push(alias)
+  return acc
+}, {})
+
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = Object.keys(
+  LANGUAGE_IMPORTERS,
+)
+  .sort()
+  .map((name) => ({
+    name,
+    aliases: (aliasesByCanonical[name] ?? []).sort(),
+  }))
