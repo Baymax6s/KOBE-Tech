@@ -645,19 +645,17 @@ export class Api<
       }),
 
     /**
-     * @description Get tag candidates for creating articles.
+     * @description Get all tag names. Used for tag candidates on the article list / create screens. No auth required.
      *
      * @tags article
      * @name TagsList
      * @summary List tags
      * @request GET:/api/tags
-     * @secure
      */
     tagsList: (params: RequestParams = {}) =>
       this.request<ServerListTagsResponse, ServerTagsErrorResponse>({
         path: `/api/tags`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),

@@ -47,17 +47,10 @@ const clearTag = () => {
   selectedTags.value = []
 }
 
-const articleTagNames = computed(() => {
-  const tagNames = new Set<string>()
-
-  for (const article of articles.value) {
-    for (const tag of article.tags ?? []) {
-      tagNames.add(tag.name)
-    }
-  }
-
-  return [...tagNames].sort((a, b) => a.localeCompare(b))
-})
+// ドロップダウンの候補は記事の絞り込みとは独立に取得する。
+// articles から導出してしまうと「現在の絞り込み結果と共起するタグ」しか出なくなり、
+// 他カテゴリへの切り替え動線が失われるため。
+const tagCandidates = ref<string[]>([])
 
 const fetchArticles = async () => {
   loading.value = true
@@ -74,10 +67,21 @@ const fetchArticles = async () => {
   }
 }
 
+const fetchTagCandidates = async () => {
+  try {
+    const response = await api.api.tagsList()
+    tagCandidates.value = response.data.tags?.map((tag) => tag.name) ?? []
+  } catch {
+    // 候補取得に失敗してもページは使えるようにする（記事カード経由でタグ選択は可能）。
+    tagCandidates.value = []
+  }
+}
+
 onMounted(() => {
   if (notificationStore.consumeCreated()) {
     showCreatedAlert.value = true
   }
+  void fetchTagCandidates()
 })
 
 // URL の tag クエリが変わるたびにサーバ側で再フィルタした結果を取得する。
@@ -100,7 +104,7 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
 
         <v-select
           v-model="selectedTags"
-          :items="articleTagNames"
+          :items="tagCandidates"
           label="タグで絞り込み"
           prepend-inner-icon="mdi-tag-outline"
           variant="outlined"

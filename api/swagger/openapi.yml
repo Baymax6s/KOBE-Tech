@@ -806,7 +806,8 @@ paths:
       - replies
   /api/tags:
     get:
-      description: Get tag candidates for creating articles.
+      description: Get all tag names. Used for tag candidates on the article list
+        / create screens. No auth required.
       produces:
       - application/json
       responses:
@@ -814,16 +815,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/server.listTagsResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/server.tagsErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/server.tagsErrorResponse'
-      security:
-      - BearerAuth: []
       summary: List tags
       tags:
       - article
