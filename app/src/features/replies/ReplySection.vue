@@ -116,7 +116,6 @@ const bestAnswerPathIds = computed(() => {
   return set
 })
 
-
 const effectiveBestAnswerPathIds = computed(() => {
   // フィルター中はベストアンサー経路を無効化
   if (currentFilter.value !== 'all') {
@@ -124,7 +123,6 @@ const effectiveBestAnswerPathIds = computed(() => {
   }
   return bestAnswerPathIds.value
 })
-
 
 // 各リプライについて、そのサブツリーで「ベストアンサー経路に乗っていない子孫」の総数。
 // ネストの奥に隠れている件数もまとめて数えたいので、メモ化付き DFS で一括算出する。
@@ -150,9 +148,6 @@ const hiddenDescendantCountByReplyId = computed(() => {
   for (const r of replies.value) compute(r.id)
   return result
 })
-
-
-
 
 // 各リプライについて、その親が質問（kind=question）なら親の user_id を記録する Map。
 // key = 子の reply.id, value = 質問の user_id。

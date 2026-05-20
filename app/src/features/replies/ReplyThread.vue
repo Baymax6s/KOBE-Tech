@@ -55,7 +55,6 @@ const visibleChildren = computed(() => {
   return []
 })
 
-
 const bestDescendant = computed<ServerReplyJSONResponse | null>(() => {
   const stack = [...children.value]
 
@@ -69,8 +68,6 @@ const bestDescendant = computed<ServerReplyJSONResponse | null>(() => {
 
   return null
 })
-
-
 
 // 隠れている件数はサブツリー全体で集計済みのものを参照する。
 // ネストの奥（例: ベストアンサーの下の返信）も合算したうえで、ボタン 1 つで全部開けるようにするため。
