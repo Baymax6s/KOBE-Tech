@@ -104,18 +104,6 @@ onMounted(async () => {
   <v-sheet color="grey-lighten-4" class="page-bg">
     <v-container max-width="1200" class="editor-wrap">
       <v-form ref="formRef" class="article-form" @submit.prevent="submit">
-        <div class="d-flex justify-end mb-3">
-          <v-btn
-            type="submit"
-            color="black"
-            class="px-6"
-            :loading="submitting"
-            :disabled="!canSubmit"
-          >
-            投稿
-          </v-btn>
-        </div>
-
         <v-alert
           v-if="submitError"
           type="error"
@@ -126,20 +114,35 @@ onMounted(async () => {
           {{ submitError }}
         </v-alert>
 
-        <v-sheet rounded class="editor-card pa-4 pa-md-6">
-          <v-text-field
-            v-model="form.title"
-            placeholder="タイトルを入力"
-            aria-label="タイトル"
-            variant="plain"
-            density="comfortable"
-            maxlength="200"
-            :rules="[(v) => !!v || 'タイトルは必須です']"
-            validate-on="input"
-            class="title-input"
-          />
+        <v-sheet
+          rounded
+          class="editor-card px-4 px-md-6 pt-2 pt-md-3 pb-4 pb-md-6"
+        >
+          <div class="d-flex align-center ga-3">
+            <v-text-field
+              v-model="form.title"
+              placeholder="タイトルを入力"
+              aria-label="タイトル"
+              variant="plain"
+              density="comfortable"
+              maxlength="200"
+              :rules="[(v) => !!v || 'タイトルは必須です']"
+              validate-on="input"
+              hide-details="auto"
+              class="title-input flex-1-1"
+            />
+            <v-btn
+              type="submit"
+              color="black"
+              class="px-6 flex-shrink-0"
+              :loading="submitting"
+              :disabled="!canSubmit"
+            >
+              投稿
+            </v-btn>
+          </div>
 
-          <v-divider />
+          <v-divider class="mt-2" />
 
           <v-combobox
             v-model="form.tags"
@@ -152,6 +155,7 @@ onMounted(async () => {
             chips
             closable-chips
             prepend-inner-icon="mdi-tag-outline"
+            hide-details="auto"
           />
 
           <v-divider class="mb-2" />
