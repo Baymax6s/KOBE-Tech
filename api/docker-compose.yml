@@ -34,6 +34,31 @@ services:
       - -path=/migrations
       - -database=${MIGRATE_DATABASE_URL}
       - up
+  minio:
+    image: minio/minio:latest
+    container_name: baymux-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
+        sleep 2;
+      done &&
+      mc mb -p local/images || true
+      "
 
 volumes:
   postgres_data:
+  minio_data:
