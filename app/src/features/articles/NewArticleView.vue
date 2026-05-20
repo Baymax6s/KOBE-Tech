@@ -185,7 +185,11 @@ onMounted(async () => {
             <v-spacer />
 
             <v-tooltip
-              text="Markdown の書き方をまとめたページを開きます"
+              :text="
+                helpArticleHref
+                  ? 'Markdown の書き方をまとめたページを開きます'
+                  : 'Markdown の書き方をまとめたチートシートを表示します'
+              "
               location="bottom"
             >
               <template #activator="{ props: tooltipProps }">
