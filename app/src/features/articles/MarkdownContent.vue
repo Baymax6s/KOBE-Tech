@@ -129,25 +129,24 @@ const loadLanguage = (lang: string): Promise<void> => {
   return promise
 }
 
-const escapeHtml: (s: string) => string = MarkdownIt().utils.escapeHtml
-
 const md = new MarkdownIt({
   html: false,
   linkify: true,
   breaks: false,
   highlight: (str, lang) => {
-    if (lang && hljs.getLanguage(lang)) {
+    const canonical = resolveLanguage(lang)
+    if (lang && hljs.getLanguage(canonical)) {
       try {
         const { value } = hljs.highlight(str, {
-          language: lang,
+          language: canonical,
           ignoreIllegals: true,
         })
-        return `<pre class="hljs"><code class="hljs language-${lang}">${value}</code></pre>`
+        return `<pre class="hljs"><code class="hljs language-${md.utils.escapeHtml(canonical)}">${value}</code></pre>`
       } catch {
         // パース失敗時はエスケープしたプレーン表示にフォールバックする。
       }
     }
-    return `<pre class="hljs"><code>${escapeHtml(str)}</code></pre>`
+    return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`
   },
 })
 

@@ -1,6 +1,7 @@
 -- 既存環境向けに、初期 seed の content を Markdown 化した内容に更新する。
--- 新規セットアップは 1777018911_seed_articles.up.sql 側で同じ本文が入るため、
--- このマイグレーションを流しても結果は同じになる（冪等）。
+-- seed (1777018911_seed_articles.up.sql) は履歴互換のため plain text のまま残し、
+-- 本マイグレーションを適用した環境のみ Markdown 表示になる。
+-- 同タイトルのユーザー投稿を巻き込まないよう、seed 由来の (title, user_id) 組で限定する。
 UPDATE articles SET content = $md$# 神戸大学でのハッカソン体験記
 
 先日、神戸大学で開催されたハッカソンに参加してきました。チームで 48 時間かけて Web アプリを作る、というシンプルなルールでしたが、得るものは想像以上でした。
@@ -39,7 +40,8 @@ cd app && npm run dev
 - 詰まったらすぐ口に出す（Slack より口頭が圧倒的に速い）
 
 来年も参加する予定です！
-$md$ WHERE title = '神戸大学でのハッカソン体験記';
+$md$ WHERE title = '神戸大学でのハッカソン体験記'
+  AND user_id = (SELECT id FROM users WHERE name = 'admin');
 
 UPDATE articles SET content = $md$# Goで作るREST API入門
 
@@ -112,7 +114,8 @@ curl -X POST http://localhost:8080/articles \
 
 - ルーティング・ミドルウェア・JSON バインドの 3 つを覚えれば最低限の API は組める
 - バリデーションは `binding` タグでほぼ済む
-$md$ WHERE title = 'Goで作るREST API入門';
+$md$ WHERE title = 'Goで作るREST API入門'
+  AND user_id = (SELECT id FROM users WHERE name = 'user01');
 
 UPDATE articles SET content = $md$# Vue 3 + Vuetifyで学ぶフロントエンド開発
 
@@ -165,7 +168,8 @@ const emit = defineEmits<{
 > Composition API + `<script setup>` + TypeScript の組み合わせが現状ベスト
 
 慣れるまで戸惑いますが、Options API より型と再利用がはるかに楽になります。
-$md$ WHERE title = 'Vue 3 + Vuetifyで学ぶフロントエンド開発';
+$md$ WHERE title = 'Vue 3 + Vuetifyで学ぶフロントエンド開発'
+  AND user_id = (SELECT id FROM users WHERE name = 'user02');
 
 UPDATE articles SET content = $md$# PostgreSQLのマイグレーション管理
 
@@ -224,7 +228,8 @@ steps:
 - 必ず down を書く
 - 破壊的変更はデプロイと分ける
 - CI で up/down の整合を見張る
-$md$ WHERE title = 'PostgreSQLのマイグレーション管理';
+$md$ WHERE title = 'PostgreSQLのマイグレーション管理'
+  AND user_id = (SELECT id FROM users WHERE name = 'user03');
 
 UPDATE articles SET content = $md$# Dockerで開発環境を統一する
 
@@ -300,4 +305,5 @@ docker compose exec db psql -U postgres -d app
 - volumes でデータ消失を防ぐ
 - platform 指定よりマルチアーキイメージを優先
 - compose のコマンドはチームに共有する
-$md$ WHERE title = 'Dockerで開発環境を統一する';
+$md$ WHERE title = 'Dockerで開発環境を統一する'
+  AND user_id = (SELECT id FROM users WHERE name = 'user01');
