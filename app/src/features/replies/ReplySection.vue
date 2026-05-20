@@ -25,6 +25,19 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const currentUserId = ref<number | null>(null)
 
+const currentFilter = ref<'all' | 'comment' | 'question'>('all')
+
+const counts = computed(() => {
+  const c = { all: 0, comment: 0, question: 0 }
+  for (const r of replies.value) {
+    if (r.parent_id != null) continue
+    c.all++
+    if (r.kind === 'question') c.question++
+    else if (r.kind === 'comment') c.comment++
+  }
+  return c
+})
+
 onMounted(async () => {
   if (!isAuthenticated.value) return
   try {
@@ -78,6 +91,11 @@ const rootReplies = computed(() =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     ),
 )
+
+const filteredRootReplies = computed(() => {
+  if (currentFilter.value === 'all') return rootReplies.value
+  return rootReplies.value.filter((r) => r.kind === currentFilter.value)
+})
 
 // ベストアンサー自身と、その全祖先の id 集合。
 // 初期表示ではこの集合に含まれるリプライだけを見せ、他は「N 件を表示」ボタンの裏に隠す。
@@ -199,6 +217,18 @@ watch(
       </div>
     </v-card>
 
+    <v-btn-toggle
+      v-model="currentFilter"
+      mandatory
+      variant="outlined"
+      density="comfortable"
+      color="primary"
+    >
+      <v-btn value="all">すべて ({{ counts.all }})</v-btn>
+      <v-btn value="comment">コメント ({{ counts.comment }})</v-btn>
+      <v-btn value="question">質問 ({{ counts.question }})</v-btn>
+    </v-btn-toggle>
+
     <v-skeleton-loader
       v-if="loading"
       type="paragraph, paragraph"
@@ -215,15 +245,21 @@ watch(
     </v-alert>
 
     <div
-      v-else-if="rootReplies.length === 0"
+      v-else-if="filteredRootReplies.length === 0"
       class="text-body-2 text-medium-emphasis text-center py-6"
     >
-      まだリプライはありません
+      <template v-if="currentFilter === 'all'">
+        まだリプライはありません
+      </template>
+      <template v-else-if="currentFilter === 'comment'">
+        コメントはありません
+      </template>
+      <template v-else> 質問はありません </template>
     </div>
 
     <div v-else class="d-flex flex-column ga-4">
       <ReplyThread
-        v-for="reply in rootReplies"
+        v-for="reply in filteredRootReplies"
         :key="reply.id"
         :reply="reply"
         :children-by-parent="childrenByParent"
