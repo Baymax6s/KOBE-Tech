@@ -63,12 +63,12 @@ func (h *Handler) GetProfile(ctx context.Context, userID int64) (ProfileJSON, er
 	return newProfileJSON(user), nil
 }
 
-func newProfileJSON(u profile.User) ProfileJSON {
+func newProfileJSON(p profile.Profile) ProfileJSON {
 	return ProfileJSON{
-		ID:        u.ID,
-		Name:      u.Name,
-		Bio:       u.Bio,
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
+		ID:        p.User.ID,
+		Name:      p.User.Name,
+		Bio:       p.UserProfile.Bio,
+		CreatedAt: p.User.CreatedAt,
+		UpdatedAt: p.User.UpdatedAt,
 	}
 }

@@ -10,9 +10,23 @@ import (
 type User struct {
 	ID        int64
 	Name      string
-	Bio       string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type UserProfile struct {
+	ID         int64
+	UserID     int64
+	ObjectKey  string
+	Bio        string
+	IsUploaded bool
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+type Profile struct {
+	User        User
+	UserProfile UserProfile
 }
 
 const maxBioLength = 200
