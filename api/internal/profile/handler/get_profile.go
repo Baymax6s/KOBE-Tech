@@ -17,8 +17,6 @@ type ProfileJSON struct {
 	Name string `json:"name"`
 	Bio  string `json:"bio"`
 
-	UserCreatedAt    time.Time  `json:"user_created_at"`
-	UserUpdatedAt    time.Time  `json:"user_updated_at"`
 	ProfileCreatedAt *time.Time `json:"profile_created_at"`
 	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
 }
@@ -84,9 +82,6 @@ func newProfileJSON(p profile.Profile) ProfileJSON {
 		ID:   p.User.ID,
 		Name: p.User.Name,
 		Bio:  p.UserProfile.Bio.String,
-
-		UserCreatedAt: p.User.CreatedAt,
-		UserUpdatedAt: p.User.UpdatedAt,
 
 		ProfileCreatedAt: profileCreatedAt,
 		ProfileUpdatedAt: profileUpdatedAt,

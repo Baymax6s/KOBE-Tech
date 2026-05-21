@@ -4,15 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
-	"time"
 	"unicode/utf8"
 )
 
 type User struct {
 	ID        int64
 	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 type UserProfile struct {
