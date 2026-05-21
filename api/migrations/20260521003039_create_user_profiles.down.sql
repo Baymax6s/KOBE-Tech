@@ -1,5 +1,11 @@
--- 1. 削除してしまった users テーブルの bio カラムを復活させる
+-- 1. users に bio を戻す
 ALTER TABLE users ADD COLUMN bio TEXT;
 
--- 2. 作成した新テーブルを削除する
+-- 2. user_profiles のデータを users に戻す
+UPDATE users
+SET bio = user_profiles.bio
+FROM user_profiles
+WHERE user_profiles.user_id = users.id;
+
+-- 3. テーブル削除
 DROP TABLE IF EXISTS user_profiles;

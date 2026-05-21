@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+	"database/sql"
 )
 
 type User struct {
@@ -17,11 +18,11 @@ type User struct {
 type UserProfile struct {
 	ID         int64
 	UserID     int64
-	ObjectKey  string
-	Bio        string
+	ObjectKey  sql.NullString
+	Bio        sql.NullString
 	IsUploaded bool
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
 }
 
 type Profile struct {
