@@ -41,9 +41,9 @@ BEGIN
     SELECT id INTO v_article5_id FROM articles WHERE title = 'Dockerで開発環境を統一する';
 
     SELECT id INTO v_admin_id  FROM users WHERE name = 'admin';
-    SELECT id INTO v_user01_id FROM users WHERE name = '田中太郎';
-    SELECT id INTO v_user02_id FROM users WHERE name = '山田花子';
-    SELECT id INTO v_user03_id FROM users WHERE name = '佐藤次郎';
+    SELECT id INTO v_user01_id FROM users WHERE name = 'user01';
+    SELECT id INTO v_user02_id FROM users WHERE name = 'user02';
+    SELECT id INTO v_user03_id FROM users WHERE name = 'user03';
 
     -- ========== Article 1: 神戸大学でのハッカソン体験記 ==========
     -- 既存スレッドに加え、別系統のコメントを 2 本追加する

@@ -25,14 +25,14 @@ SELECT a.id, t.id, v.created_at
 FROM (VALUES
     ('神戸大学でのハッカソン体験記',           'admin',  'ハッカソン',     '2026-04-01 09:00:00+09'::timestamptz),
     ('神戸大学でのハッカソン体験記',           'admin',  '神戸大学',       '2026-04-01 09:00:00+09'::timestamptz),
-    ('Goで作るREST API入門',                   '田中太郎', 'Go',             '2026-04-10 12:30:00+09'::timestamptz),
-    ('Goで作るREST API入門',                   '田中太郎', 'REST API',       '2026-04-10 12:30:00+09'::timestamptz),
-    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', '山田花子', 'Vue',            '2026-04-15 15:00:00+09'::timestamptz),
-    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', '山田花子', 'フロントエンド', '2026-04-15 15:00:00+09'::timestamptz),
-    ('PostgreSQLのマイグレーション管理',       '佐藤次郎', 'PostgreSQL',     '2026-04-18 10:00:00+09'::timestamptz),
-    ('PostgreSQLのマイグレーション管理',       '佐藤次郎', 'マイグレーション', '2026-04-18 10:00:00+09'::timestamptz),
-    ('Dockerで開発環境を統一する',             '田中太郎', 'Docker',         '2026-04-20 11:00:00+09'::timestamptz),
-    ('Dockerで開発環境を統一する',             '田中太郎', '開発環境',       '2026-04-20 11:00:00+09'::timestamptz)
+    ('Goで作るREST API入門',                   'user01', 'Go',             '2026-04-10 12:30:00+09'::timestamptz),
+    ('Goで作るREST API入門',                   'user01', 'REST API',       '2026-04-10 12:30:00+09'::timestamptz),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'user02', 'Vue',            '2026-04-15 15:00:00+09'::timestamptz),
+    ('Vue 3 + Vuetifyで学ぶフロントエンド開発', 'user02', 'フロントエンド', '2026-04-15 15:00:00+09'::timestamptz),
+    ('PostgreSQLのマイグレーション管理',       'user03', 'PostgreSQL',     '2026-04-18 10:00:00+09'::timestamptz),
+    ('PostgreSQLのマイグレーション管理',       'user03', 'マイグレーション', '2026-04-18 10:00:00+09'::timestamptz),
+    ('Dockerで開発環境を統一する',             'user01', 'Docker',         '2026-04-20 11:00:00+09'::timestamptz),
+    ('Dockerで開発環境を統一する',             'user01', '開発環境',       '2026-04-20 11:00:00+09'::timestamptz)
 ) AS v(article_title, user_name, tag_name, created_at)
 JOIN users u    ON u.name  = v.user_name
 JOIN articles a ON a.title = v.article_title AND a.user_id = u.id

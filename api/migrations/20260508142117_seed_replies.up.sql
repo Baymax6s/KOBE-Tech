@@ -30,9 +30,9 @@ BEGIN
     SELECT id INTO v_article2_id FROM articles WHERE title = 'Goで作るREST API入門';
     SELECT id INTO v_article3_id FROM articles WHERE title = 'Vue 3 + Vuetifyで学ぶフロントエンド開発';
     SELECT id INTO v_admin_id  FROM users WHERE name = 'admin';
-    SELECT id INTO v_user01_id FROM users WHERE name = '田中太郎';
-    SELECT id INTO v_user02_id FROM users WHERE name = '山田花子';
-    SELECT id INTO v_user03_id FROM users WHERE name = '佐藤次郎';
+    SELECT id INTO v_user01_id FROM users WHERE name = 'user01';
+    SELECT id INTO v_user02_id FROM users WHERE name = 'user02';
+    SELECT id INTO v_user03_id FROM users WHERE name = 'user03';
 
     -- ========== Article 1: 神戸大学でのハッカソン体験記 ==========
     -- コメント（記事直下） + 子コメント
