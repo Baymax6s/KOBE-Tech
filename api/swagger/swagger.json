@@ -552,7 +552,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_profile_handler.ProfileJSON"
+                            "$ref": "#/definitions/profile_handler.ProfileJSON"
                         }
                     },
                     "401": {
@@ -603,7 +603,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_profile_handler.ProfileJSON"
+                            "$ref": "#/definitions/profile_handler.ProfileJSON"
                         }
                     },
                     "400": {

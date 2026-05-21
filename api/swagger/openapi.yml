@@ -698,7 +698,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_profile_handler.ProfileJSON'
+            $ref: '#/definitions/profile_handler.ProfileJSON'
         "401":
           description: Unauthorized
           schema:
@@ -730,7 +730,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_profile_handler.ProfileJSON'
+            $ref: '#/definitions/profile_handler.ProfileJSON'
         "400":
           description: Bad Request
           schema:
