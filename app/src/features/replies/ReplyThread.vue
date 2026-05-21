@@ -48,25 +48,7 @@ const visibleChildren = computed(() => {
     return children.value
   }
 
-  if (props.depth === 0 && bestDescendant.value) {
-    return [bestDescendant.value]
-  }
-
-  return []
-})
-
-const bestDescendant = computed<ServerReplyJSONResponse | null>(() => {
-  const stack = [...children.value]
-
-  while (stack.length > 0) {
-    const node = stack.pop()!
-    if (node.is_best) return node
-
-    const kids = props.childrenByParent.get(node.id) ?? []
-    stack.push(...kids)
-  }
-
-  return null
+  return children.value.filter((child) => props.bestAnswerPathIds.has(child.id))
 })
 
 // 隠れている件数はサブツリー全体で集計済みのものを参照する。

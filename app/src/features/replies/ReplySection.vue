@@ -117,10 +117,8 @@ const bestAnswerPathIds = computed(() => {
 })
 
 const effectiveBestAnswerPathIds = computed(() => {
-  // フィルター中はベストアンサー経路を無効化
-  if (currentFilter.value !== 'all') {
-    return new Set<number>()
-  }
+  // フィルター時も「すべて」と同じ表示ロジック（ベストアンサー経路のみ表示し、他は隠す）
+  // を適用する。
   return bestAnswerPathIds.value
 })
 
