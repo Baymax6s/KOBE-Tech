@@ -43,7 +43,7 @@ make dev
 ```
 または
 ```sh
-go run ./cmd/api
+go run ./cmd/api/main.go
 ```
 
 `make dev` で PostgreSQL 起動・マイグレーション・seed データ投入を実行し、`air` で API を起動します。
