@@ -25,6 +25,19 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const currentUserId = ref<number | null>(null)
 
+const currentFilter = ref<'all' | 'comment' | 'question'>('all')
+
+const counts = computed(() => {
+  const c = { all: 0, comment: 0, question: 0 }
+  for (const r of replies.value) {
+    if (r.parent_id != null) continue
+    c.all++
+    if (r.kind === 'question') c.question++
+    else if (r.kind === 'comment') c.comment++
+  }
+  return c
+})
+
 onMounted(async () => {
   if (!isAuthenticated.value) return
   try {
@@ -79,6 +92,11 @@ const rootReplies = computed(() =>
     ),
 )
 
+const filteredRootReplies = computed(() => {
+  if (currentFilter.value === 'all') return rootReplies.value
+  return rootReplies.value.filter((r) => r.kind === currentFilter.value)
+})
+
 // ベストアンサー自身と、その全祖先の id 集合。
 // 初期表示ではこの集合に含まれるリプライだけを見せ、他は「N 件を表示」ボタンの裏に隠す。
 // 「ベストアンサーへの導線だけ最短で見せる」UX のためにこの経路を保持しておく。
@@ -98,9 +116,16 @@ const bestAnswerPathIds = computed(() => {
   return set
 })
 
+const effectiveBestAnswerPathIds = computed(() => {
+  // フィルター時も「すべて」と同じ表示ロジック（ベストアンサー経路のみ表示し、他は隠す）
+  // を適用する。
+  return bestAnswerPathIds.value
+})
+
 // 各リプライについて、そのサブツリーで「ベストアンサー経路に乗っていない子孫」の総数。
 // ネストの奥に隠れている件数もまとめて数えたいので、メモ化付き DFS で一括算出する。
 // これをルートの「返信 N 件を表示」ボタンのカウントに使うことで、ボタンを 1 つだけ出せる。
+
 const hiddenDescendantCountByReplyId = computed(() => {
   const result = new Map<number, number>()
   const compute = (id: number): number => {
@@ -109,7 +134,7 @@ const hiddenDescendantCountByReplyId = computed(() => {
     const kids = childrenByParent.value.get(id) ?? []
     let total = 0
     for (const k of kids) {
-      if (bestAnswerPathIds.value.has(k.id)) {
+      if (effectiveBestAnswerPathIds.value.has(k.id)) {
         total += compute(k.id)
       } else {
         total += 1 + (descendantCountByParent.value.get(k.id) ?? 0)
@@ -199,6 +224,18 @@ watch(
       </div>
     </v-card>
 
+    <v-btn-toggle
+      v-model="currentFilter"
+      mandatory
+      variant="outlined"
+      density="comfortable"
+      color="primary"
+    >
+      <v-btn value="all">すべて ({{ counts.all }})</v-btn>
+      <v-btn value="comment">コメント ({{ counts.comment }})</v-btn>
+      <v-btn value="question">質問 ({{ counts.question }})</v-btn>
+    </v-btn-toggle>
+
     <v-skeleton-loader
       v-if="loading"
       type="paragraph, paragraph"
@@ -215,20 +252,26 @@ watch(
     </v-alert>
 
     <div
-      v-else-if="rootReplies.length === 0"
+      v-else-if="filteredRootReplies.length === 0"
       class="text-body-2 text-medium-emphasis text-center py-6"
     >
-      まだリプライはありません
+      <template v-if="currentFilter === 'all'">
+        まだリプライはありません
+      </template>
+      <template v-else-if="currentFilter === 'comment'">
+        コメントはありません
+      </template>
+      <template v-else> 質問はありません </template>
     </div>
 
     <div v-else class="d-flex flex-column ga-4">
       <ReplyThread
-        v-for="reply in rootReplies"
+        v-for="reply in filteredRootReplies"
         :key="reply.id"
         :reply="reply"
         :children-by-parent="childrenByParent"
         :descendant-count-by-parent="descendantCountByParent"
-        :best-answer-path-ids="bestAnswerPathIds"
+        :best-answer-path-ids="effectiveBestAnswerPathIds"
         :hidden-descendant-count-by-reply-id="hiddenDescendantCountByReplyId"
         :reveal-all="false"
         :depth="0"

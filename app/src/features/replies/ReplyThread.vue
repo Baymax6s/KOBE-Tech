@@ -43,11 +43,13 @@ const effectiveReveal = computed(() => props.revealAll || localReveal.value)
 
 // 初期表示で見せる子の集合。
 // 全表示モードなら children すべて、そうでなければベストアンサー経路に乗っている子だけ。
-const visibleChildren = computed(() =>
-  effectiveReveal.value
-    ? children.value
-    : children.value.filter((c) => props.bestAnswerPathIds.has(c.id)),
-)
+const visibleChildren = computed(() => {
+  if (effectiveReveal.value) {
+    return children.value
+  }
+
+  return children.value.filter((child) => props.bestAnswerPathIds.has(child.id))
+})
 
 // 隠れている件数はサブツリー全体で集計済みのものを参照する。
 // ネストの奥（例: ベストアンサーの下の返信）も合算したうえで、ボタン 1 つで全部開けるようにするため。
