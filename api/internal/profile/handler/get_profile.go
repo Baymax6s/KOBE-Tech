@@ -17,8 +17,8 @@ type ProfileJSON struct {
 	Name string `json:"name"`
 	Bio  string `json:"bio"`
 
-	UserCreatedAt    time.Time `json:"user_created_at"`
-	UserUpdatedAt    time.Time `json:"user_updated_at"`
+	UserCreatedAt    time.Time  `json:"user_created_at"`
+	UserUpdatedAt    time.Time  `json:"user_updated_at"`
 	ProfileCreatedAt *time.Time `json:"profile_created_at"`
 	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
 }

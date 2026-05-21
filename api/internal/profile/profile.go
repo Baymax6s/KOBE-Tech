@@ -1,11 +1,11 @@
 package profile
 
 import (
+	"database/sql"
 	"errors"
 	"strings"
 	"time"
 	"unicode/utf8"
-	"database/sql"
 )
 
 type User struct {

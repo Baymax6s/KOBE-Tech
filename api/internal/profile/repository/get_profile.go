@@ -31,13 +31,13 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
 	var p profile.Profile
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-    	&p.User.ID,
-    	&p.User.Name,
-    	&p.UserProfile.Bio,
-    	&p.User.CreatedAt,
-    	&p.User.UpdatedAt,
+		&p.User.ID,
+		&p.User.Name,
+		&p.UserProfile.Bio,
+		&p.User.CreatedAt,
+		&p.User.UpdatedAt,
 		&p.UserProfile.CreatedAt,
-    	&p.UserProfile.UpdatedAt,
+		&p.UserProfile.UpdatedAt,
 	)
 
 	if err != nil {
