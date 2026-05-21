@@ -12,10 +12,6 @@ definitions:
         type: string
       profile_updated_at:
         type: string
-      user_created_at:
-        type: string
-      user_updated_at:
-        type: string
     type: object
   profile_handler.ProfileJSON:
     properties:
@@ -28,10 +24,6 @@ definitions:
       profile_created_at:
         type: string
       profile_updated_at:
-        type: string
-      user_created_at:
-        type: string
-      user_updated_at:
         type: string
     type: object
   server.articleAuthorJSONResponse:
@@ -730,7 +722,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile_handler.ProfileJSON'
+            $ref: '#/definitions/internal_profile_handler.ProfileJSON'
         "400":
           description: Bad Request
           schema:

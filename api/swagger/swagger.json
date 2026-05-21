@@ -603,7 +603,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/profile_handler.ProfileJSON"
+                            "$ref": "#/definitions/internal_profile_handler.ProfileJSON"
                         }
                     },
                     "400": {
@@ -788,12 +788,6 @@
                 },
                 "profile_updated_at": {
                     "type": "string"
-                },
-                "user_created_at": {
-                    "type": "string"
-                },
-                "user_updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -813,12 +807,6 @@
                     "type": "string"
                 },
                 "profile_updated_at": {
-                    "type": "string"
-                },
-                "user_created_at": {
-                    "type": "string"
-                },
-                "user_updated_at": {
                     "type": "string"
                 }
             }
