@@ -132,7 +132,7 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
       <span class="text-body-2 font-weight-medium">
         {{ reply.user_name }}
       </span>
-      <span class="text-caption text-medium-emphasis">
+      <span class="text-body-2 text-medium-emphasis">
         {{ formattedDate }}
       </span>
     </div>

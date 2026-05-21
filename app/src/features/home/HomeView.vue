@@ -3,11 +3,11 @@
 </script>
 
 <template>
-  <main>
-    <h1>ホーム</h1>
-  </main>
+  <v-container class="py-8">
+    <v-row justify="center">
+      <v-col cols="12" sm="10">
+        <h1 class="text-h4 font-weight-bold">ホーム</h1>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
-
-<style scoped>
-/* scoped: このコンポーネント内だけに効くCSS */
-</style>
