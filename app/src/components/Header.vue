@@ -24,7 +24,14 @@ const goToLogin = () => {
 </script>
 <template>
   <v-app-bar app color="primary" dark>
-    <v-img src="/kdtech-icon.png" alt="Logo" max-width="200" class="mr-4" />
+    <v-img
+      src="/kdtech-icon.png"
+      alt="Logo"
+      max-width="200"
+      class="mr-4"
+      style="cursor: pointer"
+      @click="router.push('/')"
+    />
 
     <v-spacer></v-spacer>
 

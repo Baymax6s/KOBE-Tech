@@ -40,7 +40,7 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <v-container class="fill-height bg-grey-lighten-4" fluid>
+  <v-container class="py-8">
     <v-row justify="center" align="center">
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card class="pa-6">

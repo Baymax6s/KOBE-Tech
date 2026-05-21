@@ -20,8 +20,8 @@ const formattedDate = useDateFormat(
 </script>
 
 <template>
-  <v-card :to="`/articles/${article.id}`" class="p-4">
-    <v-card-title class="text-base font-medium">
+  <v-card :to="`/articles/${article.id}`" class="pa-4">
+    <v-card-title class="text-body-1 font-weight-medium">
       {{ article.title }}
     </v-card-title>
 
@@ -30,7 +30,7 @@ const formattedDate = useDateFormat(
         <v-chip
           v-for="tag in article.tags"
           :key="tag.id"
-          size="x-small"
+          size="small"
           :variant="isSelected(tag.name) ? 'flat' : 'outlined'"
           :color="isSelected(tag.name) ? 'primary' : undefined"
           @click.stop.prevent="emit('select-tag', tag.name)"
@@ -41,9 +41,9 @@ const formattedDate = useDateFormat(
     </v-card-text>
 
     <v-card-subtitle
-      class="text-sm text-gray-500 d-flex align-center justify-space-between mt-2"
+      class="d-flex align-center justify-space-between mt-2"
     >
-      <span>{{ formattedDate }}</span>
+      <span class="text-caption text-medium-emphasis">{{ formattedDate }}</span>
 
       <div class="d-flex align-center">
         <v-icon
@@ -52,7 +52,7 @@ const formattedDate = useDateFormat(
           color="red"
           class="me-1"
         />
-        <span>{{ article.likes_count ?? 0 }}</span>
+        <span class="text-caption">{{ article.likes_count ?? 0 }}</span>
       </div>
     </v-card-subtitle>
   </v-card>

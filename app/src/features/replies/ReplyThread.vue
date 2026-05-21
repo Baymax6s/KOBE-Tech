@@ -86,7 +86,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       @best-updated="handleBestUpdated"
     />
 
-    <div v-if="showReplyForm" class="ml-8">
+    <div v-if="showReplyForm" class="ms-8">
       <ReplyForm
         :article-id="articleId"
         :parent-id="reply.id"
@@ -96,7 +96,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       />
     </div>
 
-    <div v-if="children.length > 0" class="ml-8">
+    <div v-if="children.length > 0" class="ms-8">
       <div
         v-if="visibleChildren.length > 0"
         class="d-flex flex-column ga-3 mb-2"

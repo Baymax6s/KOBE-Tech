@@ -65,7 +65,7 @@ const saveBio = async () => {
 <template>
   <v-container class="py-8">
     <v-row justify="center">
-      <v-col cols="12" md="8" lg="6">
+      <v-col cols="12" sm="10">
         <v-alert
           v-if="error"
           type="error"

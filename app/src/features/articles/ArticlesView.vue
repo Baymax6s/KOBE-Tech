@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import ArticleCard from './ArticleCard.vue'
 import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
+import { useAuthStore } from '@/stores/auth'
 
 type ArticleTag = NonNullable<ServerArticleJSONResponse['tags']>[number]
+
+const router = useRouter()
+const auth = useAuthStore()
 
 const articles = ref<ServerArticleJSONResponse[]>([])
 const loading = ref(false)
@@ -83,7 +88,20 @@ onMounted(async () => {
 <template>
   <v-container class="py-8">
     <v-row justify="center">
-      <v-col cols="12" md="8" lg="6">
+      <v-col cols="12" sm="10">
+        <div class="d-flex align-center mb-4">
+          <h1 class="text-h4 font-weight-bold">記事一覧</h1>
+          <v-spacer />
+          <v-btn
+            v-if="auth.isAuthenticated"
+            color="primary"
+            prepend-icon="mdi-plus"
+            @click="router.push('/articles/new')"
+          >
+            新規作成
+          </v-btn>
+        </div>
+
         <v-alert
           v-if="showCreatedAlert"
           type="success"

@@ -70,9 +70,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-container class="py-12" fluid>
-    <v-row justify="center" align="start">
-      <v-col cols="12" sm="10" md="8" lg="6">
+    <v-container class="py-8">
+    <v-row justify="center">
+      <v-col cols="12" sm="10">
         <v-card elevation="4" rounded="lg">
           <v-card-title class="text-h4 font-weight-bold pa-6 pb-2">
             新規記事作成
