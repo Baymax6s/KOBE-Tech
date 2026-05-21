@@ -41,9 +41,9 @@ make setup
 ```sh
 make dev
 ```
-or
+または
 ```sh
-go run main.go
+go run ./cmd/api
 ```
 
 `make dev` で PostgreSQL 起動・マイグレーション・seed データ投入を実行し、`air` で API を起動します。
@@ -66,11 +66,10 @@ Swagger を生成する:
 ```sh
 make swagger
 ```
-or
+または
 ```sh
 swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
-
 ```
 
 API schema を生成する:
@@ -88,10 +87,7 @@ DB・マイグレーションを起動 / 停止する:
 make db-up
 make db-down
 ```
-```sh
-docker compose up -d
-docker compose down
-```
+
 
 
 マイグレーションファイルを作成する:
