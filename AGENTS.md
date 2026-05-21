@@ -21,7 +21,7 @@ API の型定義は `api/swagger/openapi.yml` を真のソースとし、`app/sr
 ## ディレクトリ別の追加ルール
 
 - `app/` 配下の編集: [`app/AGENTS.md`](app/AGENTS.md) を参照（Vuetify ルール・フォーム送信ルール）
-- `api/` 配下の編集: 既存 Makefile と Gin ハンドラ規約に従う
+- `api/` 配下の編集: [`api/AGENTS.md`](api/AGENTS.md) を参照（Go handler 規約・コマンド）
 
 ## チーム方針
 
