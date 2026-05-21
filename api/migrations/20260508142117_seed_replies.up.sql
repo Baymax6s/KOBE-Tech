@@ -7,9 +7,9 @@ DECLARE
     v_article2_id INT;
     v_article3_id INT;
     v_admin_id    INT;
-    v_田中太郎_id   INT;
-    v_山田花子_id   INT;
-    v_佐藤次郎_id   INT;
+    v_user01_id   INT;
+    v_user02_id   INT;
+    v_user03_id   INT;
     v_a1_comment1_id  INT;
     v_a1_question1_id INT;
     v_a2_question1_id INT;
@@ -30,14 +30,14 @@ BEGIN
     SELECT id INTO v_article2_id FROM articles WHERE title = 'Goで作るREST API入門';
     SELECT id INTO v_article3_id FROM articles WHERE title = 'Vue 3 + Vuetifyで学ぶフロントエンド開発';
     SELECT id INTO v_admin_id  FROM users WHERE name = 'admin';
-    SELECT id INTO v_田中太郎_id FROM users WHERE name = '田中太郎';
-    SELECT id INTO v_山田花子_id FROM users WHERE name = '山田花子';
-    SELECT id INTO v_佐藤次郎_id FROM users WHERE name = '佐藤次郎';
+    SELECT id INTO v_user01_id FROM users WHERE name = '田中太郎';
+    SELECT id INTO v_user02_id FROM users WHERE name = '山田花子';
+    SELECT id INTO v_user03_id FROM users WHERE name = '佐藤次郎';
 
     -- ========== Article 1: 神戸大学でのハッカソン体験記 ==========
     -- コメント（記事直下） + 子コメント
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article1_id, v_田中太郎_id,
+    VALUES (v_article1_id, v_user01_id,
             '楽しそうですね！どんなお題のハッカソンだったんですか？',
             0, NULL,
             '2026-04-02 10:00:00+09'::timestamptz,
@@ -53,7 +53,7 @@ BEGIN
 
     -- 質問（記事直下） + ベストアンサー
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article1_id, v_山田花子_id,
+    VALUES (v_article1_id, v_user02_id,
             'チームメンバーは何人くらいでしたか？役割分担も気になります。',
             1, NULL,
             '2026-04-03 09:00:00+09'::timestamptz,
@@ -70,7 +70,7 @@ BEGIN
     -- ========== Article 2: Goで作るREST API入門 ==========
     -- コメント（単体）
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article2_id, v_山田花子_id,
+    VALUES (v_article2_id, v_user02_id,
             '丁寧な記事ありがとうございます。手元でも動かせました！',
             0, NULL,
             '2026-04-11 10:00:00+09'::timestamptz,
@@ -78,7 +78,7 @@ BEGIN
 
     -- 質問 → 回答 → 回答（ネスト）
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article2_id, v_佐藤次郎_id,
+    VALUES (v_article2_id, v_user03_id,
             'gin と echo だと、最初に触るならどちらがおすすめですか？',
             1, NULL,
             '2026-04-12 14:00:00+09'::timestamptz,
@@ -86,7 +86,7 @@ BEGIN
     RETURNING id INTO v_a2_question1_id;
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article2_id, v_田中太郎_id,
+    VALUES (v_article2_id, v_user01_id,
             '用途次第ですが、最初はシンプルさで gin から入るのが追いやすいと思います。',
             2, v_a2_question1_id,
             '2026-04-12 16:00:00+09'::timestamptz,
@@ -94,7 +94,7 @@ BEGIN
     RETURNING id INTO v_a2_answer1_id;
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article2_id, v_佐藤次郎_id,
+    VALUES (v_article2_id, v_user03_id,
             'なるほど、ありがとうございます！週末に触ってみます。',
             2, v_a2_answer1_id,
             '2026-04-12 18:00:00+09'::timestamptz,

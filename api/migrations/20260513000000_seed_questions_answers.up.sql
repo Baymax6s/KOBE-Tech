@@ -11,9 +11,9 @@ DECLARE
     v_article5_id INT; -- Dockerで開発環境を統一する
 
     v_admin_id    INT;
-    v_田中太郎_id   INT;
-    v_山田花子_id   INT;
-    v_佐藤次郎_id   INT;
+    v_user01_id   INT;
+    v_user02_id   INT;
+    v_user03_id   INT;
 
     v_a1_q_id   INT;
     v_a1_a1_id  INT;
@@ -39,14 +39,14 @@ BEGIN
     SELECT id INTO v_article5_id FROM articles WHERE title = 'Dockerで開発環境を統一する';
 
     SELECT id INTO v_admin_id  FROM users WHERE name = 'admin';
-    SELECT id INTO v_田中太郎_id FROM users WHERE name = '田中太郎';
-    SELECT id INTO v_山田花子_id FROM users WHERE name = '山田花子';
-    SELECT id INTO v_佐藤次郎_id FROM users WHERE name = '佐藤次郎';
+    SELECT id INTO v_user01_id FROM users WHERE name = '田中太郎';
+    SELECT id INTO v_user02_id FROM users WHERE name = '山田花子';
+    SELECT id INTO v_user03_id FROM users WHERE name = '佐藤次郎';
 
     -- ========== Article 1: 神戸大学でのハッカソン体験記 ==========
     -- 質問 → 回答 → さらに回答（追問）
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article1_id, v_山田花子_id,
+    VALUES (v_article1_id, v_user02_id,
             '次回参加するときに、当日までに練習しておくと良い技術スタックはありますか？',
             1, NULL,
             '2026-04-05 10:00:00+09'::timestamptz,
@@ -62,7 +62,7 @@ BEGIN
     RETURNING id INTO v_a1_a1_id;
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article1_id, v_山田花子_id,
+    VALUES (v_article1_id, v_user02_id,
             'なるほど、フロントとバックの最小サンプルというのは、具体的にはどんな構成でしょうか？',
             2, v_a1_a1_id,
             '2026-04-05 13:30:00+09'::timestamptz,
@@ -71,7 +71,7 @@ BEGIN
     -- ========== Article 3: Vue 3 + Vuetifyで学ぶフロントエンド開発 ==========
     -- 質問 → 回答（ベストアンサー） + 別の回答
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article3_id, v_田中太郎_id,
+    VALUES (v_article3_id, v_user01_id,
             'Vuetify の v-data-table をカスタマイズしたいのですが、まず何から触るのがおすすめですか？',
             1, NULL,
             '2026-04-17 10:00:00+09'::timestamptz,
@@ -87,14 +87,14 @@ BEGIN
     RETURNING id INTO v_a3_a1_id;
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article3_id, v_山田花子_id,
+    VALUES (v_article3_id, v_user02_id,
             '#item.xxx の他にも、行全体を差し替えたい場合は #item スロットを使うこともできますよ。',
             2, v_a3_q_id,
             '2026-04-17 14:00:00+09'::timestamptz,
             '2026-04-17 14:00:00+09'::timestamptz);
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article3_id, v_田中太郎_id,
+    VALUES (v_article3_id, v_user01_id,
             'スロットを段階的に試すと挙動が理解しやすいんですね、参考にします！',
             2, v_a3_a1_id,
             '2026-04-17 15:30:00+09'::timestamptz,
@@ -103,7 +103,7 @@ BEGIN
     -- ========== Article 4: PostgreSQLのマイグレーション管理 ==========
     -- 質問 → 回答（ベストアンサー）
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article4_id, v_佐藤次郎_id,
+    VALUES (v_article4_id, v_user03_id,
             '本番でマイグレーションを流すタイミングは、デプロイ前と後どちらにするのが良いでしょうか？',
             1, NULL,
             '2026-04-21 09:00:00+09'::timestamptz,
@@ -119,7 +119,7 @@ BEGIN
     RETURNING id INTO v_a4_a1_id;
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article4_id, v_佐藤次郎_id,
+    VALUES (v_article4_id, v_user03_id,
             '破壊的変更を後ろに回すのは盲点でした。実運用で気をつけます。',
             2, v_a4_a1_id,
             '2026-04-21 12:30:00+09'::timestamptz,
@@ -128,7 +128,7 @@ BEGIN
     -- ========== Article 5: Dockerで開発環境を統一する ==========
     -- 質問 → 回答 → 回答（議論っぽいネスト）
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article5_id, v_田中太郎_id,
+    VALUES (v_article5_id, v_user01_id,
             'M1 Mac だと一部のイメージで platform 警告が出るのですが、皆さんどう対処していますか？',
             1, NULL,
             '2026-04-25 10:00:00+09'::timestamptz,
@@ -136,7 +136,7 @@ BEGIN
     RETURNING id INTO v_a5_q_id;
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article5_id, v_山田花子_id,
+    VALUES (v_article5_id, v_user02_id,
             'compose で platform: linux/amd64 を明示しています。ビルドは遅くなりますが、本番との差分を抑えられます。',
             2, v_a5_q_id,
             '2026-04-25 11:30:00+09'::timestamptz,
@@ -151,7 +151,7 @@ BEGIN
             '2026-04-25 13:00:00+09'::timestamptz);
 
     INSERT INTO replies (article_id, user_id, content, kind, parent_id, created_at, updated_at)
-    VALUES (v_article5_id, v_田中太郎_id,
+    VALUES (v_article5_id, v_user01_id,
             'なるほど、両方試して開発時の体感とのバランスを見てみます。ありがとうございます！',
             2, v_a5_a1_id,
             '2026-04-25 14:30:00+09'::timestamptz,
