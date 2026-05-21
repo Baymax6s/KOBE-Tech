@@ -80,6 +80,7 @@ CI では `gofmt -l` + `go vet ./...`。テストは未整備。
 ## 注意点
 
 - `swagger/swagger.yaml` は .gitignore（生成中間物）。`bin/`, `.codex` も gitignore
+- **`swagger/openapi.yml` / `swagger/swagger.json` は生成ファイル。ハンドラの swag アノテーションを編集し `make swagger` で再生成すること。直接編集禁止**
 - `swag` のインストール: `go install github.com/swaggo/swag/cmd/swag@v1.16.4`
 - Docker Compose プロジェクト名: `baymux`
 - 編集後の自動フォーマット無し（Claude / OpenCode hooks 任せ）
