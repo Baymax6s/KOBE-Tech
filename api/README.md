@@ -73,9 +73,9 @@ mv ./swagger/swagger.yaml ./swagger/openapi.yml
 
 ```
 
-api schema生成
+API schema を生成する:
 
-```
+```sh
 cd ../app
 npm run generate:api
 ```
