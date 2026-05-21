@@ -13,12 +13,13 @@ import (
 )
 
 type ProfileJSON struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Bio       string    `json:"bio"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-} // @name server.profileJSON
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+	Bio  string `json:"bio"`
+
+	ProfileCreatedAt *time.Time `json:"profile_created_at"`
+	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
+}
 
 type ErrorResponse struct {
 	Message string `json:"message"`
@@ -63,12 +64,26 @@ func (h *Handler) GetProfile(ctx context.Context, userID int64) (ProfileJSON, er
 	return newProfileJSON(user), nil
 }
 
-func newProfileJSON(u profile.User) ProfileJSON {
+func newProfileJSON(p profile.Profile) ProfileJSON {
+
+	var profileCreatedAt *time.Time
+	if p.UserProfile.CreatedAt.Valid {
+		t := p.UserProfile.CreatedAt.Time
+		profileCreatedAt = &t
+	}
+
+	var profileUpdatedAt *time.Time
+	if p.UserProfile.UpdatedAt.Valid {
+		t := p.UserProfile.UpdatedAt.Time
+		profileUpdatedAt = &t
+	}
+
 	return ProfileJSON{
-		ID:        u.ID,
-		Name:      u.Name,
-		Bio:       u.Bio,
-		CreatedAt: u.CreatedAt,
-		UpdatedAt: u.UpdatedAt,
+		ID:   p.User.ID,
+		Name: p.User.Name,
+		Bio:  p.UserProfile.Bio.String,
+
+		ProfileCreatedAt: profileCreatedAt,
+		ProfileUpdatedAt: profileUpdatedAt,
 	}
 }

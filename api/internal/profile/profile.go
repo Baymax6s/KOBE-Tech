@@ -1,18 +1,30 @@
 package profile
 
 import (
+	"database/sql"
 	"errors"
 	"strings"
-	"time"
 	"unicode/utf8"
 )
 
 type User struct {
 	ID        int64
 	Name      string
-	Bio       string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+}
+
+type UserProfile struct {
+	ID         int64
+	UserID     int64
+	ObjectKey  sql.NullString
+	Bio        sql.NullString
+	IsUploaded bool
+	CreatedAt  sql.NullTime
+	UpdatedAt  sql.NullTime
+}
+
+type Profile struct {
+	User        User
+	UserProfile UserProfile
 }
 
 const maxBioLength = 200

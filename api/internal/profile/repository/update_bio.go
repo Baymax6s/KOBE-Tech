@@ -11,9 +11,9 @@ func (r *Repository) UpdateBio(ctx context.Context, id int64, bio string) error 
 	}
 
 	const query = `
-        UPDATE users
-        SET bio = $1, updated_at = NOW()
-        WHERE id = $2
+    	UPDATE user_profiles
+    	SET bio = $1, updated_at = NOW()
+    	WHERE user_id = $2
     `
 
 	result, err := r.db.ExecContext(ctx, query, bio, id)
