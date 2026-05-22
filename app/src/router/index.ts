@@ -82,6 +82,21 @@ const router = createRouter({
 })
 
 setApiErrorHandler((status) => {
+  if (status === 401) {
+    const auth = useAuthStore()
+    auth.clearToken()
+
+    const current = router.currentRoute.value
+    if (current.path === '/login') {
+      return
+    }
+
+    void router
+      .push({ path: '/login', query: { redirect: current.fullPath } })
+      .catch(() => undefined)
+    return
+  }
+
   const name = status === 404 ? 'not-found' : 'server-error'
 
   if (router.currentRoute.value.name === name) {

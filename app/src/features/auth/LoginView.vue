@@ -21,7 +21,15 @@ const onSubmit = async () => {
   errorMessage.value = null
   try {
     await auth.login(name.value, password.value)
-    await auth.fetchMe()
+
+    try {
+      await auth.fetchMe()
+    } catch (e) {
+      // ログイン自体は成功しているため、ユーザー情報取得失敗は
+      // ログイン失敗として扱わず、遷移を継続する
+      console.error('Failed to fetch user info after login:', e)
+    }
+
     authNotification.markLoggedIn()
 
     const redirect =

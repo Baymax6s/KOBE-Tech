@@ -21,7 +21,10 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const login = async (name: string, password: string) => {
-    const { data } = await api.api.authLoginCreate({ name, password })
+    const { data } = await api.api.authLoginCreate(
+      { name, password },
+      { skipGlobalErrorHandler: true },
+    )
     if (!data.token) {
       throw new Error('トークンが返却されませんでした')
     }

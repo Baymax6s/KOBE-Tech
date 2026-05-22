@@ -62,8 +62,6 @@ const likeArticle = async () => {
     }
 
     if (axios.isAxiosError(err) && err.response?.status === 401) {
-      auth.clearToken()
-      await router.push({ path: '/login', query: { redirect: route.fullPath } })
       return
     }
 
