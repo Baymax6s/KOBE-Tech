@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDateFormat } from '@vueuse/core'
 import { api } from '@/api/client'
 import type { ServerGetArticleJSONResponse } from '@/api/generated/apiSchema'
+import MarkdownContent from '@/features/articles/MarkdownContent.vue'
 import ReplySection from '@/features/replies/ReplySection.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -164,9 +165,10 @@ watch(
             </v-alert>
 
             <v-card flat rounded="lg" class="pa-8">
-              <div class="text-body-1" style="white-space: pre-wrap">
-                {{ article.content }}
-              </div>
+              <MarkdownContent
+                class="text-body-1"
+                :source="article.content ?? ''"
+              />
             </v-card>
 
             <div class="mt-10">
