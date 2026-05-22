@@ -88,10 +88,7 @@ onMounted(() => {
   if (notificationStore.consumeCreated()) {
     showCreatedAlert.value = true
   }
-  if (
-    authNotificationStore.consumeLoggedIn() &&
-    authStore.isAuthenticated
-  ) {
+  if (authNotificationStore.consumeLoggedIn() && authStore.isAuthenticated) {
     showLoginAlert.value = true
   }
   void fetchTagCandidates()
