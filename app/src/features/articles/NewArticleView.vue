@@ -118,138 +118,142 @@ onMounted(async () => {
 
 <template>
   <v-sheet color="grey-lighten-4" class="page-bg">
-    <v-container max-width="1200" class="editor-wrap">
-      <v-form ref="formRef" class="article-form" @submit.prevent="submit">
-        <v-alert
-          v-if="submitError"
-          type="error"
-          class="mb-3"
-          closable
-          @click:close="submitError = null"
-        >
-          {{ submitError }}
-        </v-alert>
-
-        <v-sheet
-          rounded
-          class="editor-card px-4 px-md-6 pt-2 pt-md-3 pb-4 pb-md-6"
-        >
-          <div class="d-flex align-center ga-3">
-            <v-text-field
-              v-model="form.title"
-              placeholder="タイトルを入力"
-              aria-label="タイトル"
-              variant="plain"
-              density="comfortable"
-              maxlength="200"
-              :rules="[(v) => !!v || 'タイトルは必須です']"
-              validate-on="input"
-              hide-details="auto"
-              class="title-input flex-1-1"
-            />
-            <v-btn
-              type="submit"
-              color="black"
-              class="px-6 flex-shrink-0"
-              :loading="submitting"
-              :disabled="!canSubmit"
+    <v-container class="editor-wrap">
+      <v-row justify="center" class="editor-row">
+        <v-col cols="12" lg="10" class="editor-col">
+          <v-form ref="formRef" class="article-form" @submit.prevent="submit">
+            <v-alert
+              v-if="submitError"
+              type="error"
+              class="mb-3"
+              closable
+              @click:close="submitError = null"
             >
-              投稿
-            </v-btn>
-          </div>
+              {{ submitError }}
+            </v-alert>
 
-          <v-divider class="mt-2" />
-
-          <v-combobox
-            v-model="form.tags"
-            placeholder="タグを入力してEnter"
-            aria-label="タグ"
-            variant="plain"
-            density="comfortable"
-            :items="tagCandidates"
-            multiple
-            chips
-            closable-chips
-            prepend-inner-icon="mdi-tag-outline"
-            hide-details="auto"
-          />
-
-          <v-divider class="mb-2" />
-
-          <div class="d-flex align-center mb-2">
-            <v-tabs v-model="bodyTab" density="comfortable" color="primary">
-              <v-tab value="edit">編集</v-tab>
-              <v-tab value="preview">プレビュー</v-tab>
-            </v-tabs>
-
-            <v-spacer />
-
-            <v-tooltip
-              :text="
-                helpArticleHref
-                  ? 'Markdown の書き方をまとめたページを開きます'
-                  : 'Markdown の書き方をまとめたチートシートを表示します'
-              "
-              location="bottom"
+            <v-sheet
+              rounded
+              class="editor-card px-4 px-md-6 pt-2 pt-md-3 pb-4 pb-md-6"
             >
-              <template #activator="{ props: tooltipProps }">
+              <div class="d-flex align-center ga-3">
+                <v-text-field
+                  v-model="form.title"
+                  placeholder="タイトルを入力"
+                  aria-label="タイトル"
+                  variant="plain"
+                  density="comfortable"
+                  maxlength="200"
+                  :rules="[(v) => !!v || 'タイトルは必須です']"
+                  validate-on="input"
+                  hide-details="auto"
+                  class="title-input flex-1-1"
+                />
                 <v-btn
-                  v-bind="tooltipProps"
-                  :href="helpArticleHref ?? undefined"
-                  :target="helpArticleHref ? '_blank' : undefined"
-                  :rel="helpArticleHref ? 'noopener noreferrer' : undefined"
-                  variant="text"
-                  size="small"
-                  prepend-icon="mdi-help-circle-outline"
-                  @click="openCheatsheet"
+                  type="submit"
+                  color="black"
+                  class="px-6 flex-shrink-0"
+                  :loading="submitting"
+                  :disabled="!canSubmit"
                 >
-                  Markdown 記法
+                  投稿
                 </v-btn>
-              </template>
-            </v-tooltip>
+              </div>
 
-            <v-tooltip
-              text="シンタックスハイライト対応言語の一覧を表示します"
-              location="bottom"
-            >
-              <template #activator="{ props: tooltipProps }">
-                <v-btn
-                  v-bind="tooltipProps"
-                  variant="text"
-                  size="small"
-                  prepend-icon="mdi-code-tags"
-                  @click="supportedLanguagesDialog = true"
-                >
-                  対応言語
-                </v-btn>
-              </template>
-            </v-tooltip>
-          </div>
+              <v-divider class="mt-2" />
 
-          <!-- v-window のスライドアニメは不要、かつ編集中のカーソル位置・履歴を保つため v-show で切替 -->
-          <div class="body-area">
-            <MdEditor
-              v-show="bodyTab === 'edit'"
-              v-model="form.body"
-              language="en-US"
-              theme="light"
-              :toolbars="editorToolbars"
-              :preview="false"
-              :show-code-row-number="false"
-              placeholder="本文を入力（Markdown）"
-              class="body-editor"
-            />
-
-            <div v-show="bodyTab === 'preview'" class="body-preview pa-2">
-              <MarkdownContent
-                v-if="bodyTab === 'preview' && form.body.trim()"
-                :source="form.body"
+              <v-combobox
+                v-model="form.tags"
+                placeholder="タグを入力してEnter"
+                aria-label="タグ"
+                variant="plain"
+                density="comfortable"
+                :items="tagCandidates"
+                multiple
+                chips
+                closable-chips
+                prepend-inner-icon="mdi-tag-outline"
+                hide-details="auto"
               />
-              <MarkdownCheatsheet v-else-if="bodyTab === 'preview'" />
-            </div>
-          </div>
-        </v-sheet>
-      </v-form>
+
+              <v-divider class="mb-2" />
+
+              <div class="d-flex align-center mb-2">
+                <v-tabs v-model="bodyTab" density="comfortable" color="primary">
+                  <v-tab value="edit">編集</v-tab>
+                  <v-tab value="preview">プレビュー</v-tab>
+                </v-tabs>
+
+                <v-spacer />
+
+                <v-tooltip
+                  :text="
+                    helpArticleHref
+                      ? 'Markdown の書き方をまとめたページを開きます'
+                      : 'Markdown の書き方をまとめたチートシートを表示します'
+                  "
+                  location="bottom"
+                >
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn
+                      v-bind="tooltipProps"
+                      :href="helpArticleHref ?? undefined"
+                      :target="helpArticleHref ? '_blank' : undefined"
+                      :rel="helpArticleHref ? 'noopener noreferrer' : undefined"
+                      variant="text"
+                      size="small"
+                      prepend-icon="mdi-help-circle-outline"
+                      @click="openCheatsheet"
+                    >
+                      Markdown 記法
+                    </v-btn>
+                  </template>
+                </v-tooltip>
+
+                <v-tooltip
+                  text="シンタックスハイライト対応言語の一覧を表示します"
+                  location="bottom"
+                >
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn
+                      v-bind="tooltipProps"
+                      variant="text"
+                      size="small"
+                      prepend-icon="mdi-code-tags"
+                      @click="supportedLanguagesDialog = true"
+                    >
+                      対応言語
+                    </v-btn>
+                  </template>
+                </v-tooltip>
+              </div>
+
+              <!-- v-window のスライドアニメは不要、かつ編集中のカーソル位置・履歴を保つため v-show で切替 -->
+              <div class="body-area">
+                <MdEditor
+                  v-show="bodyTab === 'edit'"
+                  v-model="form.body"
+                  language="en-US"
+                  theme="light"
+                  :toolbars="editorToolbars"
+                  :preview="false"
+                  :show-code-row-number="false"
+                  placeholder="本文を入力（Markdown）"
+                  class="body-editor"
+                />
+
+                <div v-show="bodyTab === 'preview'" class="body-preview pa-2">
+                  <MarkdownContent
+                    v-if="bodyTab === 'preview' && form.body.trim()"
+                    :source="form.body"
+                  />
+                  <MarkdownCheatsheet v-else-if="bodyTab === 'preview'" />
+                </div>
+              </div>
+            </v-sheet>
+          </v-form>
+        </v-col>
+      </v-row>
     </v-container>
 
     <v-dialog v-model="cheatsheetDialog" max-width="960" scrollable>
@@ -279,8 +283,9 @@ onMounted(async () => {
 
 <style scoped>
 /* Qiita スタイル: ページ自体はスクロールせず、本文エリアの内部だけがスクロールする。
-   そのために v-main → page-bg → editor-wrap → article-form → editor-card → body-area
-   と高さ 100% / flex column を連鎖させる必要がある。 */
+   そのために v-main → page-bg → editor-wrap → editor-row → editor-col
+   → article-form → editor-card → body-area と高さ 100% / flex column を連鎖させる必要がある。
+   v-row / v-col はデフォルトで縦の flex を伝えないので、ここで明示的にチェインへ組み込む。 */
 .page-bg {
   height: 100%;
   display: flex;
@@ -293,6 +298,19 @@ onMounted(async () => {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* v-row は flex-direction: row のまま。残り縦領域を取り、子の v-col を stretch で伸ばす。 */
+.editor-row {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* v-col の中で article-form が flex 子になれるよう column 方向に切替える。 */
+.editor-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* v-form / editor-card 直下の要素は基本「自然な高さ」で積み、
