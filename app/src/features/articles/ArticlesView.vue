@@ -11,8 +11,6 @@ import { useAuthStore } from '@/stores/auth'
 const route = useRoute()
 const router = useRouter()
 
-const auth = useAuthStore()
-
 const articles = ref<ServerArticleJSONResponse[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -106,7 +104,7 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
           <h1 class="text-h4 font-weight-bold">記事一覧</h1>
           <v-spacer />
           <v-btn
-            v-if="auth.isAuthenticated"
+            v-if="authStore.isAuthenticated"
             color="primary"
             prepend-icon="mdi-plus"
             to="/articles/new"
