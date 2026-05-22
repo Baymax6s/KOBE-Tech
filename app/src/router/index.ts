@@ -11,18 +11,11 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/settings/profile',
-      component: () => import('@/features/settings/ProfileView.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
       path: '/about',
-      // 遅延読み込み: アクセス時に初めてJSを読み込むので初期表示が速くなる
       component: () => import('@/features/about/AboutView.vue'),
     },
     {
       path: '/login',
-      // 遅延読み込み: アクセス時に初めてJSを読み込むので初期表示が速くなる
       component: () => import('@/features/auth/LoginView.vue'),
       meta: { guestOnly: true },
     },
@@ -44,6 +37,16 @@ const router = createRouter({
       path: '/articles/:articleId(\\d+)',
       component: () => import('@/features/articles/ArticleDetailView.vue'),
       props: (route) => ({ articleId: Number(route.params.articleId) }),
+    },
+    {
+      path: '/profile/me',
+      component: () => import('@/features/profile/PublicProfileView.vue'),
+      props: { isMe: true },
+    },
+    {
+      path: '/profile/:userId(\\d+)',
+      component: () => import('@/features/profile/PublicProfileView.vue'),
+      props: (route) => ({ userId: Number(route.params.userId) }),
     },
     {
       path: '/not-found',
