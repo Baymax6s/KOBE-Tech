@@ -1,19 +1,6 @@
 basePath: /
 definitions:
-  internal_profile_handler.ProfileJSON:
-    properties:
-      bio:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      profile_created_at:
-        type: string
-      profile_updated_at:
-        type: string
-    type: object
-  profile_handler.ProfileJSON:
+  handler.ProfileJSON:
     properties:
       bio:
         type: string
@@ -690,7 +677,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile_handler.ProfileJSON'
+            $ref: '#/definitions/handler.ProfileJSON'
         "401":
           description: Unauthorized
           schema:
@@ -722,7 +709,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/profile_handler.ProfileJSON'
+            $ref: '#/definitions/handler.ProfileJSON'
         "400":
           description: Bad Request
           schema:

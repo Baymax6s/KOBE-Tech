@@ -31,7 +31,7 @@ type ErrorResponse struct {
 // @Description ログインユーザーのプロフィール取得
 // @Tags profile
 // @Produce json
-// @Success 200 {object} ProfileJSON
+// @Success 200 {object} handler.ProfileJSON
 // @Failure 401 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Security BearerAuth

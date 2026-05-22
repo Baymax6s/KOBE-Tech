@@ -23,7 +23,7 @@ type UpdateBioRequest struct {
 // @Accept json
 // @Produce json
 // @Param request body UpdateBioRequest true "Update bio request"
-// @Success 200 {object} ProfileJSON
+// @Success 200 {object} handler.ProfileJSON
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
