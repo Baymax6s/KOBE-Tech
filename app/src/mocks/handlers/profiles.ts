@@ -51,8 +51,8 @@ export const profileHandlers = [
       id: existing.id,
       name: existing.name,
       bio: existing.bio,
-      created_at: existing.created_at,
-      updated_at: existing.updated_at,
+      profile_created_at: existing.created_at,
+      profile_updated_at: existing.updated_at,
       is_owner: isOwner,
     })
   }),
@@ -81,8 +81,8 @@ export const profileHandlers = [
       id: existing.id,
       name: existing.name,
       bio: existing.bio,
-      created_at: existing.created_at,
-      updated_at: existing.updated_at,
+      profile_created_at: existing.created_at,
+      profile_updated_at: existing.updated_at,
       is_owner: true,
     })
   }),

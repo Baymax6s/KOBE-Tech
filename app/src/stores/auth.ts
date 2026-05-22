@@ -37,23 +37,25 @@ export const useAuthStore = defineStore('auth', () => {
     authNotification.consumeLoggedIn()
   }
 
-  let fetchingUser = false
+  let pendingFetchUser: Promise<number | null> | null = null
 
-  const fetchUser = async () => {
+  const fetchUser = async (): Promise<number | null> => {
     if (!token.value) return null
-    if (fetchingUser) return userId.value
-    fetchingUser = true
-    try {
-      const res = await api.api.authMeList()
-      const id = res.data.id!
-      persistUserId(id)
-      return id
-    } catch {
-      clearToken()
-      return null
-    } finally {
-      fetchingUser = false
-    }
+    if (pendingFetchUser) return pendingFetchUser
+    pendingFetchUser = (async () => {
+      try {
+        const res = await api.api.authMeList()
+        const id = res.data.id!
+        persistUserId(id)
+        return id
+      } catch {
+        clearToken()
+        return null
+      } finally {
+        pendingFetchUser = null
+      }
+    })()
+    return pendingFetchUser
   }
 
   const login = async (name: string, password: string) => {

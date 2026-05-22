@@ -34,6 +34,7 @@ type ErrorResponse struct {
 // @Produce json
 // @Param user_id path int true "User ID"
 // @Success 200 {object} ProfileJSON
+// @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/profile/{user_id} [get]

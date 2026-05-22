@@ -42,6 +42,7 @@ const router = createRouter({
       path: '/profile/me',
       component: () => import('@/features/profile/PublicProfileView.vue'),
       props: { isMe: true },
+      meta: { requiresAuth: true },
     },
     {
       path: '/profile/:userId(\\d+)',
