@@ -30,11 +30,15 @@ onMounted(async () => {
     return
   }
 
+  if (auth.userId === null) {
+    await auth.fetchUser()
+  }
+
   loading.value = true
   error.value = null
 
   try {
-    const res = await api.api.profileList()
+    const res = await api.api.profileDetail(auth.userId!)
     user.value = res.data
     bio.value = res.data.bio ?? ''
 

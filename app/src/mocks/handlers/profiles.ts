@@ -36,18 +36,16 @@ export const profileHandlers = [
     return HttpResponse.json(user)
   }),
 
-  http.get('*/api/profile', () => {
-    const user = auth()
-
-    if (!user) {
-      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    }
-
-    const existing = db.users.find((u) => u.id === user.id)
+  http.get('*/api/profile/:userId', ({ params }) => {
+    const userId = Number(params.userId)
+    const existing = db.users.find((u) => u.id === userId)
 
     if (!existing) {
-      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+      return HttpResponse.json({ message: 'user not found' }, { status: 404 })
     }
+
+    const currentUser = auth()
+    const isOwner = currentUser !== null && currentUser.id === userId
 
     return HttpResponse.json({
       id: existing.id,
@@ -55,6 +53,7 @@ export const profileHandlers = [
       bio: existing.bio,
       created_at: existing.created_at,
       updated_at: existing.updated_at,
+      is_owner: isOwner,
     })
   }),
 
@@ -84,6 +83,7 @@ export const profileHandlers = [
       bio: existing.bio,
       created_at: existing.created_at,
       updated_at: existing.updated_at,
+      is_owner: true,
     })
   }),
 ]
