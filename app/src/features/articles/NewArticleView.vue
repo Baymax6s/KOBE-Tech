@@ -6,6 +6,8 @@ import 'md-editor-v3/lib/style.css'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
 import MarkdownContent from './MarkdownContent.vue'
+import MarkdownCheatsheet from './MarkdownCheatsheet.vue'
+import SupportedLanguagesDialog from './SupportedLanguagesDialog.vue'
 
 defineOptions({
   name: 'NewArticleView',
@@ -33,6 +35,19 @@ const submitting = ref(false)
 const submitError = ref<string | null>(null)
 const tagCandidates = ref<string[]>([])
 const bodyTab = ref<BodyTab>('edit')
+
+// チートシート記事の ID が env に設定されていれば外部リンクで開き、
+// 未設定ならダイアログでチートシートを表示するフォールバックに切替える。
+// 「設定が無いと壊れる」状態にしないことで、seed 投入前でも UI が機能する。
+const helpArticleId = import.meta.env.VITE_HELP_ARTICLE_MARKDOWN_ID
+const helpArticleHref = helpArticleId ? `/articles/${helpArticleId}` : null
+const cheatsheetDialog = ref(false)
+const supportedLanguagesDialog = ref(false)
+
+const openCheatsheet = () => {
+  if (helpArticleHref) return
+  cheatsheetDialog.value = true
+}
 
 // プレビューは既存の MarkdownContent (記事詳細と同じレンダラ) で表示するため、
 // MdEditor 側のプレビュー / 全画面 / カタログ系ツールバーは除外する。
@@ -161,15 +176,55 @@ onMounted(async () => {
 
           <v-divider class="mb-2" />
 
-          <v-tabs
-            v-model="bodyTab"
-            density="comfortable"
-            color="primary"
-            class="mb-2"
-          >
-            <v-tab value="edit">編集</v-tab>
-            <v-tab value="preview">プレビュー</v-tab>
-          </v-tabs>
+          <div class="d-flex align-center mb-2">
+            <v-tabs v-model="bodyTab" density="comfortable" color="primary">
+              <v-tab value="edit">編集</v-tab>
+              <v-tab value="preview">プレビュー</v-tab>
+            </v-tabs>
+
+            <v-spacer />
+
+            <v-tooltip
+              :text="
+                helpArticleHref
+                  ? 'Markdown の書き方をまとめたページを開きます'
+                  : 'Markdown の書き方をまとめたチートシートを表示します'
+              "
+              location="bottom"
+            >
+              <template #activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  :href="helpArticleHref ?? undefined"
+                  :target="helpArticleHref ? '_blank' : undefined"
+                  :rel="helpArticleHref ? 'noopener noreferrer' : undefined"
+                  variant="text"
+                  size="small"
+                  prepend-icon="mdi-help-circle-outline"
+                  @click="openCheatsheet"
+                >
+                  Markdown 記法
+                </v-btn>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip
+              text="シンタックスハイライト対応言語の一覧を表示します"
+              location="bottom"
+            >
+              <template #activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  variant="text"
+                  size="small"
+                  prepend-icon="mdi-code-tags"
+                  @click="supportedLanguagesDialog = true"
+                >
+                  対応言語
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </div>
 
           <!-- v-window のスライドアニメは不要、かつ編集中のカーソル位置・履歴を保つため v-show で切替 -->
           <div class="body-area">
@@ -190,17 +245,35 @@ onMounted(async () => {
                 v-if="bodyTab === 'preview' && form.body.trim()"
                 :source="form.body"
               />
-              <div
-                v-else-if="bodyTab === 'preview'"
-                class="text-medium-emphasis"
-              >
-                本文がまだ入力されていません。
-              </div>
+              <MarkdownCheatsheet v-else-if="bodyTab === 'preview'" />
             </div>
           </div>
         </v-sheet>
       </v-form>
     </v-container>
+
+    <v-dialog v-model="cheatsheetDialog" max-width="960" scrollable>
+      <v-card>
+        <v-card-title class="d-flex align-center ga-2">
+          <v-icon icon="mdi-help-circle-outline" />
+          <span>Markdown 記法チートシート</span>
+          <v-spacer />
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            density="comfortable"
+            aria-label="閉じる"
+            @click="cheatsheetDialog = false"
+          />
+        </v-card-title>
+        <v-divider />
+        <v-card-text>
+          <MarkdownCheatsheet />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <SupportedLanguagesDialog v-model="supportedLanguagesDialog" />
   </v-sheet>
 </template>
 
