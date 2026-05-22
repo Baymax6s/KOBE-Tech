@@ -102,7 +102,7 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
             v-if="auth.isAuthenticated"
             color="primary"
             prepend-icon="mdi-plus"
-            @click="router.push('/articles/new')"
+            to="/articles/new"
           >
             新規作成
           </v-btn>
