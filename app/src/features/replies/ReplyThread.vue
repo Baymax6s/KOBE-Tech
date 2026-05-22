@@ -35,20 +35,14 @@ const children = computed<ServerReplyJSONResponse[]>(
   () => props.childrenByParent.get(props.reply.id) ?? [],
 )
 
-// この階層単体での展開状態
 const localReveal = ref(false)
 
-// 【超確実な判定に変更】
-// ルートが0、次が1、その次（3階層目）は「depth === 2」になります。
-// depth が 2 以上の場合は、強制的に上限フラグを true にします。
+// 3階層目（depth === 2）以上のときに制限をかけます
 const isMaxDepth = computed(() => props.depth >= 2)
 
-// 親が全表示、またはこの階層自体が展開されているなら全表示
 const effectiveReveal = computed(() => props.revealAll || localReveal.value)
 
-// 画面に表示する子要素
 const visibleChildren = computed(() => {
-  // 3階層目に達しており、まだ展開ボタンが押されていない場合は子要素を非表示（折りたたむ）
   if (isMaxDepth.value && !effectiveReveal.value) {
     return []
   }
@@ -57,15 +51,11 @@ const visibleChildren = computed(() => {
     : children.value.filter((c) => props.bestAnswerPathIds.has(c.id))
 })
 
-// ボタンに表示する隠れ件数
 const hiddenCount = computed(() => {
   if (effectiveReveal.value) return 0
-
-  // 上限階層の地点では、それ以降のすべての子孫数を合算して表示する
   if (isMaxDepth.value) {
     return props.descendantCountByParent.get(props.reply.id) ?? 0
   }
-
   return props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0
 })
 
@@ -133,7 +123,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       </div>
 
       <v-btn
-        v-if="(depth === 0 || isMaxDepth) && hiddenCount > 0"
+        v-if="(depth === 0 || !isMaxDepth) && hiddenCount > 0"
         variant="text"
         size="small"
         color="primary"
@@ -143,7 +133,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
         返信 {{ hiddenCount }} 件を表示
       </v-btn>
       <v-btn
-        v-else-if="(depth === 0 || isMaxDepth) && localReveal"
+        v-else-if="(depth === 0 || !isMaxDepth) && localReveal"
         variant="text"
         size="small"
         color="primary"

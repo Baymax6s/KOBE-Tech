@@ -25,8 +25,8 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const currentUserId = ref<number | null>(null)
 
-// 階層表示の上限（0からカウント。例: 3 の場合は4階層目以降のインデントを抑制）
-const MAX_DEPTH = 3
+// 階層表示の上限（0:ルート, 1:2階層目, 2:3階層目）
+const MAX_DEPTH = 2
 
 onMounted(async () => {
   if (!isAuthenticated.value) return
@@ -55,8 +55,6 @@ const childrenByParent = computed(() => {
   return map
 })
 
-// 各リプライの「自分以下にぶら下がる返信の総数」をメモ化付き DFS で一括計算する。
-// 「返信 N 件を表示」ボタンは展開時にサブツリー全体を開く挙動なので、N もサブツリー全体の件数に揃える。
 const descendantCountByParent = computed(() => {
   const counts = new Map<number, number>()
   const compute = (id: number): number => {
@@ -82,9 +80,6 @@ const rootReplies = computed(() =>
     ),
 )
 
-// ベストアンサー自身と、その全祖先の id 集合。
-// 初期表示ではこの集合に含まれるリプライだけを見せ、他は「N 件を表示」ボタンの裏に隠す。
-// 「ベストアンサーへの導線だけ最短で見せる」UX のためにこの経路を保持しておく。
 const bestAnswerPathIds = computed(() => {
   const set = new Set<number>()
   const parentMap = new Map<number, number | null>(
@@ -101,9 +96,6 @@ const bestAnswerPathIds = computed(() => {
   return set
 })
 
-// 各リプライについて、そのサブツリーで「ベストアンサー経路に乗っていない子孫」の総数。
-// ネストの奥に隠れている件数もまとめて数えたいので、メモ化付き DFS で一括算出する。
-// これをルートの「返信 N 件を表示」ボタンのカウントに使うことで、ボタンを 1 つだけ出せる。
 const hiddenDescendantCountByReplyId = computed(() => {
   const result = new Map<number, number>()
   const compute = (id: number): number => {
@@ -125,8 +117,6 @@ const hiddenDescendantCountByReplyId = computed(() => {
   return result
 })
 
-// 各リプライについて、その親が質問（kind=question）なら親の user_id を記録する Map。
-// key = 子の reply.id, value = 質問の user_id。
 const questionAuthorByReplyId = computed(() => {
   const map = new Map<number, number>()
   const replyMap = new Map(replies.value.map((r) => [r.id, r]))
