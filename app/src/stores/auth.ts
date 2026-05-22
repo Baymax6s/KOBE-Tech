@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { api, AUTH_TOKEN_STORAGE_KEY } from '@/api/client'
 import type { ServerMeResponse } from '@/api/generated/apiSchema'
+import { useAuthNotificationStore } from './authNotification'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY))
@@ -18,6 +19,10 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
+
+    // 通知フラグもリセットして、再ログイン時や未ログイン時の誤表示を防ぐ
+    const authNotification = useAuthNotificationStore()
+    authNotification.consumeLoggedIn()
   }
 
   const login = async (name: string, password: string) => {

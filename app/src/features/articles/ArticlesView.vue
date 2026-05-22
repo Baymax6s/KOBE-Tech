@@ -88,7 +88,10 @@ onMounted(() => {
   if (notificationStore.consumeCreated()) {
     showCreatedAlert.value = true
   }
-  if (authNotificationStore.consumeLoggedIn()) {
+  if (
+    authNotificationStore.consumeLoggedIn() &&
+    authStore.isAuthenticated
+  ) {
     showLoginAlert.value = true
   }
   void fetchTagCandidates()
@@ -134,7 +137,7 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
         >
           {{
             authStore.user?.name
-              ? `ようこそ、${authStore.user.name} さん`
+              ? `ようこそ、${authStore.user.name}さん`
               : 'ログインしました'
           }}
         </v-alert>
