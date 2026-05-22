@@ -23,7 +23,7 @@ const onSubmit = async () => {
     await auth.login(name.value, password.value)
 
     try {
-      await auth.fetchMe()
+      await auth.fetchMe({ skipGlobalErrorHandler: true })
     } catch (e) {
       // ログイン自体は成功しているため、ユーザー情報取得失敗は
       // ログイン失敗として扱わず、遷移を継続する

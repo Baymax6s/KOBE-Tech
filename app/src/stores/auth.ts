@@ -31,9 +31,9 @@ export const useAuthStore = defineStore('auth', () => {
     setToken(data.token)
   }
 
-  const fetchMe = async () => {
+  const fetchMe = async (options?: { skipGlobalErrorHandler?: boolean }) => {
     try {
-      const { data } = await api.api.authMeList()
+      const { data } = await api.api.authMeList(options)
       user.value = data
     } catch (e) {
       user.value = null

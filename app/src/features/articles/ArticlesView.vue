@@ -115,6 +115,16 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
         </div>
 
         <v-alert
+          v-if="showCreatedAlert"
+          type="success"
+          class="mb-4"
+          closable
+          @click:close="showCreatedAlert = false"
+        >
+          記事を投稿しました
+        </v-alert>
+
+        <v-alert
           v-if="showLoginAlert"
           type="success"
           class="mb-4"
@@ -126,16 +136,6 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
               ? `ようこそ、${authStore.user.name} さん`
               : 'ログインしました'
           }}
-        </v-alert>
-
-        <v-alert
-          v-if="showCreatedAlert"
-          type="success"
-          class="mb-4"
-          closable
-          @click:close="showCreatedAlert = false"
-        >
-          記事を投稿しました
         </v-alert>
 
         <v-select
