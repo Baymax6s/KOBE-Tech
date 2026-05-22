@@ -552,7 +552,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.profileJSON"
+                            "$ref": "#/definitions/handler.ProfileJSON"
                         }
                     },
                     "401": {
@@ -603,7 +603,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.profileJSON"
+                            "$ref": "#/definitions/handler.ProfileJSON"
                         }
                     },
                     "400": {
@@ -771,6 +771,26 @@
         }
     },
     "definitions": {
+        "handler.ProfileJSON": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "profile_created_at": {
+                    "type": "string"
+                },
+                "profile_updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "server.articleAuthorJSONResponse": {
             "type": "object",
             "required": [
@@ -1116,26 +1136,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "server.profileJSON": {
-            "type": "object",
-            "properties": {
-                "bio": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
