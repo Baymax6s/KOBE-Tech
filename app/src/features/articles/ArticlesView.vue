@@ -5,6 +5,7 @@ import ArticleCard from './ArticleCard.vue'
 import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
+import { useAuthNotificationStore } from '@/stores/authNotification'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
