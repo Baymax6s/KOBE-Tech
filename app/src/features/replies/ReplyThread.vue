@@ -18,6 +18,7 @@ const props = defineProps<{
   hiddenDescendantCountByReplyId: Map<number, number>
   revealAll: boolean
   depth: number
+  maxDepth: number
   articleId: number
   currentUserId: number | null
   questionAuthorByReplyId: Map<number, number>
@@ -34,28 +35,39 @@ const children = computed<ServerReplyJSONResponse[]>(
   () => props.childrenByParent.get(props.reply.id) ?? [],
 )
 
-// localReveal はルートで「N 件を表示」が押されているかどうか。
-// 「返信を隠す」で false に戻り、初期状態に戻せる。
+// この階層単体での展開状態
 const localReveal = ref(false)
 
-// 親が全表示モードなら自分も全表示。ルート側でのみ localReveal を持つ運用にする。
+// 【超確実な判定に変更】
+// ルートが0、次が1、その次（3階層目）は「depth === 2」になります。
+// depth が 2 以上の場合は、強制的に上限フラグを true にします。
+const isMaxDepth = computed(() => props.depth >= 2)
+
+// 親が全表示、またはこの階層自体が展開されているなら全表示
 const effectiveReveal = computed(() => props.revealAll || localReveal.value)
 
-// 初期表示で見せる子の集合。
-// 全表示モードなら children すべて、そうでなければベストアンサー経路に乗っている子だけ。
-const visibleChildren = computed(() =>
-  effectiveReveal.value
+// 画面に表示する子要素
+const visibleChildren = computed(() => {
+  // 3階層目に達しており、まだ展開ボタンが押されていない場合は子要素を非表示（折りたたむ）
+  if (isMaxDepth.value && !effectiveReveal.value) {
+    return []
+  }
+  return effectiveReveal.value
     ? children.value
-    : children.value.filter((c) => props.bestAnswerPathIds.has(c.id)),
-)
+    : children.value.filter((c) => props.bestAnswerPathIds.has(c.id))
+})
 
-// 隠れている件数はサブツリー全体で集計済みのものを参照する。
-// ネストの奥（例: ベストアンサーの下の返信）も合算したうえで、ボタン 1 つで全部開けるようにするため。
-const hiddenCount = computed(() =>
-  effectiveReveal.value
-    ? 0
-    : (props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0),
-)
+// ボタンに表示する隠れ件数
+const hiddenCount = computed(() => {
+  if (effectiveReveal.value) return 0
+
+  // 上限階層の地点では、それ以降のすべての子孫数を合算して表示する
+  if (isMaxDepth.value) {
+    return props.descendantCountByParent.get(props.reply.id) ?? 0
+  }
+
+  return props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0
+})
 
 const showReplyForm = ref(false)
 
@@ -78,7 +90,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
   <div class="d-flex flex-column ga-3">
     <ReplyItem
       :reply="reply"
-      :can-reply="isAuthenticated"
+      :can-reply="!isMaxDepth && isAuthenticated"
       :replying="showReplyForm"
       :current-user-id="currentUserId"
       :question-author-by-reply-id="questionAuthorByReplyId"
@@ -86,7 +98,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       @best-updated="handleBestUpdated"
     />
 
-    <div v-if="showReplyForm" class="ml-8">
+    <div v-if="showReplyForm" :class="{ 'ml-8': !isMaxDepth }">
       <ReplyForm
         :article-id="articleId"
         :parent-id="reply.id"
@@ -96,7 +108,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       />
     </div>
 
-    <div v-if="children.length > 0" class="ml-8">
+    <div v-if="children.length > 0" :class="{ 'ml-8': !isMaxDepth }">
       <div
         v-if="visibleChildren.length > 0"
         class="d-flex flex-column ga-3 mb-2"
@@ -111,6 +123,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
           :hidden-descendant-count-by-reply-id="hiddenDescendantCountByReplyId"
           :reveal-all="effectiveReveal"
           :depth="depth + 1"
+          :max-depth="maxDepth"
           :article-id="articleId"
           :current-user-id="currentUserId"
           :question-author-by-reply-id="questionAuthorByReplyId"
@@ -118,8 +131,9 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
           @best-updated="handleBestUpdated"
         />
       </div>
+
       <v-btn
-        v-if="depth === 0 && hiddenCount > 0"
+        v-if="(depth === 0 || isMaxDepth) && hiddenCount > 0"
         variant="text"
         size="small"
         color="primary"
@@ -129,7 +143,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
         返信 {{ hiddenCount }} 件を表示
       </v-btn>
       <v-btn
-        v-else-if="depth === 0 && localReveal"
+        v-else-if="(depth === 0 || isMaxDepth) && localReveal"
         variant="text"
         size="small"
         color="primary"

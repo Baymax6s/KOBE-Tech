@@ -25,6 +25,9 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const currentUserId = ref<number | null>(null)
 
+// 階層表示の上限（0からカウント。例: 3 の場合は4階層目以降のインデントを抑制）
+const MAX_DEPTH = 3
+
 onMounted(async () => {
   if (!isAuthenticated.value) return
   try {
@@ -232,6 +235,7 @@ watch(
         :hidden-descendant-count-by-reply-id="hiddenDescendantCountByReplyId"
         :reveal-all="false"
         :depth="0"
+        :max-depth="MAX_DEPTH"
         :article-id="articleId"
         :current-user-id="currentUserId"
         :question-author-by-reply-id="questionAuthorByReplyId"
