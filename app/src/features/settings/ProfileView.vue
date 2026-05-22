@@ -10,6 +10,7 @@ type ProfileResponse = {
   name?: string
   bio?: string
   avatarUrl?: string
+  is_owner?: boolean
 }
 
 const user = ref<ProfileResponse | null>(null)

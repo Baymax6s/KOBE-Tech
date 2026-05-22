@@ -41,7 +41,7 @@ func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http
 	authHandler.RegisterRoutes(api, authRequired)
 	likeHandler.RegisterRoutes(authRequired)
 	replyHandler.RegisterRoutes(api, authRequired)
-	profileHandler.RegisterRoutes(api, authRequired)
+	profileHandler.RegisterRoutes(optionalAuth, authRequired)
 
 	return router
 }

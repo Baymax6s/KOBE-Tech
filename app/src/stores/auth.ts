@@ -38,8 +38,12 @@ export const useAuthStore = defineStore('auth', () => {
     authNotification.consumeLoggedIn()
   }
 
+  let fetchingUser = false
+
   const fetchUser = async () => {
     if (!token.value) return null
+    if (fetchingUser) return userId.value
+    fetchingUser = true
     try {
       const res = await api.api.authMeList()
       const id = res.data.id!
@@ -48,6 +52,8 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       clearToken()
       return null
+    } finally {
+      fetchingUser = false
     }
   }
 
