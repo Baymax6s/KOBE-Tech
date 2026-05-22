@@ -1,4 +1,5 @@
-# 環境構築
+# Go + Gin のバックエンド API サーバーです。
+
 
 ## 前提条件
 
@@ -12,31 +13,41 @@ docker compose version
 swag --version
 ```
 
-## getting started
+## 技術スタック
+
+- Go 1.25 / Gin
+- PostgreSQL 16
+- Swagger (swag) / OpenAPI
+- Docker Compose
+- air (ホットリロード)
+
+
+## 命名規則
+
+- ファイル名はsnake_case
+- handlerのfile名とrepositoryのfile名は同じ
+
+
+## 環境構築
 
 ```bash
 make setup
-make dev
 ```
 
 `make setup` で `.env` がなければ `.env.example` から作成します。
-`make dev` で PostgreSQL 起動・マイグレーション・seed データ投入を実行し、`air` で API を起動します。
 
 ## 起動
 
 ```sh
 make dev
 ```
+または
+```sh
+go run ./cmd/api/main.go
+```
 
-## DB確認
+`make dev` で PostgreSQL 起動・マイグレーション・seed データ投入を実行し、`air` で API を起動します。
 
-`lazysql`または`DBeaver`でDBを確認することを推奨します
-
-### lazysql
-
-`./scripts/lazysql.sh` で `DATABASE_URL` に接続した `lazysql` を read-only で開けます。
-
-オプションを渡す場合は `./scripts/lazysql.sh --help` のように実行してください。`lazysql` 本体は各開発環境にインストールされている必要があります。
 
 ### DBeaver
 
@@ -48,37 +59,47 @@ make dev
 | Username | `baymux_user`     |
 | Password | `baymux_password` |
 
-## コマンド一覧
+## 自動生成
 
 Swagger を生成する:
 
-```bash
+```sh
 make swagger
 ```
+または
+```sh
+swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+mv ./swagger/swagger.yaml ./swagger/openapi.yml
+```
+
+API schema を生成する:
+
+```sh
+cd ../app
+npm run generate:api
+```
+
+## DB関連
 
 DB・マイグレーションを起動 / 停止する:
 
-```bash
+```sh
 make db-up
 make db-down
 ```
 
-テストを実行する:
+
+
+マイグレーションファイルを作成する:
 
 ```bash
-make test
+make migrate-create NAME=create_users
 ```
 
 マイグレーションを手動で巻き戻す:
 
 ```bash
 make migrate-down
-```
-
-マイグレーションファイルを作成する:
-
-```bash
-make migrate-create NAME=create_users
 ```
 
 ### seed_users_データ
@@ -89,3 +110,5 @@ make migrate-create NAME=create_users
 | 2       | user01 | Password |
 | 3       | user02 | Password |
 | 4       | user03 | Password |
+
+
