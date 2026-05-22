@@ -10,7 +10,6 @@ import { useAuthStore } from '@/stores/auth'
 const route = useRoute()
 const router = useRouter()
 
-const router = useRouter()
 const auth = useAuthStore()
 
 const articles = ref<ServerArticleJSONResponse[]>([])
