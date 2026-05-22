@@ -71,10 +71,10 @@ func (h *Handler) UpdateBio(ctx context.Context, userID int64, req UpdateBioRequ
 		return ProfileJSON{}, err
 	}
 
-	user, err := h.repo.FindByID(ctx, userID)
+	p, err := h.repo.FindByID(ctx, userID)
 	if err != nil {
 		return ProfileJSON{}, err
 	}
 
-	return newProfileJSON(user), nil
+	return newProfileJSON(p, true), nil
 }
