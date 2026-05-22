@@ -45,7 +45,11 @@ api.instance.interceptors.response.use(
       if (!skip) {
         const status = error.response?.status ?? null
 
-        if (status === 404 || (status !== null && status >= 500)) {
+        if (
+          status === 401 ||
+          status === 404 ||
+          (status !== null && status >= 500)
+        ) {
           apiErrorHandler?.(status)
         }
 

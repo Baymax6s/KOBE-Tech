@@ -5,19 +5,21 @@ import ArticleCard from './ArticleCard.vue'
 import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
+import { useAuthNotificationStore } from '@/stores/authNotification'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
-
-const auth = useAuthStore()
 
 const articles = ref<ServerArticleJSONResponse[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
 const showCreatedAlert = ref(false)
+const showLoginAlert = ref(false)
 const notificationStore = useArticleNotificationStore()
+const authStore = useAuthStore()
+const authNotificationStore = useAuthNotificationStore()
 
 // URL の ?tag=... を唯一の真実として selectedTags を扱う。
 // リロード / ブックマーク / 共有リンクで絞り込み状態を再現できるようにするため、
@@ -84,6 +86,9 @@ onMounted(() => {
   if (notificationStore.consumeCreated()) {
     showCreatedAlert.value = true
   }
+  if (authNotificationStore.consumeLoggedIn() && authStore.isAuthenticated) {
+    showLoginAlert.value = true
+  }
   void fetchTagCandidates()
 })
 
@@ -99,7 +104,7 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
           <h1 class="text-h4 font-weight-bold">記事一覧</h1>
           <v-spacer />
           <v-btn
-            v-if="auth.isAuthenticated"
+            v-if="authStore.isAuthenticated"
             color="primary"
             prepend-icon="mdi-plus"
             to="/articles/new"
@@ -116,6 +121,20 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
           @click:close="showCreatedAlert = false"
         >
           記事を投稿しました
+        </v-alert>
+
+        <v-alert
+          v-if="showLoginAlert"
+          type="success"
+          class="mb-4"
+          closable
+          @click:close="showLoginAlert = false"
+        >
+          {{
+            authStore.user?.name
+              ? `ようこそ、${authStore.user.name}さん`
+              : 'ログインしました'
+          }}
         </v-alert>
 
         <v-select
