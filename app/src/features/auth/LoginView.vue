@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { useAuthNotificationStore } from '@/stores/authNotification'
 
 const name = ref('')
 const password = ref('')
@@ -12,6 +13,7 @@ const errorMessage = ref<string | null>(null)
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const authNotification = useAuthNotificationStore()
 
 const onSubmit = async () => {
   if (submitting.value) return
@@ -19,6 +21,9 @@ const onSubmit = async () => {
   errorMessage.value = null
   try {
     await auth.login(name.value, password.value)
+    await auth.fetchMe()
+    authNotification.markLoggedIn()
+
     const redirect =
       typeof route.query.redirect === 'string'
         ? route.query.redirect

@@ -17,7 +17,10 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 const showCreatedAlert = ref(false)
+const showLoginAlert = ref(false)
 const notificationStore = useArticleNotificationStore()
+const authStore = useAuthStore()
+const authNotificationStore = useAuthNotificationStore()
 
 // URL の ?tag=... を唯一の真実として selectedTags を扱う。
 // リロード / ブックマーク / 共有リンクで絞り込み状態を再現できるようにするため、
@@ -84,6 +87,9 @@ onMounted(() => {
   if (notificationStore.consumeCreated()) {
     showCreatedAlert.value = true
   }
+  if (authNotificationStore.consumeLoggedIn()) {
+    showLoginAlert.value = true
+  }
   void fetchTagCandidates()
 })
 
@@ -107,6 +113,16 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
             新規作成
           </v-btn>
         </div>
+
+        <v-alert
+          v-if="showLoginAlert"
+          type="success"
+          class="mb-4"
+          closable
+          @click:close="showLoginAlert = false"
+        >
+          ようこそ、{{ authStore.user?.name }} さん
+        </v-alert>
 
         <v-alert
           v-if="showCreatedAlert"
