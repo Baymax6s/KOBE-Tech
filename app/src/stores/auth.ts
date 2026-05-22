@@ -4,23 +4,22 @@ import { api, AUTH_TOKEN_STORAGE_KEY } from '@/api/client'
 import type { ServerMeResponse } from '@/api/generated/apiSchema'
 import { useAuthNotificationStore } from './authNotification'
 
-const USER_STORAGE_KEY = 'auth_user'
+const USER_ID_STORAGE_KEY = 'auth_user_id'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY))
-  const user = ref<{ id: number; name: string } | null>(
-    JSON.parse(localStorage.getItem(USER_STORAGE_KEY) ?? 'null'),
+  const userId = ref<number | null>(
+    Number(localStorage.getItem(USER_ID_STORAGE_KEY)) || null,
   )
 
   const isAuthenticated = computed(() => token.value !== null)
-  const userId = computed(() => user.value?.id ?? null)
 
-  const persistUser = (u: { id: number; name: string } | null) => {
-    user.value = u
-    if (u) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(u))
+  const persistUserId = (id: number | null) => {
+    userId.value = id
+    if (id !== null) {
+      localStorage.setItem(USER_ID_STORAGE_KEY, String(id))
     } else {
-      localStorage.removeItem(USER_STORAGE_KEY)
+      localStorage.removeItem(USER_ID_STORAGE_KEY)
     }
   }
 
@@ -31,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const clearToken = () => {
     token.value = null
-    persistUser(null)
+    persistUserId(null)
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
 
     // 通知フラグもリセットして、再ログイン時や未ログイン時の誤表示を防ぐ
@@ -43,9 +42,9 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return null
     try {
       const res = await api.api.authMeList()
-      const u = { id: res.data.id!, name: res.data.name! }
-      persistUser(u)
-      return u
+      const id = res.data.id!
+      persistUserId(id)
+      return id
     } catch {
       clearToken()
       return null
@@ -75,10 +74,8 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    token,
-    user,
-    isAuthenticated,
     userId,
+    isAuthenticated,
     login,
     fetchMe,
     clearToken,
