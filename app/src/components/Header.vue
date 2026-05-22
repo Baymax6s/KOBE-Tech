@@ -30,7 +30,7 @@ const goToLogin = () => {
       max-width="200"
       class="mr-4"
       style="cursor: pointer"
-      @click="router.push('/')"
+      @click="router.push('/articles')"
     />
 
     <v-spacer></v-spacer>
