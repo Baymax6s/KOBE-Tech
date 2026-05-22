@@ -130,7 +130,11 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
         ベストアンサー
       </v-chip>
       <RouterLink
-        :to="reply.user_id === currentUserId ? '/profile/me' : `/profile/${reply.user_id}`"
+        :to="
+          reply.user_id === currentUserId
+            ? '/profile/me'
+            : `/profile/${reply.user_id}`
+        "
         class="text-body-2 font-weight-medium text-decoration-none text-primary"
       >
         {{ reply.user_name }}

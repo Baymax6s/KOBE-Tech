@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { api, AUTH_TOKEN_STORAGE_KEY } from '@/api/client'
-import type { ServerMeResponse } from '@/api/generated/apiSchema'
 import { useAuthNotificationStore } from './authNotification'
 
 const USER_ID_STORAGE_KEY = 'auth_user_id'
@@ -70,13 +69,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const fetchMe = async (options?: { skipGlobalErrorHandler?: boolean }) => {
-    try {
-      const { data } = await api.api.authMeList(options)
-      user.value = data
-    } catch (e) {
-      user.value = null
-      throw e
-    }
+    const { data } = await api.api.authMeList(options)
+    persistUserId(data.id ?? null)
+    return data
   }
 
   return {

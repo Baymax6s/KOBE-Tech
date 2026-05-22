@@ -29,7 +29,9 @@ export const articleHandlers = [
 
     return HttpResponse.json({
       ...article,
-      author: author ? { id: author.id, name: author.name } : { id: article.user_id, name: 'unknown' },
+      author: author
+        ? { id: author.id, name: author.name }
+        : { id: article.user_id, name: 'unknown' },
     })
   }),
 

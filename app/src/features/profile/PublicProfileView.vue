@@ -3,13 +3,16 @@ import { ref, onMounted } from 'vue'
 import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
-const props = withDefaults(defineProps<{
-  userId?: number
-  isMe?: boolean
-}>(), {
-  userId: 0,
-  isMe: false,
-})
+const props = withDefaults(
+  defineProps<{
+    userId?: number
+    isMe?: boolean
+  }>(),
+  {
+    userId: 0,
+    isMe: false,
+  },
+)
 
 const auth = useAuthStore()
 
