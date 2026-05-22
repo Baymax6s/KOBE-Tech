@@ -40,9 +40,7 @@ const formattedDate = useDateFormat(
       </div>
     </v-card-text>
 
-    <v-card-subtitle
-      class="d-flex align-center justify-space-between mt-2"
-    >
+    <v-card-subtitle class="d-flex align-center justify-space-between mt-2">
       <span class="text-caption text-medium-emphasis">{{ formattedDate }}</span>
 
       <div class="d-flex align-center">

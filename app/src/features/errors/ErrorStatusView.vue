@@ -18,7 +18,10 @@ const router = useRouter()
           {{ statusCode }}
         </p>
         <h1 class="text-h3 font-weight-bold mb-4">{{ title }}</h1>
-        <p class="text-body-1 text-medium-emphasis mb-8 mx-auto" style="max-width: 36rem">
+        <p
+          class="text-body-1 text-medium-emphasis mb-8 mx-auto"
+          style="max-width: 36rem"
+        >
           {{ message }}
         </p>
 
