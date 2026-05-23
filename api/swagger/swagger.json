@@ -552,7 +552,178 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ProfileJSON"
+                            "$ref": "#/definitions/internal_profile_handler.ProfileJSON"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/avatar/complete": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "フロントエンドからの完了通知を受けてDBのアップロード状態を true にする",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Mark profile avatar upload complete",
+                "parameters": [
+                    {
+                        "description": "Upload complete request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/profile_handler.PresignAvatarCompleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/profile_handler.AvatarUploadCompleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/avatar/download": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ログインユーザーのアバター閲覧用のPresigned GET URLを発行する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Generate profile avatar download URL",
+                "parameters": [
+                    {
+                        "description": "Presign GET avatar request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/profile_handler.PresignGetAvatarRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/profile_handler.PresignGetAvatarResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/avatar/presign": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ログインユーザーのアバターアップロード用のPresigned PUT URLを発行する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Generate profile avatar upload URL",
+                "parameters": [
+                    {
+                        "description": "Presign avatar request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/profile_handler.PresignAvatarRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/profile_handler.PresignAvatarResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
                         }
                     },
                     "401": {
@@ -603,7 +774,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ProfileJSON"
+                            "$ref": "#/definitions/internal_profile_handler.ProfileJSON"
                         }
                     },
                     "400": {
@@ -771,7 +942,64 @@
         }
     },
     "definitions": {
-        "handler.ProfileJSON": {
+        "internal_profile_handler.AvatarUploadCompleteResponse": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                },
+                "uploaded": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "internal_profile_handler.PresignAvatarCompleteRequest": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_profile_handler.PresignAvatarRequest": {
+            "type": "object",
+            "properties": {
+                "contentType": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_profile_handler.PresignAvatarResponse": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_profile_handler.PresignGetAvatarRequest": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_profile_handler.PresignGetAvatarResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_profile_handler.ProfileJSON": {
             "type": "object",
             "properties": {
                 "bio": {
@@ -781,6 +1009,91 @@
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "objectKey": {
+                    "description": "💡 追加：フロントに objectKey を届ける箱（空なら隠す omitempty）",
+                    "type": "string"
+                },
+                "profile_created_at": {
+                    "type": "string"
+                },
+                "profile_updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "profile_handler.AvatarUploadCompleteResponse": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                },
+                "uploaded": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "profile_handler.PresignAvatarCompleteRequest": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "profile_handler.PresignAvatarRequest": {
+            "type": "object",
+            "properties": {
+                "contentType": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "profile_handler.PresignAvatarResponse": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "profile_handler.PresignGetAvatarRequest": {
+            "type": "object",
+            "properties": {
+                "objectKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "profile_handler.PresignGetAvatarResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "profile_handler.ProfileJSON": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "objectKey": {
+                    "description": "💡 追加：フロントに objectKey を届ける箱（空なら隠す omitempty）",
                     "type": "string"
                 },
                 "profile_created_at": {

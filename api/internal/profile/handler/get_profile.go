@@ -13,9 +13,10 @@ import (
 )
 
 type ProfileJSON struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-	Bio  string `json:"bio"`
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	Bio       string `json:"bio"`
+	ObjectKey string `json:"objectKey,omitempty"` // 💡 追加：フロントに objectKey を届ける箱（空なら隠す omitempty）
 
 	ProfileCreatedAt *time.Time `json:"profile_created_at"`
 	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
@@ -65,7 +66,6 @@ func (h *Handler) GetProfile(ctx context.Context, userID int64) (ProfileJSON, er
 }
 
 func newProfileJSON(p profile.Profile) ProfileJSON {
-
 	var profileCreatedAt *time.Time
 	if p.UserProfile.CreatedAt.Valid {
 		t := p.UserProfile.CreatedAt.Time
@@ -78,10 +78,17 @@ func newProfileJSON(p profile.Profile) ProfileJSON {
 		profileUpdatedAt = &t
 	}
 
+	// 💡 アップロードが完了している場合のみ、DBから取得した objectKey をセットする
+	var objectKey string
+	if p.UserProfile.IsUploaded && p.UserProfile.ObjectKey.Valid {
+		objectKey = p.UserProfile.ObjectKey.String
+	}
+
 	return ProfileJSON{
-		ID:   p.User.ID,
-		Name: p.User.Name,
-		Bio:  p.UserProfile.Bio.String,
+		ID:        p.User.ID,
+		Name:      p.User.Name,
+		Bio:       p.UserProfile.Bio.String,
+		ObjectKey: objectKey, // 💡 マッピングを追加
 
 		ProfileCreatedAt: profileCreatedAt,
 		ProfileUpdatedAt: profileUpdatedAt,
