@@ -65,11 +65,7 @@ const fetchProfile = async () => {
   }
 }
 
-watch(
-  () => [props.userId, props.isMe],
-  fetchProfile,
-  { immediate: true },
-)
+watch(() => [props.userId, props.isMe], fetchProfile, { immediate: true })
 
 const saveBio = async () => {
   if (submitting.value) return
