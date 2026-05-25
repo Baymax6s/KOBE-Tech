@@ -9,7 +9,7 @@
 - [x] 第2章 必ずわかるウィンドウ関数 (改修あり) — [分析メモ](chapter-02-window-functions.md) / 発展提案1「タグ別人気記事TOP3」を実装
 - [x] 第3章 自己結合の使い方 (改修あり) — [分析メモ](chapter-03-self-join.md) / best answer 操作の親子取得を自己結合1本に統合。発展提案（関連記事・タグ共起）はメモのみ
 - [x] 第4章 3値論理とNULL (改修あり) — [分析メモ](chapter-04-null-and-three-valued-logic.md) / update_bio を UPSERT 化し「行が無い≠値が空」の潜在バグを解消。発展提案（未回答質問フィード・ベスト率集計）はメモのみ
-- [ ] 第5章 EXISTS述語の使い方
+- [x] 第5章 EXISTS述語の使い方 (分析のみ) — [分析メモ](chapter-05-exists.md) / EXISTS は既に良好。NOT EXISTS/全称量化は発展提案（未いいね記事おすすめ・タグAND の∀二重否定）としてメモのみ
 - [ ] 第6章 HAVING句の力
 - [ ] 第7章 ウィンドウ関数で行間比較を行なう
 - [ ] 第8章 外部結合の使い方
