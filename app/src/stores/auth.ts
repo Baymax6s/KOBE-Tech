@@ -45,7 +45,11 @@ export const useAuthStore = defineStore('auth', () => {
     pendingFetchUser = (async () => {
       try {
         const res = await api.api.authMeList()
-        const id = res.data.id!
+        const id = res.data.id
+        if (typeof id !== 'number') {
+          persistUserId(null)
+          throw new Error('ユーザーIDが返却されませんでした')
+        }
         persistUserId(id)
         return id
       } catch {
