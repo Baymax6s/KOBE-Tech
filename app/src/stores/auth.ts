@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (pendingFetchUser) return pendingFetchUser
     pendingFetchUser = (async () => {
       try {
-        const res = await api.api.authMeList()
+        const res = await api.api.authMeList({ skipGlobalErrorHandler: true })
         const id = res.data.id
         if (typeof id !== 'number') {
           persistUserId(null)
