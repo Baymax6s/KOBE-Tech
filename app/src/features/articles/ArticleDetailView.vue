@@ -131,9 +131,7 @@ watch(
               </v-chip>
             </div>
 
-            <div
-              class="text-body-2 text-medium-emphasis mb-6 d-flex align-center"
-            >
+            <div class="text-body-2 text-medium-emphasis mb-6">
               <div>
                 <div>
                   著者
@@ -149,24 +147,6 @@ watch(
                   </RouterLink>
                 </div>
                 <div>投稿日 {{ formattedDate }}</div>
-              </div>
-
-              <v-spacer />
-
-              <div class="d-flex align-center">
-                <v-btn
-                  variant="text"
-                  icon
-                  color="red"
-                  :loading="likeSubmitting"
-                  @click="likeArticle"
-                >
-                  <v-icon :icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'" />
-                </v-btn>
-
-                <span class="text-subtitle-1 ml-1">
-                  {{ article.likes_count ?? 0 }}
-                </span>
               </div>
             </div>
 
