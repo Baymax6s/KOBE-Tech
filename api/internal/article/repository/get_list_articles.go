@@ -23,7 +23,13 @@ func (r *Repository) ListArticles(ctx context.Context, userID int64, tagNames []
 			COALESCE(l.like_count, 0),
 			COALESCE(tag_summary.tag_ids, ARRAY[]::integer[]),
 			COALESCE(tag_summary.tag_names, ARRAY[]::text[]),
-			EXISTS(SELECT 1 FROM likes WHERE article_id = a.id AND user_id = $1)
+			EXISTS(SELECT 1 FROM likes WHERE article_id = a.id AND user_id = $1),
+			CASE
+				WHEN EXISTS(SELECT 1 FROM replies r WHERE r.article_id = a.id AND r.is_best) THEN 'solved'
+				WHEN EXISTS(SELECT 1 FROM replies r WHERE r.article_id = a.id AND r.kind = 'answer') THEN 'answered'
+				WHEN EXISTS(SELECT 1 FROM replies r WHERE r.article_id = a.id AND r.kind = 'question') THEN 'unanswered'
+				ELSE 'none'
+			END AS question_status
 		FROM articles a
 		LEFT JOIN (
 			SELECT article_id, COUNT(*) AS like_count FROM likes GROUP BY article_id
@@ -69,6 +75,7 @@ func (r *Repository) ListArticles(ctx context.Context, userID int64, tagNames []
 		var item article.Article
 		var tagIDs []int64
 		var tagNames []string
+		var questionStatus string
 		if err := rows.Scan(
 			&item.ID,
 			&item.Title,
@@ -80,10 +87,12 @@ func (r *Repository) ListArticles(ctx context.Context, userID int64, tagNames []
 			pq.Array(&tagIDs),
 			pq.Array(&tagNames),
 			&item.LikedByMe,
+			&questionStatus,
 		); err != nil {
 			return nil, err
 		}
 		item.Tags = newTags(tagIDs, tagNames)
+		item.QuestionStatus = article.QuestionStatus(questionStatus)
 
 		articles = append(articles, item)
 	}

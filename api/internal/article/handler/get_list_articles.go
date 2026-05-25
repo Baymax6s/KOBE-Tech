@@ -32,6 +32,8 @@ type ArticleListItemJSON struct {
 	UpdatedAt  time.Time        `json:"updated_at" binding:"required"`
 	LikesCount int64            `json:"likes_count" binding:"required"`
 	LikedByMe  bool             `json:"liked_by_me"`
+	// QuestionStatus は記事に紐づく質問返信の解決状態。質問が無い記事は none。
+	QuestionStatus string `json:"question_status" binding:"required" enums:"none,unanswered,answered,solved"`
 } // @name server.articleJSONResponse
 
 type ListArticlesJSONResponse struct {
@@ -116,15 +118,16 @@ func newListArticlesJSONResponse(articles []article.Article) ListArticlesJSONRes
 
 	for _, item := range articles {
 		response.Articles = append(response.Articles, ArticleListItemJSON{
-			ID:         item.ID,
-			Title:      item.Title,
-			Content:    item.Content,
-			UserID:     item.UserID,
-			Tags:       newArticleTagJSONs(item.Tags),
-			CreatedAt:  item.CreatedAt,
-			UpdatedAt:  item.UpdatedAt,
-			LikesCount: item.LikesCount,
-			LikedByMe:  item.LikedByMe,
+			ID:             item.ID,
+			Title:          item.Title,
+			Content:        item.Content,
+			UserID:         item.UserID,
+			Tags:           newArticleTagJSONs(item.Tags),
+			CreatedAt:      item.CreatedAt,
+			UpdatedAt:      item.UpdatedAt,
+			LikesCount:     item.LikesCount,
+			LikedByMe:      item.LikedByMe,
+			QuestionStatus: string(item.QuestionStatus),
 		})
 	}
 

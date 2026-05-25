@@ -10,6 +10,14 @@
  * ---------------------------------------------------------------
  */
 
+export interface HandlerProfileJSON {
+  bio?: string;
+  id?: number;
+  name?: string;
+  profile_created_at?: string;
+  profile_updated_at?: string;
+}
+
 export interface ServerArticleAuthorJSONResponse {
   id: number;
   name: string;
@@ -25,6 +33,8 @@ export interface ServerArticleJSONResponse {
   id: number;
   liked_by_me?: boolean;
   likes_count: number;
+  /** QuestionStatus は記事に紐づく質問返信の解決状態。質問が無い記事は none。 */
+  question_status: "none" | "unanswered" | "answered" | "solved";
   tags: ServerArticleTagJSONResponse[];
   title: string;
   updated_at: string;
@@ -131,14 +141,6 @@ export interface ServerMeResponse {
 
 export interface ServerProfileErrorResponse {
   message?: string;
-}
-
-export interface ServerProfileJSON {
-  bio?: string;
-  created_at?: string;
-  id?: number;
-  name?: string;
-  updated_at?: string;
 }
 
 export interface ServerReplyErrorResponse {
@@ -581,7 +583,7 @@ export class Api<
      * @secure
      */
     profileList: (params: RequestParams = {}) =>
-      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile`,
         method: "GET",
         secure: true,
@@ -602,7 +604,7 @@ export class Api<
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile/bio`,
         method: "PUT",
         body: request,

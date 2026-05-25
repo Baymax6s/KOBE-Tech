@@ -19,17 +19,30 @@ type Author struct {
 	Name string
 }
 
+// QuestionStatus は記事にぶら下がる質問返信（kind='question'）の解決状態を表す。
+// solved > answered > unanswered の優先順位で、記事一覧クエリの CASE 式が一意に決定する。
+// 質問返信が一つも無い通常記事は none。
+type QuestionStatus string
+
+const (
+	QuestionStatusNone       QuestionStatus = "none"
+	QuestionStatusUnanswered QuestionStatus = "unanswered"
+	QuestionStatusAnswered   QuestionStatus = "answered"
+	QuestionStatusSolved     QuestionStatus = "solved"
+)
+
 type Article struct {
-	ID         int64
-	Title      string
-	Content    string
-	UserID     int64
-	Author     Author
-	Tags       []Tag
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	LikesCount int64
-	LikedByMe  bool
+	ID             int64
+	Title          string
+	Content        string
+	UserID         int64
+	Author         Author
+	Tags           []Tag
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	LikesCount     int64
+	LikedByMe      bool
+	QuestionStatus QuestionStatus
 }
 
 func NormalizeCreateInput(title, content string, tagNames []string) (string, string, []string, error) {

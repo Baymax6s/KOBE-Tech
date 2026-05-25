@@ -40,6 +40,14 @@ definitions:
         type: boolean
       likes_count:
         type: integer
+      question_status:
+        description: QuestionStatus は記事に紐づく質問返信の解決状態。質問が無い記事は none。
+        enum:
+        - none
+        - unanswered
+        - answered
+        - solved
+        type: string
       tags:
         items:
           $ref: '#/definitions/server.articleTagJSONResponse'
@@ -55,6 +63,7 @@ definitions:
     - created_at
     - id
     - likes_count
+    - question_status
     - tags
     - title
     - updated_at
