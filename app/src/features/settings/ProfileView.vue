@@ -46,12 +46,9 @@ onMounted(async () => {
       const urlRes = await api.api.profileAvatarDownloadCreate({
         objectKey: res.data.objectKey
       })
-      // 取得したURLを変数にセットする
       avatarImageUrl.value = urlRes.data.url
     }
 
-    // 👇 ✨ここにこれを追加して、ブラウザのコンソールで中身を見てみてください！
-    console.log('現在のユーザープロフィールデータ:', res.data)
   } catch {
     error.value = 'プロフィールの取得に失敗しました'
   } finally {
@@ -67,7 +64,6 @@ const saveBio = async () => {
       bio: bio.value,
     })
 
-    // APIから返ってきた最新のデータで更新
     user.value = res.data
     bio.value = res.data.bio ?? ''
 
@@ -77,20 +73,15 @@ const saveBio = async () => {
   }
 }
 
-// ...既存のコード（saveBio関数の終わりなど）のすぐ下に追加...
 
-// 1. ファイル入力欄（DOM）にアクセスするための参照
 const fileInput = ref<HTMLInputElement | null>(null)
 
-// 2. 選択した画像の一時URLを入れておく箱
 const avatarPreview = ref<string | null>(null)
 
-// 3. アバターがクリックされたら、隠しインプットを代わりにクリックする関数
 const triggerFileInput = () => {
   fileInput.value?.click()
 }
 
-// 4. 画像が選ばれたら動く関数
 const handleImageUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   if (!target.files || target.files.length === 0) return
@@ -98,7 +89,6 @@ const handleImageUpload = async (event: Event) => {
   const file = target.files[0]
   if (!file) return
 
-  // フロントエンド側での事前のサイズ・形式バリデーション（Goのバリデーションと合わせておく）
   if (file.size > 2 * 1024 * 1024) {
     error.value = '画像サイズは2MB以下にしてください'
     return
@@ -108,14 +98,12 @@ const handleImageUpload = async (event: Event) => {
     return
   }
 
-  loading.value = true // 画面をローディング表示にする
+  loading.value = true
   error.value = null
 
   try {
-    // 1. プレビューを即座に表示（ユーザー体験のため）
     avatarPreview.value = URL.createObjectURL(file)
 
-    // 2. [ステップ 1 & 2] Goのバックエンドから MinIO アップロード用のURLを生成してもらう
     const presignRes = await api.api.profileAvatarPresignCreate({
       size: file.size,
       contentType: file.type,
@@ -123,22 +111,18 @@ const handleImageUpload = async (event: Event) => {
 
     const { url, objectKey } = presignRes.data
 
-    // 👇 ✨この2行を追加！ url または objectKey が無かったら処理を中断する
     if (!url || !objectKey) {
       throw new Error('サーバーから有効なURLが返されませんでした')
     }
 
-    // 3. [ステップ 3] これで url と objectKey が「絶対に string である」と確定するのでエラーが消えます！
     await axios.put(url, file, {
       headers: { 'Content-Type': file.type },
     })
 
-    // 4. [ステップ 4 & 5] Goのバックエンドに「アップロード完了したよ」と伝える
     await api.api.profileAvatarCompleteCreate({
-      objectKey: objectKey, // 👈 ここもエラーが消えます！
+      objectKey: objectKey,
     })
 
-    // 5. 最後にプロフィール情報を再取得して、画面を最新の状態にする
     const res = await api.api.profileList()
     user.value = res.data
     bio.value = res.data.bio ?? ''
@@ -146,7 +130,6 @@ const handleImageUpload = async (event: Event) => {
   } catch (err) {
     console.error('アップロードエラー:', err)
     error.value = '画像のアップロードに失敗しました'
-    // 失敗したらプレビューを消す、などの処理を入れても良いです
     avatarPreview.value = null
   } finally {
     loading.value = false

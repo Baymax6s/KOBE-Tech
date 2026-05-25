@@ -24,13 +24,11 @@ type PresignAvatarCompleteRequest struct {
 	ObjectKey string `json:"objectKey"`
 }
 
-// 💡 【修正1】swagが認識できるように、完了時の専用レスポンス構造体を定義
 type AvatarUploadCompleteResponse struct {
 	ObjectKey string `json:"objectKey"`
 	Uploaded  bool   `json:"uploaded"`
 }
 
-// 💡 追加：GET用のリクエストとレスポンスの構造体
 type PresignGetAvatarRequest struct {
 	ObjectKey string `json:"objectKey"`
 }
@@ -61,7 +59,7 @@ func (h *Handler) presignAvatarHandler(c *gin.Context) {
 	}
 
 	if req.Size <= 0 || req.Size > 2*1024*1024 {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "image size must be 10MB or less"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "image size must be 2MB or less"})
 		return
 	}
 
@@ -80,7 +78,6 @@ func (h *Handler) presignAvatarHandler(c *gin.Context) {
 	objectKey := fmt.Sprintf("avatar/%s.%s", strconv.FormatInt(userID, 10), ext)
 
 	if err := h.repo.UpsertUserProfile(c.Request.Context(), userID, objectKey, false); err != nil {
-		// 💡 【修正2】エラー時も gin.H ではなく ErrorResponse に統一してエラーを回避
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: fmt.Sprintf("upsert failed: %v", err)})
 		return
 	}
@@ -108,7 +105,6 @@ func (h *Handler) presignAvatarHandler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body PresignAvatarCompleteRequest true "Upload complete request"
-// 💡 【修正3】Success 200 の型を gin.H から上で定義した構造体に書き換え
 // @Success 200 {object} handler.AvatarUploadCompleteResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 401 {object} ErrorResponse
@@ -133,7 +129,6 @@ func (h *Handler) avatarUploadCompleteHandler(c *gin.Context) {
 		return
 	}
 
-	// 💡 実際のレスポンスも、定義した構造体の形に合わせて返却（見た目は変わりません）
 	c.JSON(http.StatusOK, AvatarUploadCompleteResponse{ObjectKey: req.ObjectKey, Uploaded: true})
 }
 
@@ -163,7 +158,6 @@ func (h *Handler) presignGetAvatarHandler(c *gin.Context) {
 		return
 	}
 
-	// 💡 セキュリティチェック：ログイン中であれば基本誰の画像（objectKey）でも取得可能とします
 	_ = auth.MustUserID(c)
 
 	client, err := minio.NewClient()
@@ -172,7 +166,6 @@ func (h *Handler) presignGetAvatarHandler(c *gin.Context) {
 		return
 	}
 
-	// 💡 PUTではなく、GET用のプレサインURLを生成する関数を呼び出す
 	url, err := minio.GeneratePresignedGetURL(client, req.ObjectKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed to generate presigned GET URL"})

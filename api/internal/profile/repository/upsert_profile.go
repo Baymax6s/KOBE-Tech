@@ -18,11 +18,9 @@ func (r *Repository) UpsertUserProfile(ctx context.Context, userID int64, object
 
     _, err := r.db.ExecContext(ctx, query, userID, objectKey, isUploaded)
     
-    // 👇 ここを追加：エラーのときだけエラーを返す
     if err != nil {
         return fmt.Errorf("upsert failed: %w", err)
     }
 
-    // 👇 成功したら nil を返す
     return nil
 }

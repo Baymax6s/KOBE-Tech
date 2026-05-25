@@ -16,7 +16,7 @@ type ProfileJSON struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	Bio       string `json:"bio"`
-	ObjectKey string `json:"objectKey,omitempty"` // 💡 追加：フロントに objectKey を届ける箱（空なら隠す omitempty）
+	ObjectKey string `json:"objectKey,omitempty"`
 
 	ProfileCreatedAt *time.Time `json:"profile_created_at"`
 	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
@@ -78,7 +78,6 @@ func newProfileJSON(p profile.Profile) ProfileJSON {
 		profileUpdatedAt = &t
 	}
 
-	// 💡 アップロードが完了している場合のみ、DBから取得した objectKey をセットする
 	var objectKey string
 	if p.UserProfile.IsUploaded && p.UserProfile.ObjectKey.Valid {
 		objectKey = p.UserProfile.ObjectKey.String
@@ -88,7 +87,7 @@ func newProfileJSON(p profile.Profile) ProfileJSON {
 		ID:        p.User.ID,
 		Name:      p.User.Name,
 		Bio:       p.UserProfile.Bio.String,
-		ObjectKey: objectKey, // 💡 マッピングを追加
+		ObjectKey: objectKey,
 
 		ProfileCreatedAt: profileCreatedAt,
 		ProfileUpdatedAt: profileUpdatedAt,

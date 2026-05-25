@@ -25,18 +25,17 @@ func GeneratePresignedPutURL(
 	return url.String(), nil
 }
 
-// 💡 ✨ここを追加：閲覧（GET）用の署名付きURLを発行する関数
 func GeneratePresignedGetURL(
 	client *minioSDK.Client,
 	objectName string,
 ) (string, error) {
-	// MinIO SDKの PresignedGetObject を呼び出します（有効期限はとりあえず同じく10分）
+
 	u, err := client.PresignedGetObject(
 		context.Background(),
 		BucketName,
 		objectName,
 		10*time.Minute,
-		url.Values{}, // GET時の追加クエリパラメータ（今回は空でOK）
+		url.Values{},
 	)
 	if err != nil {
 		return "", err

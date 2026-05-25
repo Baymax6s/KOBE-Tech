@@ -13,7 +13,6 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
         return profile.Profile{}, errors.New("repository not configured")
     }
 
-    // 💡 user_profiles から object_key, is_uploaded, created_at, updated_at をそのまま取得します
     const query = `
         SELECT
             users.id,
@@ -31,10 +30,6 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
 
     var p profile.Profile
 
-    // 💡 profile.go の sql.Null〜 型の定義と完全に一致させて Scan します
-    // ※ is_uploaded だけは通常の bool なので、NULLの可能性がある LEFT JOIN 時の対策として
-    // COALESCE(user_profiles.is_uploaded, false) にするか、Scan用に一度 NullBool を挟むのが安全です。
-    // ここでは一番安全な COALESCE をSQL側に仕込んでスキャンします。
     const safeQuery = `
         SELECT
             users.id,
@@ -55,7 +50,7 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
         &p.User.Name,
         &p.UserProfile.Bio,
         &p.UserProfile.ObjectKey,
-        &p.UserProfile.IsUploaded, // 💡 これで profile.go の bool 型に直接マッピングされます
+        &p.UserProfile.IsUploaded,
         &p.UserProfile.CreatedAt,
         &p.UserProfile.UpdatedAt,
     )
