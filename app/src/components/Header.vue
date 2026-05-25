@@ -6,7 +6,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const goToProfile = () => {
-  router.push('/settings/profile')
+  router.push('/profile/me')
 }
 
 const goToPasswordSettings = () => {

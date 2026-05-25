@@ -29,16 +29,6 @@ export interface HandlerPresignAvatarResponse {
   url?: string;
 }
 
-export interface HandlerProfileJSON {
-  avatarUrl?: string;
-  bio?: string;
-  id?: number;
-  name?: string;
-  objectKey?: string;
-  profile_created_at?: string;
-  profile_updated_at?: string;
-}
-
 export interface ServerArticleAuthorJSONResponse {
   id: number;
   name: string;
@@ -160,6 +150,15 @@ export interface ServerMeResponse {
 
 export interface ServerProfileErrorResponse {
   message?: string;
+}
+
+export interface ServerProfileJSON {
+  bio?: string;
+  id?: number;
+  is_owner?: boolean;
+  name?: string;
+  profile_created_at?: string;
+  profile_updated_at?: string;
 }
 
 export interface ServerReplyErrorResponse {
@@ -593,18 +592,17 @@ export class Api<
       }),
 
     /**
-     * @description ログインユーザーのプロフィール情報を取得する
+     * @description ユーザーのプロフィールを取得する
      *
      * @tags profile
-     * @name ProfileList
-     * @summary プロフィール取得
-     * @request GET:/api/profile
+     * @name ProfileDetail
+     * @summary Get user profile
+     * @request GET:/api/profile/{user_id}
      */
-    profileList: (params: RequestParams = {}) =>
-      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
-        path: `/api/profile`,
+    profileDetail: (userId: number, params: RequestParams = {}) =>
+      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+        path: `/api/profile/${userId}`,
         method: "GET",
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -671,7 +669,7 @@ export class Api<
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
-      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
+      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile/bio`,
         method: "PUT",
         body: request,

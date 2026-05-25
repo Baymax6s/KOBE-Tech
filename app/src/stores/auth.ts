@@ -1,14 +1,28 @@
+import axios from 'axios'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { api, AUTH_TOKEN_STORAGE_KEY } from '@/api/client'
-import type { ServerMeResponse } from '@/api/generated/apiSchema'
 import { useAuthNotificationStore } from './authNotification'
+
+const USER_ID_STORAGE_KEY = 'auth_user_id'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY))
-  const user = ref<ServerMeResponse | null>(null)
+  const userId = ref<number | null>(
+    Number(localStorage.getItem(USER_ID_STORAGE_KEY)) || null,
+  )
+  const userName = ref<string | null>(null)
 
   const isAuthenticated = computed(() => token.value !== null)
+
+  const persistUserId = (id: number | null) => {
+    userId.value = id
+    if (id !== null) {
+      localStorage.setItem(USER_ID_STORAGE_KEY, String(id))
+    } else {
+      localStorage.removeItem(USER_ID_STORAGE_KEY)
+    }
+  }
 
   const setToken = (newToken: string) => {
     token.value = newToken
@@ -17,12 +31,42 @@ export const useAuthStore = defineStore('auth', () => {
 
   const clearToken = () => {
     token.value = null
-    user.value = null
+    persistUserId(null)
+    userName.value = null
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
 
     // 通知フラグもリセットして、再ログイン時や未ログイン時の誤表示を防ぐ
     const authNotification = useAuthNotificationStore()
     authNotification.consumeLoggedIn()
+  }
+
+  let pendingFetchUser: Promise<number | null> | null = null
+
+  const fetchUser = async (): Promise<number | null> => {
+    if (!token.value) return null
+    if (pendingFetchUser) return pendingFetchUser
+    pendingFetchUser = (async () => {
+      try {
+        const res = await api.api.authMeList({ skipGlobalErrorHandler: true })
+        const id = res.data.id
+        if (typeof id !== 'number') {
+          persistUserId(null)
+          throw new Error('ユーザーIDが返却されませんでした')
+        }
+        persistUserId(id)
+        userName.value = res.data.name ?? null
+        return id
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          clearToken()
+          return null
+        }
+        throw err
+      } finally {
+        pendingFetchUser = null
+      }
+    })()
+    return pendingFetchUser
   }
 
   const login = async (name: string, password: string) => {
@@ -34,24 +78,23 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('トークンが返却されませんでした')
     }
     setToken(data.token)
+    await fetchUser()
   }
 
   const fetchMe = async (options?: { skipGlobalErrorHandler?: boolean }) => {
-    try {
-      const { data } = await api.api.authMeList(options)
-      user.value = data
-    } catch (e) {
-      user.value = null
-      throw e
-    }
+    const { data } = await api.api.authMeList(options)
+    persistUserId(data.id ?? null)
+    userName.value = data.name ?? null
+    return data
   }
 
   return {
-    token,
-    user,
+    userId,
+    userName,
     isAuthenticated,
     login,
     fetchMe,
     clearToken,
+    fetchUser,
   }
 })

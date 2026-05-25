@@ -25,7 +25,14 @@ export const articleHandlers = [
       return HttpResponse.json({ message: 'Not found' }, { status: 404 })
     }
 
-    return HttpResponse.json(article)
+    const author = db.users.find((u) => u.id === article.user_id)
+
+    return HttpResponse.json({
+      ...article,
+      author: author
+        ? { id: author.id, name: author.name }
+        : { id: article.user_id, name: 'unknown' },
+    })
   }),
 
   http.post('*/api/articles', async ({ request }) => {

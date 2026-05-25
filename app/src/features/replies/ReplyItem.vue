@@ -129,10 +129,17 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
         <v-icon start icon="mdi-crown" size="x-small" />
         ベストアンサー
       </v-chip>
-      <span class="text-body-2 font-weight-medium">
+      <RouterLink
+        :to="
+          reply.user_id === currentUserId
+            ? '/profile/me'
+            : `/profile/${reply.user_id}`
+        "
+        class="text-body-2 font-weight-medium text-decoration-none text-primary"
+      >
         {{ reply.user_name }}
-      </span>
-      <span class="text-body-2 text-medium-emphasis">
+      </RouterLink>
+      <span class="text-caption text-medium-emphasis">
         {{ formattedDate }}
       </span>
     </div>

@@ -132,8 +132,22 @@ watch(
             </div>
 
             <div class="text-body-2 text-medium-emphasis mb-6">
-              <div>著者 {{ article.author?.name }}</div>
-              <div>投稿日 {{ formattedDate }}</div>
+              <div>
+                <div>
+                  著者
+                  <RouterLink
+                    :to="
+                      article.author?.id === auth.userId
+                        ? '/profile/me'
+                        : `/profile/${article.author?.id}`
+                    "
+                    class="text-decoration-none text-primary"
+                  >
+                    {{ article.author?.name }}
+                  </RouterLink>
+                </div>
+                <div>投稿日 {{ formattedDate }}</div>
+              </div>
             </div>
 
             <v-alert v-if="likeError" type="error" class="mb-4">

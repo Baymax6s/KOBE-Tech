@@ -26,23 +26,6 @@ definitions:
       url:
         type: string
     type: object
-  handler.ProfileJSON:
-    properties:
-      avatarUrl:
-        type: string
-      bio:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      objectKey:
-        type: string
-      profile_created_at:
-        type: string
-      profile_updated_at:
-        type: string
-    type: object
   server.articleAuthorJSONResponse:
     properties:
       id:
@@ -275,6 +258,21 @@ definitions:
   server.profileErrorResponse:
     properties:
       message:
+        type: string
+    type: object
+  server.profileJSON:
+    properties:
+      bio:
+        type: string
+      id:
+        type: integer
+      is_owner:
+        type: boolean
+      name:
+        type: string
+      profile_created_at:
+        type: string
+      profile_updated_at:
         type: string
     type: object
   server.replyErrorResponse:
@@ -698,28 +696,35 @@ paths:
       summary: Change password
       tags:
       - auth
-  /api/profile:
+  /api/profile/{user_id}:
     get:
-      consumes:
-      - application/json
-      description: ログインユーザーのプロフィール情報を取得する
-      operationId: profileList
+      description: ユーザーのプロフィールを取得する
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ProfileJSON'
-        "401":
-          description: Unauthorized
+            $ref: '#/definitions/server.profileJSON'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/server.profileErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/server.profileErrorResponse'
-      summary: プロフィール取得
+      summary: Get user profile
       tags:
       - profile
   /api/profile/avatar/complete:
@@ -812,7 +817,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ProfileJSON'
+            $ref: '#/definitions/server.profileJSON'
         "400":
           description: Bad Request
           schema:

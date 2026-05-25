@@ -14,7 +14,7 @@ func NewHandler(repo *repository.Repository) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
-	authRouter.GET("/profile", h.getProfileHandler)
+	router.GET("/profile/:user_id", h.getUserProfileHandler)
 	authRouter.PUT("/profile/bio", h.updateBioHandler)
 	authRouter.POST("/profile/avatar/presign", h.presignAvatarHandler)
 	authRouter.POST("/profile/avatar/complete", h.avatarUploadCompleteHandler)
