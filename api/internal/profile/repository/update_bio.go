@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+
+	"github.com/lib/pq"
 )
 
 func (r *Repository) UpdateBio(ctx context.Context, id int64, bio string) error {
@@ -10,24 +12,22 @@ func (r *Repository) UpdateBio(ctx context.Context, id int64, bio string) error 
 		return errors.New("repository not configured")
 	}
 
+	// プロフィール行は移行時に bio が NULL だったユーザーには作られていない。
+	// 「行が無い（まだ書いていない）」と「bio が空文字」を区別し、行が無ければ作成・あれば更新する。
 	const query = `
-    	UPDATE user_profiles
-    	SET bio = $1, updated_at = NOW()
-    	WHERE user_id = $2
-    `
+		INSERT INTO user_profiles (user_id, bio, is_uploaded, created_at, updated_at)
+		VALUES ($2, $1, FALSE, NOW(), NOW())
+		ON CONFLICT (user_id)
+		DO UPDATE SET bio = EXCLUDED.bio, updated_at = NOW()
+	`
 
-	result, err := r.db.ExecContext(ctx, query, bio, id)
+	_, err := r.db.ExecContext(ctx, query, bio, id)
 	if err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23503" && pqErr.Constraint == "fk_user_profiles_user_id" {
+			return ErrUserNotFound
+		}
 		return err
-	}
-
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rows == 0 {
-		return ErrUserNotFound
 	}
 
 	return nil
