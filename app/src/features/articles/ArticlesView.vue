@@ -130,7 +130,11 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
           closable
           @click:close="showLoginAlert = false"
         >
-          ログインしました
+          {{
+            authStore.userName
+              ? `ようこそ、${authStore.userName}さん`
+              : 'ログインしました'
+          }}
         </v-alert>
 
         <v-select

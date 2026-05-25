@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   const userId = ref<number | null>(
     Number(localStorage.getItem(USER_ID_STORAGE_KEY)) || null,
   )
+  const userName = ref<string | null>(null)
 
   const isAuthenticated = computed(() => token.value !== null)
 
@@ -31,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
   const clearToken = () => {
     token.value = null
     persistUserId(null)
+    userName.value = null
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY)
 
     // 通知フラグもリセットして、再ログイン時や未ログイン時の誤表示を防ぐ
@@ -52,6 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
           throw new Error('ユーザーIDが返却されませんでした')
         }
         persistUserId(id)
+        userName.value = res.data.name ?? null
         return id
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 401) {
@@ -81,11 +84,13 @@ export const useAuthStore = defineStore('auth', () => {
   const fetchMe = async (options?: { skipGlobalErrorHandler?: boolean }) => {
     const { data } = await api.api.authMeList(options)
     persistUserId(data.id ?? null)
+    userName.value = data.name ?? null
     return data
   }
 
   return {
     userId,
+    userName,
     isAuthenticated,
     login,
     fetchMe,
