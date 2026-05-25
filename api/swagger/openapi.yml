@@ -255,6 +255,48 @@ definitions:
       updated_at:
         type: string
     type: object
+  server.profileArticleListItemJSON:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      liked_by_me:
+        type: boolean
+      likes_count:
+        type: integer
+      tags:
+        items:
+          $ref: '#/definitions/server.profileArticleTagJSON'
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - content
+    - created_at
+    - id
+    - likes_count
+    - tags
+    - title
+    - updated_at
+    - user_id
+    type: object
+  server.profileArticleTagJSON:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
   server.profileErrorResponse:
     properties:
       message:
@@ -274,6 +316,13 @@ definitions:
         type: string
       profile_updated_at:
         type: string
+    type: object
+  server.profileListArticlesJSONResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/server.profileArticleListItemJSON'
+        type: array
     type: object
   server.replyErrorResponse:
     properties:
@@ -725,6 +774,60 @@ paths:
           schema:
             $ref: '#/definitions/server.profileErrorResponse'
       summary: Get user profile
+      tags:
+      - profile
+  /api/profile/{user_id}/articles:
+    get:
+      description: 指定ユーザーの記事一覧を取得する
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.profileListArticlesJSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      summary: List articles by user
+      tags:
+      - profile
+  /api/profile/{user_id}/likes:
+    get:
+      description: 指定ユーザーがいいねした記事一覧を取得する
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.profileListArticlesJSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      summary: List liked articles by user
       tags:
       - profile
   /api/profile/avatar/complete:

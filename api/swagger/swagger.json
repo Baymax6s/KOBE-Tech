@@ -751,6 +751,88 @@
                 }
             }
         },
+        "/api/profile/{user_id}/articles": {
+            "get": {
+                "description": "指定ユーザーの記事一覧を取得する",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "List articles by user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileListArticlesJSONResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/{user_id}/likes": {
+            "get": {
+                "description": "指定ユーザーがいいねした記事一覧を取得する",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "List liked articles by user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileListArticlesJSONResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/replies/{reply_id}/best": {
             "put": {
                 "description": "ベストアンサー指定を解除する。質問者のみ可能。",
@@ -1277,6 +1359,66 @@
                 }
             }
         },
+        "server.profileArticleListItemJSON": {
+            "type": "object",
+            "required": [
+                "content",
+                "created_at",
+                "id",
+                "likes_count",
+                "tags",
+                "title",
+                "updated_at",
+                "user_id"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "liked_by_me": {
+                    "type": "boolean"
+                },
+                "likes_count": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.profileArticleTagJSON"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.profileArticleTagJSON": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "server.profileErrorResponse": {
             "type": "object",
             "properties": {
@@ -1305,6 +1447,17 @@
                 },
                 "profile_updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "server.profileListArticlesJSONResponse": {
+            "type": "object",
+            "properties": {
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.profileArticleListItemJSON"
+                    }
                 }
             }
         },
