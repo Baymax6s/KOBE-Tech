@@ -13,25 +13,29 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
 		return profile.Profile{}, errors.New("repository not configured")
 	}
 
-	const query = `
-		SELECT
-			users.id,
-			users.name,
-			COALESCE(user_profiles.bio, ''),
-			user_profiles.created_at,
-			user_profiles.updated_at
-		FROM users
-		LEFT JOIN user_profiles
-			ON user_profiles.user_id = users.id
-		WHERE users.id = $1
-	`
-
 	var p profile.Profile
 
-	err := r.db.QueryRowContext(ctx, query, id).Scan(
+	const safeQuery = `
+        SELECT
+            users.id,
+            users.name,
+            user_profiles.bio,
+            user_profiles.object_key,
+            COALESCE(user_profiles.is_uploaded, false),
+            user_profiles.created_at,
+            user_profiles.updated_at
+        FROM users
+        LEFT JOIN user_profiles
+            ON user_profiles.user_id = users.id
+        WHERE users.id = $1
+    `
+
+	err := r.db.QueryRowContext(ctx, safeQuery, id).Scan(
 		&p.User.ID,
 		&p.User.Name,
 		&p.UserProfile.Bio,
+		&p.UserProfile.ObjectKey,
+		&p.UserProfile.IsUploaded,
 		&p.UserProfile.CreatedAt,
 		&p.UserProfile.UpdatedAt,
 	)

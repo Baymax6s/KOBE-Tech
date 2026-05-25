@@ -1,12 +1,42 @@
 basePath: /
 definitions:
+  handler.AvatarUploadCompleteResponse:
+    properties:
+      objectKey:
+        type: string
+      uploaded:
+        type: boolean
+    type: object
+  handler.PresignAvatarCompleteRequest:
+    properties:
+      objectKey:
+        type: string
+    type: object
+  handler.PresignAvatarRequest:
+    properties:
+      contentType:
+        type: string
+      size:
+        type: integer
+    type: object
+  handler.PresignAvatarResponse:
+    properties:
+      objectKey:
+        type: string
+      url:
+        type: string
+    type: object
   handler.ProfileJSON:
     properties:
+      avatarUrl:
+        type: string
       bio:
         type: string
       id:
         type: integer
       name:
+        type: string
+      objectKey:
         type: string
       profile_created_at:
         type: string
@@ -670,7 +700,10 @@ paths:
       - auth
   /api/profile:
     get:
-      description: ログインユーザーのプロフィール取得
+      consumes:
+      - application/json
+      description: ログインユーザーのプロフィール情報を取得する
+      operationId: profileList
       produces:
       - application/json
       responses:
@@ -686,9 +719,79 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/server.profileErrorResponse'
+      summary: プロフィール取得
+      tags:
+      - profile
+  /api/profile/avatar/complete:
+    post:
+      consumes:
+      - application/json
+      description: フロントエンドからの完了通知を受けてDBのアップロード状態を true にする
+      parameters:
+      - description: Upload complete request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PresignAvatarCompleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AvatarUploadCompleteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get profile
+      summary: Mark profile avatar upload complete
+      tags:
+      - profile
+  /api/profile/avatar/presign:
+    post:
+      consumes:
+      - application/json
+      description: ログインユーザーのアバターアップロード用のPresigned PUT URLを発行する
+      parameters:
+      - description: Presign avatar request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PresignAvatarRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.PresignAvatarResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate profile avatar upload URL
       tags:
       - profile
   /api/profile/bio:

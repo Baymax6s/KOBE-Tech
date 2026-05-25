@@ -10,6 +10,35 @@
  * ---------------------------------------------------------------
  */
 
+export interface HandlerAvatarUploadCompleteResponse {
+  objectKey?: string;
+  uploaded?: boolean;
+}
+
+export interface HandlerPresignAvatarCompleteRequest {
+  objectKey?: string;
+}
+
+export interface HandlerPresignAvatarRequest {
+  contentType?: string;
+  size?: number;
+}
+
+export interface HandlerPresignAvatarResponse {
+  objectKey?: string;
+  url?: string;
+}
+
+export interface HandlerProfileJSON {
+  avatarUrl?: string;
+  bio?: string;
+  id?: number;
+  name?: string;
+  objectKey?: string;
+  profile_created_at?: string;
+  profile_updated_at?: string;
+}
+
 export interface ServerArticleAuthorJSONResponse {
   id: number;
   name: string;
@@ -131,14 +160,6 @@ export interface ServerMeResponse {
 
 export interface ServerProfileErrorResponse {
   message?: string;
-}
-
-export interface ServerProfileJSON {
-  bio?: string;
-  created_at?: string;
-  id?: number;
-  name?: string;
-  updated_at?: string;
 }
 
 export interface ServerReplyErrorResponse {
@@ -572,19 +593,67 @@ export class Api<
       }),
 
     /**
-     * @description ログインユーザーのプロフィール取得
+     * @description ログインユーザーのプロフィール情報を取得する
      *
      * @tags profile
      * @name ProfileList
-     * @summary Get profile
+     * @summary プロフィール取得
      * @request GET:/api/profile
-     * @secure
      */
     profileList: (params: RequestParams = {}) =>
-      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile`,
         method: "GET",
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description フロントエンドからの完了通知を受けてDBのアップロード状態を true にする
+     *
+     * @tags profile
+     * @name ProfileAvatarCompleteCreate
+     * @summary Mark profile avatar upload complete
+     * @request POST:/api/profile/avatar/complete
+     * @secure
+     */
+    profileAvatarCompleteCreate: (
+      request: HandlerPresignAvatarCompleteRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        HandlerAvatarUploadCompleteResponse,
+        ServerProfileErrorResponse
+      >({
+        path: `/api/profile/avatar/complete`,
+        method: "POST",
+        body: request,
         secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description ログインユーザーのアバターアップロード用のPresigned PUT URLを発行する
+     *
+     * @tags profile
+     * @name ProfileAvatarPresignCreate
+     * @summary Generate profile avatar upload URL
+     * @request POST:/api/profile/avatar/presign
+     * @secure
+     */
+    profileAvatarPresignCreate: (
+      request: HandlerPresignAvatarRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<HandlerPresignAvatarResponse, ServerProfileErrorResponse>({
+        path: `/api/profile/avatar/presign`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -602,7 +671,7 @@ export class Api<
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ServerProfileJSON, ServerProfileErrorResponse>({
+      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile/bio`,
         method: "PUT",
         body: request,
