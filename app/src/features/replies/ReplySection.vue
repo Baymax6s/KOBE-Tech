@@ -125,7 +125,6 @@ const effectiveBestAnswerPathIds = computed(() => {
 // 各リプライについて、そのサブツリーで「ベストアンサー経路に乗っていない子孫」の総数。
 // ネストの奥に隠れている件数もまとめて数えたいので、メモ化付き DFS で一括算出する。
 // これをルートの「返信 N 件を表示」ボタンのカウントに使うことで、ボタンを 1 つだけ出せる。
-
 const hiddenDescendantCountByReplyId = computed(() => {
   const result = new Map<number, number>()
   const compute = (id: number): number => {
