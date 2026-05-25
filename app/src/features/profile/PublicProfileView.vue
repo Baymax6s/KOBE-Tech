@@ -39,9 +39,16 @@ onMounted(async () => {
     let targetId = props.userId
     if (props.isMe) {
       if (auth.userId === null) {
-        await auth.fetchUser()
+        const id = await auth.fetchUser()
+        if (id === null) {
+          error.value = 'ユーザー情報の取得に失敗しました'
+          loading.value = false
+          return
+        }
+        targetId = id
+      } else {
+        targetId = auth.userId
       }
-      targetId = auth.userId!
     }
     const res = await api.api.profileDetail(targetId)
     profile.value = res.data

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { api, AUTH_TOKEN_STORAGE_KEY } from '@/api/client'
@@ -52,8 +53,10 @@ export const useAuthStore = defineStore('auth', () => {
         }
         persistUserId(id)
         return id
-      } catch {
-        clearToken()
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          clearToken()
+        }
         return null
       } finally {
         pendingFetchUser = null
