@@ -9,12 +9,14 @@ import (
 )
 
 func GeneratePresignedPutURL(
+	ctx context.Context,
 	client *minioSDK.Client,
+	bucketName string,
 	objectName string,
 ) (string, error) {
 	url, err := client.PresignedPutObject(
-		context.Background(),
-		BucketName,
+		ctx,
+		bucketName,
 		objectName,
 		10*time.Minute,
 	)
@@ -26,13 +28,15 @@ func GeneratePresignedPutURL(
 }
 
 func GeneratePresignedGetURL(
+	ctx context.Context,
 	client *minioSDK.Client,
+	bucketName string,
 	objectName string,
 ) (string, error) {
 
 	u, err := client.PresignedGetObject(
-		context.Background(),
-		BucketName,
+		ctx,
+		bucketName,
 		objectName,
 		10*time.Minute,
 		url.Values{},

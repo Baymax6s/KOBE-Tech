@@ -3,10 +3,13 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/minio"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/profile"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/profile/repository"
 	"github.com/gin-gonic/gin"
@@ -17,6 +20,7 @@ type ProfileJSON struct {
 	Name      string `json:"name"`
 	Bio       string `json:"bio"`
 	ObjectKey string `json:"objectKey,omitempty"`
+	AvatarURL string `json:"avatarUrl,omitempty"`
 
 	ProfileCreatedAt *time.Time `json:"profile_created_at"`
 	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
@@ -26,17 +30,17 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 } // @name server.profileErrorResponse
 
-// getProfileHandler godoc
-//
-// @Summary Get profile
-// @Description ログインユーザーのプロフィール取得
-// @Tags profile
-// @Produce json
-// @Success 200 {object} handler.ProfileJSON
-// @Failure 401 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Security BearerAuth
-// @Router /api/profile [get]
+// getProfileHandler
+// @Summary      プロフィール取得
+// @Description  ログインユーザーのプロフィール情報を取得する
+// @Tags         profile
+// @Accept       json
+// @Produce      json
+// @ID           profileList
+// @Success      200  {object}  ProfileJSON
+// @Failure      401  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /api/profile [get]
 func (h *Handler) getProfileHandler(c *gin.Context) {
 	userID := auth.MustUserID(c)
 
@@ -50,7 +54,6 @@ func (h *Handler) getProfileHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
 			Message: "failed to get profile",
 		})
-
 		return
 	}
 
@@ -62,7 +65,26 @@ func (h *Handler) GetProfile(ctx context.Context, userID int64) (ProfileJSON, er
 	if err != nil {
 		return ProfileJSON{}, err
 	}
-	return newProfileJSON(user), nil
+
+	profileJSON := newProfileJSON(user)
+
+	if user.UserProfile.IsUploaded && user.UserProfile.ObjectKey.Valid {
+		client, err := minio.NewClient()
+		if err != nil {
+			return ProfileJSON{}, fmt.Errorf("failed to connect to storage: %w", err)
+		}
+
+		bucketName := os.Getenv("MINIO_BUCKET_NAME")
+
+		url, err := minio.GeneratePresignedGetURL(ctx, client, bucketName, profileJSON.ObjectKey)
+		if err != nil {
+			return ProfileJSON{}, fmt.Errorf("failed to generate presigned GET URL: %w", err)
+		}
+
+		profileJSON.AvatarURL = url
+	}
+
+	return profileJSON, nil
 }
 
 func newProfileJSON(p profile.Profile) ProfileJSON {

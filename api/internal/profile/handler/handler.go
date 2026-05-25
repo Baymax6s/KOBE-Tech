@@ -18,5 +18,4 @@ func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
 	authRouter.PUT("/profile/bio", h.updateBioHandler)
 	authRouter.POST("/profile/avatar/presign", h.presignAvatarHandler)
 	authRouter.POST("/profile/avatar/complete", h.avatarUploadCompleteHandler)
-	authRouter.POST("/profile/avatar/download", h.presignGetAvatarHandler)
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
@@ -9,16 +9,14 @@ type ProfileResponse = {
   id?: number
   name?: string
   bio?: string
+  avatarUrl?: string
 }
 
 const user = ref<ProfileResponse | null>(null)
-
 const loading = ref(false)
 const error = ref<string | null>(null)
-
 const isEditing = ref(false)
 const bio = ref('')
-
 const maxLength = 200
 
 const auth = useAuthStore()
@@ -35,20 +33,12 @@ onMounted(async () => {
   loading.value = true
   error.value = null
 
-  
-
   try {
     const res = await api.api.profileList()
     user.value = res.data
     bio.value = res.data.bio ?? ''
 
-    if (res.data.objectKey) {
-      const urlRes = await api.api.profileAvatarDownloadCreate({
-        objectKey: res.data.objectKey
-      })
-      avatarImageUrl.value = urlRes.data.url
-    }
-
+    avatarImageUrl.value = res.data.avatarUrl
   } catch {
     error.value = 'プロフィールの取得に失敗しました'
   } finally {
@@ -63,20 +53,22 @@ const saveBio = async () => {
     const res = await api.api.profileBioUpdate({
       bio: bio.value,
     })
-
     user.value = res.data
     bio.value = res.data.bio ?? ''
-
     isEditing.value = false
   } catch {
     error.value = '更新に失敗しました'
   }
 }
 
-
 const fileInput = ref<HTMLInputElement | null>(null)
-
 const avatarPreview = ref<string | null>(null)
+
+const revokeExistingPreview = () => {
+  if (avatarPreview.value && avatarPreview.value.startsWith('blob:')) {
+    URL.revokeObjectURL(avatarPreview.value)
+  }
+}
 
 const triggerFileInput = () => {
   fileInput.value?.click()
@@ -90,11 +82,13 @@ const handleImageUpload = async (event: Event) => {
   if (!file) return
 
   if (file.size > 2 * 1024 * 1024) {
-    error.value = '画像サイズは2MB以下にしてください'
+    error.value = '画像sizeは2MB以下にしてください'
+    target.value = ''
     return
   }
   if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
     error.value = '対応している画像フォーマットはPNGまたはJPEGのみです'
+    target.value = ''
     return
   }
 
@@ -102,6 +96,7 @@ const handleImageUpload = async (event: Event) => {
   error.value = null
 
   try {
+    revokeExistingPreview()
     avatarPreview.value = URL.createObjectURL(file)
 
     const presignRes = await api.api.profileAvatarPresignCreate({
@@ -110,7 +105,6 @@ const handleImageUpload = async (event: Event) => {
     })
 
     const { url, objectKey } = presignRes.data
-
     if (!url || !objectKey) {
       throw new Error('サーバーから有効なURLが返されませんでした')
     }
@@ -127,22 +121,31 @@ const handleImageUpload = async (event: Event) => {
     user.value = res.data
     bio.value = res.data.bio ?? ''
 
+    avatarImageUrl.value = res.data.avatarUrl
+
+    revokeExistingPreview()
+    avatarPreview.value = null
   } catch (err) {
     console.error('アップロードエラー:', err)
     error.value = '画像のアップロードに失敗しました'
+
+    revokeExistingPreview()
     avatarPreview.value = null
   } finally {
     loading.value = false
+    target.value = ''
   }
 }
+
+onBeforeUnmount(() => {
+  revokeExistingPreview()
+})
 </script>
 
 <template>
   <v-container class="py-8">
     <v-row justify="center">
-
       <v-col cols="12" md="8" lg="6">
-        
         <v-alert
           v-if="error"
           type="error"
@@ -158,7 +161,6 @@ const handleImageUpload = async (event: Event) => {
         </div>
 
         <v-card v-if="user" class="pa-6 text-center elevation-3">
-          
           <input
             ref="fileInput"
             type="file"
@@ -167,40 +169,39 @@ const handleImageUpload = async (event: Event) => {
             @change="handleImageUpload"
           />
 
-          <v-avatar 
-            size="70" 
-            class="mx-auto mb-2 cursor-pointer" 
+          <v-avatar
+            size="70"
+            class="mx-auto mb-2 cursor-pointer"
             color="indigo-lighten-1"
             @click="triggerFileInput"
           >
-            <v-img v-if="avatarPreview" :src="avatarPreview" alt="Avatar Preview" />
-            
-            <v-img v-else-if="avatarImageUrl" :src="avatarImageUrl" alt="Avatar Image" />
-            
+            <v-img
+              v-if="avatarPreview"
+              :src="avatarPreview"
+              alt="Avatar Preview"
+            />
+            <v-img
+              v-else-if="avatarImageUrl"
+              :src="avatarImageUrl"
+              alt="Avatar Image"
+            />
             <v-icon v-else size="40" color="white"> mdi-account-circle </v-icon>
           </v-avatar>
 
-          <div class="text-caption text-grey mb-2">アバターをクリックして変更</div>
-
-          <h2 class="text-h5 font-weight-bold mb-1">
-            {{ user.name }}
-          </h2>
-
+          <div class="text-caption text-grey mb-2">
+            アバターをクリックして変更
+          </div>
+          <h2 class="text-h5 font-weight-bold mb-1">{{ user.name }}</h2>
           <v-divider class="my-4" />
-
           <h3 class="text-subtitle-1 font-weight-bold mb-2">自己紹介</h3>
 
           <div class="text-left">
             <div v-if="!isEditing">
-              <p class="mb-4">
-                {{ user.bio || '自己紹介はまだありません' }}
-              </p>
-
-              <v-btn variant="text" color="primary" @click="isEditing = true">
-                編集
-              </v-btn>
+              <p class="mb-4">{{ user.bio || '自己紹介はまだありません' }}</p>
+              <v-btn variant="text" color="primary" @click="isEditing = true"
+                >編集</v-btn
+              >
             </div>
-
             <div v-else>
               <v-textarea
                 v-model="bio"
@@ -214,18 +215,13 @@ const handleImageUpload = async (event: Event) => {
                 variant="outlined"
                 class="mb-3"
               />
-
-              <v-btn color="primary" class="mr-2" @click="saveBio">
-                完了
-              </v-btn>
-
-              <v-btn variant="text" @click="isEditing = false">
-                キャンセル
-              </v-btn>
+              <v-btn color="primary" class="mr-2" @click="saveBio">完了</v-btn>
+              <v-btn variant="text" @click="isEditing = false"
+                >キャンセル</v-btn
+              >
             </div>
           </div>
         </v-card>
-        
       </v-col>
     </v-row>
   </v-container>

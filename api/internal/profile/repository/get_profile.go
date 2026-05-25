@@ -1,36 +1,21 @@
 package repository
 
 import (
-    "context"
-    "database/sql"
-    "errors"
+	"context"
+	"database/sql"
+	"errors"
 
-    "github.com/Baymax6s/KOBE-Tech/api/internal/profile"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/profile"
 )
 
 func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, error) {
-    if r == nil || r.db == nil {
-        return profile.Profile{}, errors.New("repository not configured")
-    }
+	if r == nil || r.db == nil {
+		return profile.Profile{}, errors.New("repository not configured")
+	}
 
-    const query = `
-        SELECT
-            users.id,
-            users.name,
-            user_profiles.bio,
-            user_profiles.object_key,
-            user_profiles.is_uploaded,
-            user_profiles.created_at,
-            user_profiles.updated_at
-        FROM users
-        LEFT JOIN user_profiles
-            ON user_profiles.user_id = users.id
-        WHERE users.id = $1
-    `
+	var p profile.Profile
 
-    var p profile.Profile
-
-    const safeQuery = `
+	const safeQuery = `
         SELECT
             users.id,
             users.name,
@@ -45,22 +30,22 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
         WHERE users.id = $1
     `
 
-    err := r.db.QueryRowContext(ctx, safeQuery, id).Scan(
-        &p.User.ID,
-        &p.User.Name,
-        &p.UserProfile.Bio,
-        &p.UserProfile.ObjectKey,
-        &p.UserProfile.IsUploaded,
-        &p.UserProfile.CreatedAt,
-        &p.UserProfile.UpdatedAt,
-    )
+	err := r.db.QueryRowContext(ctx, safeQuery, id).Scan(
+		&p.User.ID,
+		&p.User.Name,
+		&p.UserProfile.Bio,
+		&p.UserProfile.ObjectKey,
+		&p.UserProfile.IsUploaded,
+		&p.UserProfile.CreatedAt,
+		&p.UserProfile.UpdatedAt,
+	)
 
-    if err != nil {
-        if errors.Is(err, sql.ErrNoRows) {
-            return profile.Profile{}, ErrUserNotFound
-        }
-        return profile.Profile{}, err
-    }
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return profile.Profile{}, ErrUserNotFound
+		}
+		return profile.Profile{}, err
+	}
 
-    return p, nil
+	return p, nil
 }

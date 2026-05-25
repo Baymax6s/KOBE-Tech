@@ -1,12 +1,17 @@
 package repository
 
 import (
-    "context"
-    "fmt"
+	"context"
+	"fmt"
 )
 
 func (r *Repository) UpsertUserProfile(ctx context.Context, userID int64, objectKey string, isUploaded bool) error {
-    const query = `
+
+	if r == nil || r.db == nil {
+		return fmt.Errorf("repository or database connection is nil")
+	}
+
+	const query = `
         INSERT INTO user_profiles (user_id, object_key, is_uploaded, created_at, updated_at)
         VALUES ($1, $2, $3, NOW(), NOW())
         ON CONFLICT (user_id)
@@ -16,11 +21,11 @@ func (r *Repository) UpsertUserProfile(ctx context.Context, userID int64, object
             updated_at = NOW()
     `
 
-    _, err := r.db.ExecContext(ctx, query, userID, objectKey, isUploaded)
-    
-    if err != nil {
-        return fmt.Errorf("upsert failed: %w", err)
-    }
+	_, err := r.db.ExecContext(ctx, query, userID, objectKey, isUploaded)
 
-    return nil
+	if err != nil {
+		return fmt.Errorf("upsert failed: %w", err)
+	}
+
+	return nil
 }

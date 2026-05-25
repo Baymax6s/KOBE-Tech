@@ -10,75 +10,30 @@
  * ---------------------------------------------------------------
  */
 
-export interface InternalProfileHandlerAvatarUploadCompleteResponse {
+export interface HandlerAvatarUploadCompleteResponse {
   objectKey?: string;
   uploaded?: boolean;
 }
 
-export interface InternalProfileHandlerPresignAvatarCompleteRequest {
+export interface HandlerPresignAvatarCompleteRequest {
   objectKey?: string;
 }
 
-export interface InternalProfileHandlerPresignAvatarRequest {
+export interface HandlerPresignAvatarRequest {
   contentType?: string;
   size?: number;
 }
 
-export interface InternalProfileHandlerPresignAvatarResponse {
+export interface HandlerPresignAvatarResponse {
   objectKey?: string;
   url?: string;
 }
 
-export interface InternalProfileHandlerPresignGetAvatarRequest {
-  objectKey?: string;
-}
-
-export interface InternalProfileHandlerPresignGetAvatarResponse {
-  url?: string;
-}
-
-export interface InternalProfileHandlerProfileJSON {
+export interface HandlerProfileJSON {
+  avatarUrl?: string;
   bio?: string;
   id?: number;
   name?: string;
-  /** 💡 追加：フロントに objectKey を届ける箱（空なら隠す omitempty） */
-  objectKey?: string;
-  profile_created_at?: string;
-  profile_updated_at?: string;
-}
-
-export interface ProfileHandlerAvatarUploadCompleteResponse {
-  objectKey?: string;
-  uploaded?: boolean;
-}
-
-export interface ProfileHandlerPresignAvatarCompleteRequest {
-  objectKey?: string;
-}
-
-export interface ProfileHandlerPresignAvatarRequest {
-  contentType?: string;
-  size?: number;
-}
-
-export interface ProfileHandlerPresignAvatarResponse {
-  objectKey?: string;
-  url?: string;
-}
-
-export interface ProfileHandlerPresignGetAvatarRequest {
-  objectKey?: string;
-}
-
-export interface ProfileHandlerPresignGetAvatarResponse {
-  url?: string;
-}
-
-export interface ProfileHandlerProfileJSON {
-  bio?: string;
-  id?: number;
-  name?: string;
-  /** 💡 追加：フロントに objectKey を届ける箱（空なら隠す omitempty） */
   objectKey?: string;
   profile_created_at?: string;
   profile_updated_at?: string;
@@ -638,22 +593,18 @@ export class Api<
       }),
 
     /**
-     * @description ログインユーザーのプロフィール取得
+     * @description ログインユーザーのプロフィール情報を取得する
      *
      * @tags profile
      * @name ProfileList
-     * @summary Get profile
+     * @summary プロフィール取得
      * @request GET:/api/profile
-     * @secure
      */
     profileList: (params: RequestParams = {}) =>
-      this.request<
-        InternalProfileHandlerProfileJSON,
-        ServerProfileErrorResponse
-      >({
+      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile`,
         method: "GET",
-        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -668,40 +619,14 @@ export class Api<
      * @secure
      */
     profileAvatarCompleteCreate: (
-      request: ProfileHandlerPresignAvatarCompleteRequest,
+      request: HandlerPresignAvatarCompleteRequest,
       params: RequestParams = {},
     ) =>
       this.request<
-        ProfileHandlerAvatarUploadCompleteResponse,
+        HandlerAvatarUploadCompleteResponse,
         ServerProfileErrorResponse
       >({
         path: `/api/profile/avatar/complete`,
-        method: "POST",
-        body: request,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description ログインユーザーのアバター閲覧用のPresigned GET URLを発行する
-     *
-     * @tags profile
-     * @name ProfileAvatarDownloadCreate
-     * @summary Generate profile avatar download URL
-     * @request POST:/api/profile/avatar/download
-     * @secure
-     */
-    profileAvatarDownloadCreate: (
-      request: ProfileHandlerPresignGetAvatarRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        ProfileHandlerPresignGetAvatarResponse,
-        ServerProfileErrorResponse
-      >({
-        path: `/api/profile/avatar/download`,
         method: "POST",
         body: request,
         secure: true,
@@ -720,13 +645,10 @@ export class Api<
      * @secure
      */
     profileAvatarPresignCreate: (
-      request: ProfileHandlerPresignAvatarRequest,
+      request: HandlerPresignAvatarRequest,
       params: RequestParams = {},
     ) =>
-      this.request<
-        ProfileHandlerPresignAvatarResponse,
-        ServerProfileErrorResponse
-      >({
+      this.request<HandlerPresignAvatarResponse, ServerProfileErrorResponse>({
         path: `/api/profile/avatar/presign`,
         method: "POST",
         body: request,
@@ -749,10 +671,7 @@ export class Api<
       request: ServerUpdateBioRequest,
       params: RequestParams = {},
     ) =>
-      this.request<
-        InternalProfileHandlerProfileJSON,
-        ServerProfileErrorResponse
-      >({
+      this.request<HandlerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile/bio`,
         method: "PUT",
         body: request,
