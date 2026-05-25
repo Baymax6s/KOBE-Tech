@@ -204,11 +204,14 @@ definitions:
     type: object
   server.listRepliesResponse:
     properties:
+      counts:
+        $ref: '#/definitions/server.replyCountsResponse'
       replies:
         items:
           $ref: '#/definitions/server.replyJSONResponse'
         type: array
     required:
+    - counts
     - replies
     type: object
   server.listTagsResponse:
@@ -278,6 +281,19 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  server.replyCountsResponse:
+    properties:
+      all:
+        type: integer
+      comment:
+        type: integer
+      question:
+        type: integer
+    required:
+    - all
+    - comment
+    - question
     type: object
   server.replyErrorResponse:
     properties:

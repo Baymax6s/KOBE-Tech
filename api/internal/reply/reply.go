@@ -46,6 +46,14 @@ type Reply struct {
 	UpdatedAt time.Time
 }
 
+// RootKindCounts は記事のルート返信（親を持たない返信）を kind 別に数えた件数。
+// All は kind を問わないルート返信の総数。
+type RootKindCounts struct {
+	All      int64
+	Comment  int64
+	Question int64
+}
+
 func NormalizeCreateInput(body string, kindValue *string) (string, Kind, error) {
 	body = strings.TrimSpace(body)
 	if body == "" {

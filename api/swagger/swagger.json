@@ -1095,9 +1095,13 @@
         "server.listRepliesResponse": {
             "type": "object",
             "required": [
+                "counts",
                 "replies"
             ],
             "properties": {
+                "counts": {
+                    "$ref": "#/definitions/server.replyCountsResponse"
+                },
                 "replies": {
                     "type": "array",
                     "items": {
@@ -1208,6 +1212,25 @@
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "server.replyCountsResponse": {
+            "type": "object",
+            "required": [
+                "all",
+                "comment",
+                "question"
+            ],
+            "properties": {
+                "all": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "integer"
+                },
+                "question": {
+                    "type": "integer"
                 }
             }
         },

@@ -25,8 +25,15 @@ type ReplyJSON struct {
 	UpdatedAt time.Time `json:"updated_at" binding:"required"`
 } // @name server.replyJSONResponse
 
+type ReplyCountsJSON struct {
+	All      int64 `json:"all" binding:"required"`
+	Comment  int64 `json:"comment" binding:"required"`
+	Question int64 `json:"question" binding:"required"`
+} // @name server.replyCountsResponse
+
 type ListRepliesJSONResponse struct {
-	Replies []ReplyJSON `json:"replies" binding:"required"`
+	Replies []ReplyJSON     `json:"replies" binding:"required"`
+	Counts  ReplyCountsJSON `json:"counts" binding:"required"`
 } // @name server.listRepliesResponse
 
 type ErrorResponse struct {
@@ -71,7 +78,19 @@ func (h *Handler) ListReplies(ctx context.Context, articleID int64) (ListReplies
 		return ListRepliesJSONResponse{}, err
 	}
 
-	return ListRepliesJSONResponse{Replies: newReplyJSONs(replies)}, nil
+	counts, err := h.repo.CountRootByKind(ctx, articleID)
+	if err != nil {
+		return ListRepliesJSONResponse{}, err
+	}
+
+	return ListRepliesJSONResponse{
+		Replies: newReplyJSONs(replies),
+		Counts: ReplyCountsJSON{
+			All:      counts.All,
+			Comment:  counts.Comment,
+			Question: counts.Question,
+		},
+	}, nil
 }
 
 func newReplyJSONs(replies []reply.Reply) []ReplyJSON {

@@ -108,6 +108,7 @@ export interface ServerListArticlesResponse {
 }
 
 export interface ServerListRepliesResponse {
+  counts: ServerReplyCountsResponse;
   replies: ServerReplyJSONResponse[];
 }
 
@@ -152,6 +153,12 @@ export interface ServerPopularArticlesByTagResponse {
 
 export interface ServerProfileErrorResponse {
   message?: string;
+}
+
+export interface ServerReplyCountsResponse {
+  all: number;
+  comment: number;
+  question: number;
 }
 
 export interface ServerReplyErrorResponse {

@@ -27,16 +27,8 @@ const currentUserId = ref<number | null>(null)
 
 const currentFilter = ref<'all' | 'comment' | 'question'>('all')
 
-const counts = computed(() => {
-  const c = { all: 0, comment: 0, question: 0 }
-  for (const r of replies.value) {
-    if (r.parent_id != null) continue
-    c.all++
-    if (r.kind === 'question') c.question++
-    else if (r.kind === 'comment') c.comment++
-  }
-  return c
-})
+// ルート返信の kind 別件数はサーバが SQL の GROUP BY で集計して返す。
+const counts = ref({ all: 0, comment: 0, question: 0 })
 
 onMounted(async () => {
   if (!isAuthenticated.value) return
@@ -170,6 +162,7 @@ const fetchReplies = async (id: number) => {
       skipGlobalErrorHandler: true,
     })
     replies.value = data.replies ?? []
+    counts.value = data.counts
   } catch {
     error.value = 'リプライの取得に失敗しました'
   } finally {
@@ -179,6 +172,12 @@ const fetchReplies = async (id: number) => {
 
 const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
   replies.value = [...replies.value, newReply]
+  // ルート返信が増えたぶんはサーバ集計を待たずに件数へ反映する。
+  if (newReply.parent_id == null) {
+    counts.value.all++
+    if (newReply.kind === 'question') counts.value.question++
+    else if (newReply.kind === 'comment') counts.value.comment++
+  }
 }
 
 const handleBestUpdated = (replyId: number, isBest: boolean) => {
