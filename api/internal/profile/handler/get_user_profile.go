@@ -40,7 +40,7 @@ type ErrorResponse struct {
 // @Router /api/profile/{user_id} [get]
 func (h *Handler) getUserProfileHandler(c *gin.Context) {
 	userID, err := strconv.ParseInt(c.Param("user_id"), 10, 64)
-	if err != nil {
+	if err != nil || userID <= 0 {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "invalid user_id"})
 		return
 	}
