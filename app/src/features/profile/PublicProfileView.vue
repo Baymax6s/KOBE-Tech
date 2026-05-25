@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
@@ -33,7 +33,7 @@ const submitting = ref(false)
 
 const maxLength = 200
 
-onMounted(async () => {
+const fetchProfile = async () => {
   loading.value = true
   error.value = null
   try {
@@ -63,7 +63,13 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-})
+}
+
+watch(
+  () => [props.userId, props.isMe],
+  fetchProfile,
+  { immediate: true },
+)
 
 const saveBio = async () => {
   if (submitting.value) return

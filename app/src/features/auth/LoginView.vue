@@ -22,19 +22,6 @@ const onSubmit = async () => {
   try {
     await auth.login(name.value, password.value)
 
-    try {
-      await auth.fetchMe({ skipGlobalErrorHandler: true })
-    } catch (e) {
-      // 401 (Unauthorized) の場合はトークンをクリアしてログイン失敗として扱う
-      if (axios.isAxiosError(e) && e.response?.status === 401) {
-        auth.clearToken()
-        throw e
-      }
-      // それ以外のエラー（500や通信断など）は、ログイン自体は成功しているため
-      // 遷移を継続させるが、エラー内容はログに出力する
-      console.error('Failed to fetch user info after login:', e)
-    }
-
     authNotification.markLoggedIn()
 
     const redirect =
