@@ -19,15 +19,20 @@ func (r *Repository) UnsetBestAnswer(ctx context.Context, replyID, userID int64)
 	}
 	defer tx.Rollback()
 
+	// 回答(a)と、その親である質問(q)を replies の自己結合で一度に引く。
+	// parent_id が NULL（ルート投稿）でも回答自身の行は返したいので LEFT JOIN。
 	const fetchReplyQuery = `
-		SELECT kind, parent_id, is_best
-		FROM replies
-		WHERE id = $1
+		SELECT a.kind, a.parent_id, a.is_best, q.kind, q.user_id
+		FROM replies a
+		LEFT JOIN replies q ON q.id = a.parent_id
+		WHERE a.id = $1
 	`
 	var kind reply.Kind
 	var parentID sql.NullInt64
 	var isBest bool
-	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kind, &parentID, &isBest)
+	var parentKind sql.NullString
+	var questionUserID sql.NullInt64
+	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kind, &parentID, &isBest, &parentKind, &questionUserID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrReplyNotFound
 	}
@@ -43,26 +48,13 @@ func (r *Repository) UnsetBestAnswer(ctx context.Context, replyID, userID int64)
 	if !parentID.Valid {
 		return ErrNotAnswer
 	}
-
-	const fetchParentQuery = `
-		SELECT kind, user_id
-		FROM replies
-		WHERE id = $1
-	`
-	var parentKind reply.Kind
-	var questionUserID int64
-	err = tx.QueryRowContext(ctx, fetchParentQuery, parentID.Int64).Scan(&parentKind, &questionUserID)
-	if errors.Is(err, sql.ErrNoRows) {
+	if !parentKind.Valid {
 		return ErrParentNotFound
 	}
-	if err != nil {
-		return err
-	}
-	if parentKind != reply.KindQuestion {
+	if reply.Kind(parentKind.String) != reply.KindQuestion {
 		return ErrNotAnswer
 	}
-
-	if questionUserID != userID {
+	if questionUserID.Int64 != userID {
 		return ErrNotQuestionAuthor
 	}
 
