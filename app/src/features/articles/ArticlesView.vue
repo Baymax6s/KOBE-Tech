@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ArticleCard from './ArticleCard.vue'
+import PopularArticlesByTag from './PopularArticlesByTag.vue'
 import type { ServerArticleJSONResponse } from '@/api/generated/apiSchema'
 import { api } from '@/api/client'
 import { useArticleNotificationStore } from '@/stores/articleNotification'
@@ -112,6 +113,8 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
             新規作成
           </v-btn>
         </div>
+
+        <PopularArticlesByTag v-if="!selectedTags.length" />
 
         <v-alert
           v-if="showCreatedAlert"

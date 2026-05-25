@@ -139,6 +139,17 @@ export interface ServerMeResponse {
   updated_at?: string;
 }
 
+export interface ServerPopularArticleJSONResponse {
+  article_id: number;
+  likes_count: number;
+  rank: number;
+  title: string;
+}
+
+export interface ServerPopularArticlesByTagResponse {
+  rankings?: ServerTagRankingJSONResponse[];
+}
+
 export interface ServerProfileErrorResponse {
   message?: string;
 }
@@ -168,6 +179,12 @@ export interface ServerSetBestAnswerResponse {
 export interface ServerTagJSONResponse {
   id: number;
   name: string;
+}
+
+export interface ServerTagRankingJSONResponse {
+  articles: ServerPopularArticleJSONResponse[];
+  tag_id: number;
+  tag_name: string;
 }
 
 export interface ServerTagsErrorResponse {
@@ -657,6 +674,25 @@ export class Api<
     tagsList: (params: RequestParams = {}) =>
       this.request<ServerListTagsResponse, ServerTagsErrorResponse>({
         path: `/api/tags`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Get top liked articles within each tag (category). No auth required.
+     *
+     * @tags article
+     * @name TagsPopularArticlesList
+     * @summary List popular articles per tag
+     * @request GET:/api/tags/popular-articles
+     */
+    tagsPopularArticlesList: (params: RequestParams = {}) =>
+      this.request<
+        ServerPopularArticlesByTagResponse,
+        ServerArticleErrorResponse
+      >({
+        path: `/api/tags/popular-articles`,
         method: "GET",
         format: "json",
         ...params,

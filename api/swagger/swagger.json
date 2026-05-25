@@ -768,6 +768,32 @@
                     }
                 }
             }
+        },
+        "/api/tags/popular-articles": {
+            "get": {
+                "description": "Get top liked articles within each tag (category). No auth required.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "article"
+                ],
+                "summary": "List popular articles per tag",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.popularArticlesByTagResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.articleErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1143,6 +1169,40 @@
                 }
             }
         },
+        "server.popularArticleJSONResponse": {
+            "type": "object",
+            "required": [
+                "article_id",
+                "likes_count",
+                "rank",
+                "title"
+            ],
+            "properties": {
+                "article_id": {
+                    "type": "integer"
+                },
+                "likes_count": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.popularArticlesByTagResponse": {
+            "type": "object",
+            "properties": {
+                "rankings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.tagRankingJSONResponse"
+                    }
+                }
+            }
+        },
         "server.profileErrorResponse": {
             "type": "object",
             "properties": {
@@ -1232,6 +1292,28 @@
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.tagRankingJSONResponse": {
+            "type": "object",
+            "required": [
+                "articles",
+                "tag_id",
+                "tag_name"
+            ],
+            "properties": {
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/server.popularArticleJSONResponse"
+                    }
+                },
+                "tag_id": {
+                    "type": "integer"
+                },
+                "tag_name": {
                     "type": "string"
                 }
             }

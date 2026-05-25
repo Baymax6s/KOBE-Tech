@@ -17,5 +17,6 @@ func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
 	router.GET("/articles", h.listArticlesHandler)
 	router.GET("/articles/:article_id", h.getArticleHandler)
 	router.GET("/tags", h.listTagsHandler)
+	router.GET("/tags/popular-articles", h.listPopularArticlesByTagHandler)
 	authRouter.POST("/articles", h.createArticleHandler)
 }

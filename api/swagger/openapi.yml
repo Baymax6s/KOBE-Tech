@@ -251,6 +251,29 @@ definitions:
       updated_at:
         type: string
     type: object
+  server.popularArticleJSONResponse:
+    properties:
+      article_id:
+        type: integer
+      likes_count:
+        type: integer
+      rank:
+        type: integer
+      title:
+        type: string
+    required:
+    - article_id
+    - likes_count
+    - rank
+    - title
+    type: object
+  server.popularArticlesByTagResponse:
+    properties:
+      rankings:
+        items:
+          $ref: '#/definitions/server.tagRankingJSONResponse'
+        type: array
+    type: object
   server.profileErrorResponse:
     properties:
       message:
@@ -314,6 +337,21 @@ definitions:
     required:
     - id
     - name
+    type: object
+  server.tagRankingJSONResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/server.popularArticleJSONResponse'
+        type: array
+      tag_id:
+        type: integer
+      tag_name:
+        type: string
+    required:
+    - articles
+    - tag_id
+    - tag_name
     type: object
   server.tagsErrorResponse:
     properties:
@@ -829,6 +867,23 @@ paths:
           schema:
             $ref: '#/definitions/server.tagsErrorResponse'
       summary: List tags
+      tags:
+      - article
+  /api/tags/popular-articles:
+    get:
+      description: Get top liked articles within each tag (category). No auth required.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.popularArticlesByTagResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.articleErrorResponse'
+      summary: List popular articles per tag
       tags:
       - article
 schemes:
