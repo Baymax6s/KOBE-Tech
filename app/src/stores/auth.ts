@@ -56,8 +56,9 @@ export const useAuthStore = defineStore('auth', () => {
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 401) {
           clearToken()
+          return null
         }
-        return null
+        throw err
       } finally {
         pendingFetchUser = null
       }
