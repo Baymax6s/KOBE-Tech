@@ -168,7 +168,6 @@ watch(
                   {{ article.likes_count ?? 0 }}
                 </span>
               </div>
-              >>>>>>> e2c0033 (profile/meに統一 profile/:user_id関連の修正)
             </div>
 
             <v-alert v-if="likeError" type="error" class="mb-4">
