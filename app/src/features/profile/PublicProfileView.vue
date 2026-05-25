@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
@@ -53,8 +54,12 @@ onMounted(async () => {
     const res = await api.api.profileDetail(targetId)
     profile.value = res.data
     bio.value = res.data.bio ?? ''
-  } catch {
-    error.value = 'ユーザーが見つかりませんでした'
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      error.value = 'ユーザーが見つかりませんでした'
+    } else {
+      error.value = 'プロフィールの取得に失敗しました'
+    }
   } finally {
     loading.value = false
   }
