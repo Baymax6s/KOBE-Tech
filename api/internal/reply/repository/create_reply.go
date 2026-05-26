@@ -54,7 +54,7 @@ func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, 
 		if depth, err := fetchParentDepth(ctx, tx, *parentID); err != nil {
 			return reply.Reply{}, err
 		} else if depth >= maxReplyDepth {
-			return reply.Reply{}, errors.New("max reply depth exceeded")
+			return reply.Reply{}, ErrMaxDepthExceeded
 		}
 	}
 
