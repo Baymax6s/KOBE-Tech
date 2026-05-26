@@ -19,54 +19,45 @@ func (r *Repository) SetBestAnswer(ctx context.Context, replyID, userID int64) e
 	}
 	defer tx.Rollback()
 
-	// 1. 指定された reply が存在し、answer であることを確認し、同時にルートの質問者 ID を取得する。
-	// ネスト制限が最大 2 なので、再帰的に遡るか、直接 root を特定する。
-	// ここでは汎用性のために Recursive CTE を使用してルート投稿（parent_id IS NULL）を見つける。
+	// 1. 指定された reply が存在し、answer であることを確認し、同時にルートの質問者を特定する。
+	// クエリ数を削減するため、Recursive CTE でターゲットの kind を引き継ぎつつルート（parent_id IS NULL）を特定する。
 	const findRootQuery = `
 		WITH RECURSIVE root_path AS (
-			SELECT id, parent_id, kind, user_id, 1 as depth
+			SELECT id, parent_id, kind, user_id, kind as target_kind
 			FROM replies
 			WHERE id = $1
 			UNION ALL
-			SELECT r.id, r.parent_id, r.kind, r.user_id, rp.depth + 1
+			SELECT r.id, r.parent_id, r.kind, r.user_id, rp.target_kind
 			FROM replies r
 			JOIN root_path rp ON r.id = rp.parent_id
 		)
-		SELECT id, kind, user_id FROM root_path WHERE parent_id IS NULL
+		SELECT target_kind, id, kind, user_id FROM root_path WHERE parent_id IS NULL
 	`
 
+	var targetKind reply.Kind
 	var rootID int64
 	var rootKind reply.Kind
 	var questionUserID int64
 
-	// まず指定された reply 自体の kind をチェック
-	const fetchKindQuery = `SELECT kind FROM replies WHERE id = $1`
-	var targetKind reply.Kind
-	err = tx.QueryRowContext(ctx, fetchKindQuery, replyID).Scan(&targetKind)
+	err = tx.QueryRowContext(ctx, findRootQuery, replyID).Scan(&targetKind, &rootID, &rootKind, &questionUserID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrReplyNotFound
 	}
 	if err != nil {
 		return err
 	}
+
+	// ターゲットが回答であることをチェック
 	if targetKind != reply.KindAnswer {
 		return ErrNotAnswer
 	}
 
-	// ルートを特定して権限チェック
-	err = tx.QueryRowContext(ctx, findRootQuery, replyID).Scan(&rootID, &rootKind, &questionUserID)
-	if errors.Is(err, sql.ErrNoRows) {
-		// 自分がルートの場合は親がいないのでここに来る可能性があるが、KindAnswer なのであり得ないはず。
-		return ErrNotAnswer
-	}
-	if err != nil {
-		return err
-	}
-
+	// ルートが質問であることをチェック
 	if rootKind != reply.KindQuestion {
 		return ErrNotAnswer // 質問スレッド以外でのベストアンサーは不可
 	}
 
+	// 権限チェック
 	if questionUserID != userID {
 		return ErrNotQuestionAuthor
 	}
