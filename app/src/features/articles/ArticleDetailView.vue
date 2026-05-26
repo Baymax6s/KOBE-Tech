@@ -77,6 +77,12 @@ const formattedDate = useDateFormat(
   'YYYY/MM/DD',
 )
 
+const authorProfilePath = computed(() =>
+  article.value?.author?.id === auth.userId
+    ? '/profile/me'
+    : `/profile/${article.value?.author?.id}`,
+)
+
 watch(
   () => props.articleId,
   async (id) => {
@@ -131,21 +137,27 @@ watch(
               </v-chip>
             </div>
 
-            <div class="text-body-2 text-medium-emphasis mb-6">
-              <div>
-                <div>
-                  著者
-                  <RouterLink
-                    :to="
-                      article.author?.id === auth.userId
-                        ? '/profile/me'
-                        : `/profile/${article.author?.id}`
-                    "
-                    class="text-decoration-none text-primary"
-                  >
-                    {{ article.author?.name }}
-                  </RouterLink>
-                </div>
+            <div class="d-flex align-center ga-3 mb-6">
+              <RouterLink :to="authorProfilePath" class="text-decoration-none">
+                <v-avatar size="40" color="indigo-lighten-1">
+                  <v-img
+                    v-if="article.author?.avatar_url"
+                    :src="article.author.avatar_url"
+                    alt="アバター"
+                  />
+                  <v-icon v-else size="28" color="white">
+                    mdi-account-circle
+                  </v-icon>
+                </v-avatar>
+              </RouterLink>
+
+              <div class="text-body-2 text-medium-emphasis">
+                <RouterLink
+                  :to="authorProfilePath"
+                  class="text-decoration-none text-primary font-weight-medium"
+                >
+                  {{ article.author?.name }}
+                </RouterLink>
                 <div>投稿日 {{ formattedDate }}</div>
               </div>
             </div>
