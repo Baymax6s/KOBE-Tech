@@ -19,15 +19,15 @@ func (r *Repository) UnsetBestAnswer(ctx context.Context, replyID, userID int64)
 	}
 	defer tx.Rollback()
 
+	// 1. 指定された reply が存在し、answer かつベストアンサーであることを確認する。
 	const fetchReplyQuery = `
-		SELECT kind, parent_id, is_best
+		SELECT kind, is_best
 		FROM replies
 		WHERE id = $1
 	`
 	var kind reply.Kind
-	var parentID sql.NullInt64
 	var isBest bool
-	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kind, &parentID, &isBest)
+	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kind, &isBest)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrReplyNotFound
 	}
@@ -40,25 +40,28 @@ func (r *Repository) UnsetBestAnswer(ctx context.Context, replyID, userID int64)
 	if !isBest {
 		return ErrNotBestAnswer
 	}
-	if !parentID.Valid {
-		return ErrNotAnswer
-	}
 
-	const fetchParentQuery = `
-		SELECT kind, user_id
-		FROM replies
-		WHERE id = $1
+	// 2. ルートの質問者を特定して権限チェックを行う。
+	const findRootQuery = `
+		WITH RECURSIVE root_path AS (
+			SELECT id, parent_id, kind, user_id
+			FROM replies
+			WHERE id = $1
+			UNION ALL
+			SELECT r.id, r.parent_id, r.kind, r.user_id
+			FROM replies r
+			JOIN root_path rp ON r.id = rp.parent_id
+		)
+		SELECT kind, user_id FROM root_path WHERE parent_id IS NULL
 	`
-	var parentKind reply.Kind
+	var rootKind reply.Kind
 	var questionUserID int64
-	err = tx.QueryRowContext(ctx, fetchParentQuery, parentID.Int64).Scan(&parentKind, &questionUserID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return ErrParentNotFound
-	}
+	err = tx.QueryRowContext(ctx, findRootQuery, replyID).Scan(&rootKind, &questionUserID)
 	if err != nil {
 		return err
 	}
-	if parentKind != reply.KindQuestion {
+
+	if rootKind != reply.KindQuestion {
 		return ErrNotAnswer
 	}
 
