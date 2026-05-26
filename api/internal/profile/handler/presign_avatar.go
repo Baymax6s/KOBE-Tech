@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
@@ -83,9 +82,7 @@ func (h *Handler) presignAvatarHandler(c *gin.Context) {
 		return
 	}
 
-	bucketName := os.Getenv("MINIO_BUCKET_NAME")
-
-	url, err := minio.GeneratePresignedPutURL(c.Request.Context(), client, bucketName, objectKey)
+	url, err := minio.GeneratePresignedPutURL(c.Request.Context(), client, minio.BucketName(), objectKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: "failed to generate presigned URL"})
 		return
@@ -137,9 +134,7 @@ func (h *Handler) avatarUploadCompleteHandler(c *gin.Context) {
 		return
 	}
 
-	bucketName := os.Getenv("MINIO_BUCKET_NAME")
-
-	objInfo, err := client.StatObject(c.Request.Context(), bucketName, req.ObjectKey, minioSDK.StatObjectOptions{})
+	objInfo, err := client.StatObject(c.Request.Context(), minio.BucketName(), req.ObjectKey, minioSDK.StatObjectOptions{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "uploaded file not found or inaccessible"})
 		return

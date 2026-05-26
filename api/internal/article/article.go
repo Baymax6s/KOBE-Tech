@@ -1,6 +1,7 @@
 package article
 
 import (
+	"database/sql"
 	"errors"
 	"strings"
 	"time"
@@ -15,8 +16,10 @@ var (
 const maxTagNameLength = 10
 
 type Author struct {
-	ID   int64
-	Name string
+	ID              int64
+	Name            string
+	AvatarObjectKey sql.NullString
+	AvatarUploaded  bool
 }
 
 type Article struct {

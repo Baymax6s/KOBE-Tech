@@ -3,9 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -76,27 +74,8 @@ func (h *Handler) GetProfile(ctx context.Context, targetUserID int64, currentUse
 	return newProfileJSON(p, isOwner, resolveAvatarURL(ctx, p)), nil
 }
 
-// resolveAvatarURL はアバターがアップロード済みのときだけ presigned GET URL を返す。
-// ストレージ接続や署名に失敗してもプロフィール取得自体は止めず、空文字を返して
-// フロント側のフォールバック表示（既定アイコン）に委ねる。
 func resolveAvatarURL(ctx context.Context, p profile.Profile) string {
-	if !p.UserProfile.IsUploaded || !p.UserProfile.ObjectKey.Valid || p.UserProfile.ObjectKey.String == "" {
-		return ""
-	}
-
-	client, err := minio.NewClient()
-	if err != nil {
-		log.Printf("avatar url: connect storage: %v", err)
-		return ""
-	}
-
-	url, err := minio.GeneratePresignedGetURL(ctx, client, os.Getenv("MINIO_BUCKET_NAME"), p.UserProfile.ObjectKey.String)
-	if err != nil {
-		log.Printf("avatar url: presign: %v", err)
-		return ""
-	}
-
-	return url
+	return minio.ResolveAvatarURL(ctx, p.UserProfile.ObjectKey.String, p.UserProfile.IsUploaded)
 }
 
 func newProfileJSON(p profile.Profile, isOwner bool, avatarURL string) ProfileJSON {

@@ -30,6 +30,7 @@ export interface HandlerPresignAvatarResponse {
 }
 
 export interface ServerArticleAuthorJSONResponse {
+  avatar_url?: string;
   id: number;
   name: string;
 }

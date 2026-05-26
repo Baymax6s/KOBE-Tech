@@ -9,12 +9,14 @@ import (
 	"time"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/minio"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthorJSON struct {
-	ID   int64  `json:"id" binding:"required"`
-	Name string `json:"name" binding:"required"`
+	ID        int64  `json:"id" binding:"required"`
+	Name      string `json:"name" binding:"required"`
+	AvatarURL string `json:"avatar_url"`
 } // @name server.articleAuthorJSONResponse
 
 type GetArticleJSONResponse struct {
@@ -84,8 +86,9 @@ func (h *Handler) GetArticle(ctx context.Context, articleID int64, userID int64)
 		Title:   item.Title,
 		Content: item.Content,
 		Author: AuthorJSON{
-			ID:   item.Author.ID,
-			Name: item.Author.Name,
+			ID:        item.Author.ID,
+			Name:      item.Author.Name,
+			AvatarURL: minio.ResolveAvatarURL(ctx, item.Author.AvatarObjectKey.String, item.Author.AvatarUploaded),
 		},
 		Tags:       newArticleTagJSONs(item.Tags),
 		CreatedAt:  item.CreatedAt,
