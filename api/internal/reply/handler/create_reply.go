@@ -58,7 +58,7 @@ func (h *Handler) createReplyHandler(c *gin.Context) {
 			errors.Is(err, repository.ErrInvalidParent),
 			errors.Is(err, repository.ErrInvalidRootKind),
 			errors.Is(err, repository.ErrParentMismatch),
-		errors.Is(err, repository.ErrMaxDepthExceeded):
+			errors.Is(err, repository.ErrMaxDepthExceeded):
 			c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		case errors.Is(err, repository.ErrArticleNotFound), errors.Is(err, repository.ErrParentNotFound):
 			c.JSON(http.StatusNotFound, ErrorResponse{Message: err.Error()})
