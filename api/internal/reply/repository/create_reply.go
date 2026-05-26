@@ -9,6 +9,8 @@ import (
 	"github.com/lib/pq"
 )
 
+const maxReplyDepth = 2
+
 func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, parentID *int64, kind reply.Kind, body string) (reply.Reply, error) {
 	if r == nil || r.db == nil {
 		return reply.Reply{}, errors.New("reply repository is not configured")
@@ -48,6 +50,11 @@ func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, 
 		}
 		if kind != expected {
 			return reply.Reply{}, ErrInvalidParent
+		}
+		if depth, err := fetchParentDepth(ctx, tx, *parentID); err != nil {
+			return reply.Reply{}, err
+		} else if depth >= maxReplyDepth {
+			return reply.Reply{}, ErrMaxDepthExceeded
 		}
 	}
 
@@ -127,4 +134,22 @@ func nullableInt64(v *int64) sql.NullInt64 {
 		return sql.NullInt64{}
 	}
 	return sql.NullInt64{Int64: *v, Valid: true}
+}
+
+func fetchParentDepth(ctx context.Context, tx *sql.Tx, parentID int64) (int, error) {
+	const query = `
+		WITH RECURSIVE ancestors AS (
+			SELECT id, parent_id, 0 AS depth FROM replies WHERE id = $1
+			UNION ALL
+			SELECT r.id, r.parent_id, a.depth + 1
+			FROM replies r
+			INNER JOIN ancestors a ON r.id = a.parent_id
+		)
+		SELECT COALESCE(MAX(depth), 0) FROM ancestors
+	`
+	var depth int
+	if err := tx.QueryRowContext(ctx, query, parentID).Scan(&depth); err != nil {
+		return 0, err
+	}
+	return depth, nil
 }
