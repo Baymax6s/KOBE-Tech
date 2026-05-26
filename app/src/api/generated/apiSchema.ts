@@ -153,6 +153,7 @@ export interface ServerProfileErrorResponse {
 }
 
 export interface ServerProfileJSON {
+  avatar_url?: string;
   bio?: string;
   id?: number;
   is_owner?: boolean;
@@ -602,6 +603,38 @@ export class Api<
     profileDetail: (userId: number, params: RequestParams = {}) =>
       this.request<ServerProfileJSON, ServerProfileErrorResponse>({
         path: `/api/profile/${userId}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 指定ユーザーが投稿した記事一覧を新しい順に取得する
+     *
+     * @tags profile
+     * @name ProfileArticlesList
+     * @summary List articles posted by a user
+     * @request GET:/api/profile/{user_id}/articles
+     */
+    profileArticlesList: (userId: number, params: RequestParams = {}) =>
+      this.request<ServerListArticlesResponse, ServerProfileErrorResponse>({
+        path: `/api/profile/${userId}/articles`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 指定ユーザーがいいねした記事一覧をいいねした順に取得する
+     *
+     * @tags profile
+     * @name ProfileLikedArticlesList
+     * @summary List articles liked by a user
+     * @request GET:/api/profile/{user_id}/liked-articles
+     */
+    profileLikedArticlesList: (userId: number, params: RequestParams = {}) =>
+      this.request<ServerListArticlesResponse, ServerProfileErrorResponse>({
+        path: `/api/profile/${userId}/liked-articles`,
         method: "GET",
         format: "json",
         ...params,

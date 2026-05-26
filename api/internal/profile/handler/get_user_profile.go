@@ -3,11 +3,14 @@ package handler
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/Baymax6s/KOBE-Tech/api/internal/auth"
+	"github.com/Baymax6s/KOBE-Tech/api/internal/minio"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/profile"
 	"github.com/Baymax6s/KOBE-Tech/api/internal/profile/repository"
 	"github.com/gin-gonic/gin"
@@ -17,6 +20,7 @@ type ProfileJSON struct {
 	ID               int64      `json:"id"`
 	Name             string     `json:"name"`
 	Bio              string     `json:"bio"`
+	AvatarURL        string     `json:"avatar_url"`
 	ProfileCreatedAt *time.Time `json:"profile_created_at"`
 	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
 	IsOwner          bool       `json:"is_owner"`
@@ -69,10 +73,33 @@ func (h *Handler) GetProfile(ctx context.Context, targetUserID int64, currentUse
 		return ProfileJSON{}, err
 	}
 	isOwner := currentUserID != 0 && currentUserID == targetUserID
-	return newProfileJSON(p, isOwner), nil
+	return newProfileJSON(p, isOwner, resolveAvatarURL(ctx, p)), nil
 }
 
-func newProfileJSON(p profile.Profile, isOwner bool) ProfileJSON {
+// resolveAvatarURL はアバターがアップロード済みのときだけ presigned GET URL を返す。
+// ストレージ接続や署名に失敗してもプロフィール取得自体は止めず、空文字を返して
+// フロント側のフォールバック表示（既定アイコン）に委ねる。
+func resolveAvatarURL(ctx context.Context, p profile.Profile) string {
+	if !p.UserProfile.IsUploaded || !p.UserProfile.ObjectKey.Valid || p.UserProfile.ObjectKey.String == "" {
+		return ""
+	}
+
+	client, err := minio.NewClient()
+	if err != nil {
+		log.Printf("avatar url: connect storage: %v", err)
+		return ""
+	}
+
+	url, err := minio.GeneratePresignedGetURL(ctx, client, os.Getenv("MINIO_BUCKET_NAME"), p.UserProfile.ObjectKey.String)
+	if err != nil {
+		log.Printf("avatar url: presign: %v", err)
+		return ""
+	}
+
+	return url
+}
+
+func newProfileJSON(p profile.Profile, isOwner bool, avatarURL string) ProfileJSON {
 	var profileCreatedAt *time.Time
 	if p.UserProfile.CreatedAt.Valid {
 		t := p.UserProfile.CreatedAt.Time
@@ -89,6 +116,7 @@ func newProfileJSON(p profile.Profile, isOwner bool) ProfileJSON {
 		ID:               p.User.ID,
 		Name:             p.User.Name,
 		Bio:              p.UserProfile.Bio.String,
+		AvatarURL:        avatarURL,
 		ProfileCreatedAt: profileCreatedAt,
 		ProfileUpdatedAt: profileUpdatedAt,
 		IsOwner:          isOwner,

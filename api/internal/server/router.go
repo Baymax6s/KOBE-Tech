@@ -19,11 +19,12 @@ import (
 )
 
 func NewHandler(db *sql.DB, validator *auth.Validator, issuer *auth.Issuer) http.Handler {
-	articleHandler := articlehandler.NewHandler(articlerepository.NewRepository(db))
+	articleRepo := articlerepository.NewRepository(db)
+	articleHandler := articlehandler.NewHandler(articleRepo)
 	authHandler := authhandler.NewHandler(authrepository.NewRepository(db), issuer)
 	likeHandler := likehandler.NewHandler(likerepository.NewRepository(db))
 	replyHandler := replyhandler.NewHandler(replyrepository.NewRepository(db))
-	profileHandler := profilehandler.NewHandler(profilerepository.NewRepository(db))
+	profileHandler := profilehandler.NewHandler(profilerepository.NewRepository(db), articleRepo)
 
 	router := gin.Default()
 	router.Use(corsMiddleware())
