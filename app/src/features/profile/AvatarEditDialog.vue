@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDropZone, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { Cropper, CircleStencil } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 import { api } from '@/api/client'
@@ -49,21 +49,28 @@ const { isOverDropZone } = useDropZone(dropZoneRef, {
   onDrop: (files) => acceptFile(files?.[0]),
 })
 
+const revokeImageSrc = () => {
+  if (imageSrc.value) URL.revokeObjectURL(imageSrc.value)
+}
+
 // 選択ファイルが変わるたびにプレビュー用 Object URL を張り替え、前の URL は解放する。
 watch(selectedFile, (file) => {
-  if (imageSrc.value) URL.revokeObjectURL(imageSrc.value)
+  revokeImageSrc()
   imageSrc.value = file ? URL.createObjectURL(file) : undefined
   error.value = undefined
 })
 
 watch(open, (isOpen) => {
   if (isOpen) return
-  if (imageSrc.value) URL.revokeObjectURL(imageSrc.value)
+  revokeImageSrc()
   imageSrc.value = undefined
   selectedFile.value = undefined
   error.value = undefined
   resetFileDialog()
 })
+
+// ダイアログを開いたままルート遷移などで unmount された場合の解放漏れを防ぐ。
+onBeforeUnmount(revokeImageSrc)
 
 const cropToJpegBlob = (): Promise<Blob | null> =>
   new Promise((resolve) => {
@@ -90,10 +97,10 @@ const save = async () => {
       return
     }
 
-    const { data: presign } = await api.api.profileAvatarPresignCreate({
-      size: blob.size,
-      contentType: 'image/jpeg',
-    })
+    const { data: presign } = await api.api.profileAvatarPresignCreate(
+      { size: blob.size, contentType: 'image/jpeg' },
+      { skipGlobalErrorHandler: true },
+    )
     if (!presign.url || !presign.objectKey) {
       error.value = 'アバターの更新に失敗しました'
       return
@@ -105,7 +112,10 @@ const save = async () => {
       headers: { 'Content-Type': 'image/jpeg' },
     })
 
-    await api.api.profileAvatarCompleteCreate({ objectKey: presign.objectKey })
+    await api.api.profileAvatarCompleteCreate(
+      { objectKey: presign.objectKey },
+      { skipGlobalErrorHandler: true },
+    )
 
     emit('uploaded')
     open.value = false

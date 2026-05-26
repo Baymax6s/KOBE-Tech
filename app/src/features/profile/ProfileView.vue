@@ -133,11 +133,19 @@ const onAvatarClick = () => {
 
 // アバター更新後は presigned GET URL を更新したいだけなので、記事一覧は再取得せず
 // プロフィール本体だけを読み直す。
+// アップロード自体は成功しているので、再取得失敗ではエラーページへ遷移させず
+// （skipGlobalErrorHandler）、画面内のアラートで知らせるにとどめる。
 const reloadProfile = async () => {
-  const targetId = await resolveTargetUserId()
-  if (targetId === null) return
-  const res = await api.api.profileDetail(targetId)
-  profile.value = res.data
+  try {
+    const targetId = await resolveTargetUserId()
+    if (targetId === null) return
+    const res = await api.api.profileDetail(targetId, {
+      skipGlobalErrorHandler: true,
+    })
+    profile.value = res.data
+  } catch {
+    error.value = 'アイコンは更新されましたが、表示の再取得に失敗しました'
+  }
 }
 
 // プロフィールではタグ絞り込みを持たないので、タグをクリックしたら
@@ -172,7 +180,12 @@ const goToTag = (tagName: string) => {
                 <div
                   class="avatar-edit"
                   :class="{ 'avatar-edit--active': isEditing }"
+                  :role="isEditing ? 'button' : undefined"
+                  :tabindex="isEditing ? 0 : undefined"
+                  :aria-label="isEditing ? 'アイコンを変更' : undefined"
                   @click="onAvatarClick"
+                  @keydown.enter="onAvatarClick"
+                  @keydown.space.prevent="onAvatarClick"
                 >
                   <v-avatar size="96" color="indigo-lighten-1">
                     <v-img
