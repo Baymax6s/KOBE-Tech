@@ -68,7 +68,6 @@ services:
         sleep 2;
       done &&
       mc mb -p local/kobe-tech-avatar || echo "bucket kobe-tech-avatar already exists or created";
-      mc mb -p local/kobe-tech-avatar || echo "bucket kobe-tech-avatar already exists or created";
       
       mc anonymous set download local/kobe-tech-avatar;
 

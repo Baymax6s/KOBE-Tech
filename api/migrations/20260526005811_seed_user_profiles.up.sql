@@ -7,4 +7,5 @@ INSERT INTO user_profiles (user_id, object_key, bio, is_uploaded) VALUES
 ON CONFLICT (user_id) DO UPDATE 
 SET object_key = EXCLUDED.object_key, 
     bio = EXCLUDED.bio, 
-    is_uploaded = EXCLUDED.is_uploaded;
+    is_uploaded = EXCLUDED.is_uploaded,
+    updated_at = CURRENT_TIMESTAMP;
