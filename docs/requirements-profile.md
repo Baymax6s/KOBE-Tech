@@ -80,7 +80,7 @@ likes(id, article_id, user_id, created_at, UNIQUE(article_id, user_id))
 - レイアウトは Vuetify のみで構成（`v-tabs` + `v-window` + `v-card`）。`min-h-screen` は使わず `v-container fill-height` 系で縦を確保（app/AGENTS.md ルール）
 - 記事カードは既存 `ArticleCard.vue` を流用
 - 各タブの空状態（投稿 0 件 / いいね 0 件）を `v-alert` で出す
-- ローディング・エラーはタブ単位で扱う
+- 投稿/いいねの一覧はプロフィール取得後に並行取得し、ローディング・エラーは 2 タブ共通で扱う（同じネットワーク要因で同時に成否が決まることがほとんどなので、タブごとに loading/error フラグを増やさず宣言的に保つ）
 
 ---
 

@@ -78,6 +78,13 @@ const fetchLists = async (targetId: number) => {
 const fetchProfile = async () => {
   loading.value = true
   error.value = null
+  // 別ユーザーへ遷移した直後にエラーが出ても前のプロフィールが残らないよう、
+  // 取得開始時に表示状態をリセットする。
+  profile.value = null
+  postedArticles.value = []
+  likedArticles.value = []
+  listsError.value = null
+  isEditing.value = false
   try {
     const targetId = await resolveTargetUserId()
     if (targetId === null) {
