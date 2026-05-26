@@ -126,6 +126,11 @@ const saveBio = async () => {
   }
 }
 
+// アバターは編集モードのときだけ変更できる（オーバーレイのカメラから開く）。
+const onAvatarClick = () => {
+  if (isEditing.value) avatarDialogOpen.value = true
+}
+
 // アバター更新後は presigned GET URL を更新したいだけなので、記事一覧は再取得せず
 // プロフィール本体だけを読み直す。
 const reloadProfile = async () => {
@@ -164,7 +169,11 @@ const goToTag = (tagName: string) => {
           <template v-else-if="profile">
             <v-card class="pa-6 mb-6" rounded="lg">
               <div class="d-flex ga-6 align-start">
-                <div class="d-flex flex-column align-center ga-2">
+                <div
+                  class="avatar-edit"
+                  :class="{ 'avatar-edit--active': isEditing }"
+                  @click="onAvatarClick"
+                >
                   <v-avatar size="96" color="indigo-lighten-1">
                     <v-img
                       v-if="profile.avatar_url"
@@ -175,16 +184,9 @@ const goToTag = (tagName: string) => {
                       mdi-account-circle
                     </v-icon>
                   </v-avatar>
-                  <v-btn
-                    v-if="profile.is_owner"
-                    variant="text"
-                    color="primary"
-                    size="small"
-                    prepend-icon="mdi-camera"
-                    @click="avatarDialogOpen = true"
-                  >
-                    変更
-                  </v-btn>
+                  <div v-if="isEditing" class="avatar-edit__overlay">
+                    <v-icon color="white">mdi-camera</v-icon>
+                  </div>
                 </div>
 
                 <div class="flex-grow-1">
@@ -192,21 +194,9 @@ const goToTag = (tagName: string) => {
                     {{ profile.name }}
                   </h1>
 
-                  <template v-if="!isEditing">
-                    <p class="text-body-2 text-medium-emphasis mb-2">
-                      {{ profile.bio || '自己紹介はまだありません' }}
-                    </p>
-                    <v-btn
-                      v-if="profile.is_owner"
-                      variant="text"
-                      color="primary"
-                      size="small"
-                      prepend-icon="mdi-pencil"
-                      @click="isEditing = true"
-                    >
-                      編集
-                    </v-btn>
-                  </template>
+                  <p v-if="!isEditing" class="text-body-2 text-medium-emphasis">
+                    {{ profile.bio || '自己紹介はまだありません' }}
+                  </p>
 
                   <template v-else>
                     <v-textarea
@@ -222,20 +212,32 @@ const goToTag = (tagName: string) => {
                       rows="3"
                       class="mb-2"
                     />
-                    <v-btn
-                      color="primary"
-                      class="mr-2"
-                      :loading="submitting"
-                      :disabled="submitting"
-                      @click="saveBio"
-                    >
-                      完了
-                    </v-btn>
-                    <v-btn variant="text" @click="isEditing = false">
-                      キャンセル
-                    </v-btn>
+                    <div class="d-flex ga-2">
+                      <v-btn
+                        color="primary"
+                        :loading="submitting"
+                        :disabled="submitting"
+                        @click="saveBio"
+                      >
+                        完了
+                      </v-btn>
+                      <v-btn variant="text" @click="isEditing = false">
+                        キャンセル
+                      </v-btn>
+                    </div>
                   </template>
                 </div>
+
+                <v-btn
+                  v-if="profile.is_owner && !isEditing"
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  prepend-icon="mdi-pencil"
+                  @click="isEditing = true"
+                >
+                  編集
+                </v-btn>
               </div>
             </v-card>
 
@@ -303,3 +305,32 @@ const goToTag = (tagName: string) => {
     </v-container>
   </v-sheet>
 </template>
+
+<style scoped>
+/* 編集モード時にアバター上へカメラを重ねる。Vuetify にアバター用の
+   オーバーレイ表現が無いため、ここだけ最小限の scoped CSS で実装する。 */
+.avatar-edit {
+  position: relative;
+  display: inline-flex;
+  border-radius: 50%;
+}
+
+.avatar-edit--active {
+  cursor: pointer;
+}
+
+.avatar-edit__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  transition: background-color 0.2s ease;
+}
+
+.avatar-edit--active:hover .avatar-edit__overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+</style>
