@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDropZone, useFileDialog } from '@vueuse/core'
 import axios from 'axios'
 import { ref, watch } from 'vue'
 import { Cropper, CircleStencil } from 'vue-advanced-cropper'
@@ -10,15 +11,43 @@ import { api } from '@/api/client'
 const MAX_OUTPUT_SIZE = 512
 const MAX_UPLOAD_BYTES = 2 * 1024 * 1024
 const JPEG_QUALITY = 0.9
+const ACCEPTED_TYPES = ['image/png', 'image/jpeg']
 
 const open = defineModel<boolean>({ required: true })
 const emit = defineEmits<{ uploaded: [] }>()
 
 const cropperRef = ref<InstanceType<typeof Cropper>>()
+const dropZoneRef = ref<HTMLElement>()
 const selectedFile = ref<File>()
 const imageSrc = ref<string>()
 const submitting = ref(false)
 const error = ref<string>()
+
+// ドラッグ&ドロップとファイル選択ダイアログの 2 経路を 1 か所に集約する。
+const acceptFile = (file: File | null | undefined) => {
+  if (!file) return
+  if (!ACCEPTED_TYPES.includes(file.type)) {
+    error.value = 'PNG または JPEG を選択してください'
+    return
+  }
+  selectedFile.value = file
+}
+
+const {
+  open: openFileDialog,
+  onChange,
+  reset: resetFileDialog,
+} = useFileDialog({
+  accept: ACCEPTED_TYPES.join(','),
+  multiple: false,
+})
+onChange((files) => acceptFile(files?.[0]))
+
+const { isOverDropZone } = useDropZone(dropZoneRef, {
+  dataTypes: ACCEPTED_TYPES,
+  multiple: false,
+  onDrop: (files) => acceptFile(files?.[0]),
+})
 
 // 選択ファイルが変わるたびにプレビュー用 Object URL を張り替え、前の URL は解放する。
 watch(selectedFile, (file) => {
@@ -33,6 +62,7 @@ watch(open, (isOpen) => {
   imageSrc.value = undefined
   selectedFile.value = undefined
   error.value = undefined
+  resetFileDialog()
 })
 
 const cropToJpegBlob = (): Promise<Blob | null> =>
@@ -103,35 +133,51 @@ const save = async () => {
           {{ error }}
         </v-alert>
 
-        <v-file-input
-          v-model="selectedFile"
-          accept="image/png, image/jpeg"
-          label="画像を選択"
-          prepend-icon="mdi-camera"
-          variant="outlined"
-          density="comfortable"
-          class="mb-4"
-        />
+        <template v-if="imageSrc">
+          <div class="avatar-cropper rounded-lg overflow-hidden mb-2">
+            <Cropper
+              ref="cropperRef"
+              :src="imageSrc"
+              :stencil-component="CircleStencil"
+              :stencil-props="{ aspectRatio: 1 }"
+              :canvas="{
+                maxWidth: MAX_OUTPUT_SIZE,
+                maxHeight: MAX_OUTPUT_SIZE,
+              }"
+              image-restriction="stencil"
+            />
+          </div>
+          <div class="d-flex justify-center">
+            <v-btn
+              variant="text"
+              size="small"
+              prepend-icon="mdi-image-refresh-outline"
+              @click="openFileDialog()"
+            >
+              別の画像を選ぶ
+            </v-btn>
+          </div>
+        </template>
 
-        <div v-if="imageSrc" class="avatar-cropper rounded-lg overflow-hidden">
-          <Cropper
-            ref="cropperRef"
-            :src="imageSrc"
-            :stencil-component="CircleStencil"
-            :stencil-props="{ aspectRatio: 1 }"
-            :canvas="{ maxWidth: MAX_OUTPUT_SIZE, maxHeight: MAX_OUTPUT_SIZE }"
-            image-restriction="stencil"
-          />
-        </div>
-        <v-sheet
+        <div
           v-else
-          color="grey-lighten-3"
-          rounded="lg"
-          class="d-flex align-center justify-center text-medium-emphasis"
-          height="240"
+          ref="dropZoneRef"
+          class="drop-zone d-flex flex-column align-center justify-center ga-3 rounded-lg pa-6"
+          :class="{ 'drop-zone--active': isOverDropZone }"
+          role="button"
+          tabindex="0"
+          @click="openFileDialog()"
+          @keydown.enter="openFileDialog()"
+          @keydown.space.prevent="openFileDialog()"
         >
-          画像を選択してください
-        </v-sheet>
+          <v-icon size="48" color="primary">mdi-cloud-upload-outline</v-icon>
+          <div class="text-body-1 text-center">
+            画像をドラッグ＆ドロップ<br />またはクリックして選択
+          </div>
+          <div class="text-caption text-medium-emphasis">
+            PNG / JPEG ・ 2MB まで
+          </div>
+        </div>
       </v-card-text>
 
       <v-card-actions class="px-4 pb-4">
@@ -154,8 +200,23 @@ const save = async () => {
 </template>
 
 <style scoped>
+/* Vuetify には破線のドロップゾーン枠を表現するユーティリティが無いため、
+   ここだけテーマ変数を使った最小限の scoped CSS で実装する。 */
 .avatar-cropper {
   height: 320px;
   background-color: rgb(var(--v-theme-surface-variant));
+}
+
+.drop-zone {
+  min-height: 240px;
+  border: 2px dashed rgba(var(--v-theme-primary), 0.5);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.drop-zone:hover,
+.drop-zone--active {
+  background-color: rgba(var(--v-theme-primary), 0.06);
+  border-color: rgb(var(--v-theme-primary));
 }
 </style>
