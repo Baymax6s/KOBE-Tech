@@ -151,7 +151,7 @@ const goToTag = (tagName: string) => {
   <v-sheet color="grey-lighten-4" min-height="100%">
     <v-container class="py-8">
       <v-row justify="center">
-        <v-col cols="12" sm="10" md="8">
+        <v-col cols="12" sm="10">
           <v-alert
             v-if="error"
             type="error"
