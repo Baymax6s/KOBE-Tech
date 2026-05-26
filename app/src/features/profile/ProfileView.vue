@@ -3,6 +3,7 @@ import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ArticleCard from '@/features/articles/ArticleCard.vue'
+import AvatarEditDialog from '@/features/profile/AvatarEditDialog.vue'
 import { api } from '@/api/client'
 import type {
   ServerArticleJSONResponse,
@@ -35,6 +36,7 @@ const listsLoading = ref(false)
 const listsError = ref<string | null>(null)
 
 const isEditing = ref(false)
+const avatarDialogOpen = ref(false)
 const bio = ref('')
 const submitting = ref(false)
 const maxLength = 200
@@ -124,6 +126,28 @@ const saveBio = async () => {
   }
 }
 
+// アバターは編集モードのときだけ変更できる（オーバーレイのカメラから開く）。
+const onAvatarClick = () => {
+  if (isEditing.value) avatarDialogOpen.value = true
+}
+
+// アバター更新後は presigned GET URL を更新したいだけなので、記事一覧は再取得せず
+// プロフィール本体だけを読み直す。
+// アップロード自体は成功しているので、再取得失敗ではエラーページへ遷移させず
+// （skipGlobalErrorHandler）、画面内のアラートで知らせるにとどめる。
+const reloadProfile = async () => {
+  try {
+    const targetId = await resolveTargetUserId()
+    if (targetId === null) return
+    const res = await api.api.profileDetail(targetId, {
+      skipGlobalErrorHandler: true,
+    })
+    profile.value = res.data
+  } catch {
+    error.value = 'アイコンは更新されましたが、表示の再取得に失敗しました'
+  }
+}
+
 // プロフィールではタグ絞り込みを持たないので、タグをクリックしたら
 // 記事一覧画面の絞り込みへ遷移させる。
 const goToTag = (tagName: string) => {
@@ -135,7 +159,7 @@ const goToTag = (tagName: string) => {
   <v-sheet color="grey-lighten-4" min-height="100%">
     <v-container class="py-8">
       <v-row justify="center">
-        <v-col cols="12" sm="10" md="8">
+        <v-col cols="12" sm="10">
           <v-alert
             v-if="error"
             type="error"
@@ -153,37 +177,39 @@ const goToTag = (tagName: string) => {
           <template v-else-if="profile">
             <v-card class="pa-6 mb-6" rounded="lg">
               <div class="d-flex ga-6 align-start">
-                <v-avatar size="96" color="indigo-lighten-1">
-                  <v-img
-                    v-if="profile.avatar_url"
-                    :src="profile.avatar_url"
-                    alt="アバター"
-                  />
-                  <v-icon v-else size="64" color="white">
-                    mdi-account-circle
-                  </v-icon>
-                </v-avatar>
+                <div
+                  class="avatar-edit"
+                  :class="{ 'avatar-edit--active': isEditing }"
+                  :role="isEditing ? 'button' : undefined"
+                  :tabindex="isEditing ? 0 : undefined"
+                  :aria-label="isEditing ? 'アイコンを変更' : undefined"
+                  @click="onAvatarClick"
+                  @keydown.enter="onAvatarClick"
+                  @keydown.space.prevent="onAvatarClick"
+                >
+                  <v-avatar size="96" color="indigo-lighten-1">
+                    <v-img
+                      v-if="profile.avatar_url"
+                      :src="profile.avatar_url"
+                      alt="アバター"
+                    />
+                    <v-icon v-else size="64" color="white">
+                      mdi-account-circle
+                    </v-icon>
+                  </v-avatar>
+                  <div v-if="isEditing" class="avatar-edit__overlay">
+                    <v-icon color="white">mdi-camera</v-icon>
+                  </div>
+                </div>
 
                 <div class="flex-grow-1">
                   <h1 class="text-h5 font-weight-bold mb-2">
                     {{ profile.name }}
                   </h1>
 
-                  <template v-if="!isEditing">
-                    <p class="text-body-2 text-medium-emphasis mb-2">
-                      {{ profile.bio || '自己紹介はまだありません' }}
-                    </p>
-                    <v-btn
-                      v-if="profile.is_owner"
-                      variant="text"
-                      color="primary"
-                      size="small"
-                      prepend-icon="mdi-pencil"
-                      @click="isEditing = true"
-                    >
-                      編集
-                    </v-btn>
-                  </template>
+                  <p v-if="!isEditing" class="text-body-2 text-medium-emphasis">
+                    {{ profile.bio || '自己紹介はまだありません' }}
+                  </p>
 
                   <template v-else>
                     <v-textarea
@@ -199,22 +225,40 @@ const goToTag = (tagName: string) => {
                       rows="3"
                       class="mb-2"
                     />
-                    <v-btn
-                      color="primary"
-                      class="mr-2"
-                      :loading="submitting"
-                      :disabled="submitting"
-                      @click="saveBio"
-                    >
-                      完了
-                    </v-btn>
-                    <v-btn variant="text" @click="isEditing = false">
-                      キャンセル
-                    </v-btn>
+                    <div class="d-flex ga-2">
+                      <v-btn
+                        color="primary"
+                        :loading="submitting"
+                        :disabled="submitting"
+                        @click="saveBio"
+                      >
+                        完了
+                      </v-btn>
+                      <v-btn variant="text" @click="isEditing = false">
+                        キャンセル
+                      </v-btn>
+                    </div>
                   </template>
                 </div>
+
+                <v-btn
+                  v-if="profile.is_owner && !isEditing"
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  prepend-icon="mdi-pencil"
+                  @click="isEditing = true"
+                >
+                  編集
+                </v-btn>
               </div>
             </v-card>
+
+            <AvatarEditDialog
+              v-if="profile.is_owner"
+              v-model="avatarDialogOpen"
+              @uploaded="reloadProfile"
+            />
 
             <v-tabs v-model="activeTab" color="primary" class="mb-4">
               <v-tab value="articles">投稿した記事</v-tab>
@@ -274,3 +318,32 @@ const goToTag = (tagName: string) => {
     </v-container>
   </v-sheet>
 </template>
+
+<style scoped>
+/* 編集モード時にアバター上へカメラを重ねる。Vuetify にアバター用の
+   オーバーレイ表現が無いため、ここだけ最小限の scoped CSS で実装する。 */
+.avatar-edit {
+  position: relative;
+  display: inline-flex;
+  border-radius: 50%;
+}
+
+.avatar-edit--active {
+  cursor: pointer;
+}
+
+.avatar-edit__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  transition: background-color 0.2s ease;
+}
+
+.avatar-edit--active:hover .avatar-edit__overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+</style>
