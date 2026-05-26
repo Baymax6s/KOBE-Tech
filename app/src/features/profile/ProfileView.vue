@@ -3,6 +3,7 @@ import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ArticleCard from '@/features/articles/ArticleCard.vue'
+import AvatarEditDialog from '@/features/profile/AvatarEditDialog.vue'
 import { api } from '@/api/client'
 import type {
   ServerArticleJSONResponse,
@@ -35,6 +36,7 @@ const listsLoading = ref(false)
 const listsError = ref<string | null>(null)
 
 const isEditing = ref(false)
+const avatarDialogOpen = ref(false)
 const bio = ref('')
 const submitting = ref(false)
 const maxLength = 200
@@ -124,6 +126,15 @@ const saveBio = async () => {
   }
 }
 
+// アバター更新後は presigned GET URL を更新したいだけなので、記事一覧は再取得せず
+// プロフィール本体だけを読み直す。
+const reloadProfile = async () => {
+  const targetId = await resolveTargetUserId()
+  if (targetId === null) return
+  const res = await api.api.profileDetail(targetId)
+  profile.value = res.data
+}
+
 // プロフィールではタグ絞り込みを持たないので、タグをクリックしたら
 // 記事一覧画面の絞り込みへ遷移させる。
 const goToTag = (tagName: string) => {
@@ -153,16 +164,28 @@ const goToTag = (tagName: string) => {
           <template v-else-if="profile">
             <v-card class="pa-6 mb-6" rounded="lg">
               <div class="d-flex ga-6 align-start">
-                <v-avatar size="96" color="indigo-lighten-1">
-                  <v-img
-                    v-if="profile.avatar_url"
-                    :src="profile.avatar_url"
-                    alt="アバター"
-                  />
-                  <v-icon v-else size="64" color="white">
-                    mdi-account-circle
-                  </v-icon>
-                </v-avatar>
+                <div class="d-flex flex-column align-center ga-2">
+                  <v-avatar size="96" color="indigo-lighten-1">
+                    <v-img
+                      v-if="profile.avatar_url"
+                      :src="profile.avatar_url"
+                      alt="アバター"
+                    />
+                    <v-icon v-else size="64" color="white">
+                      mdi-account-circle
+                    </v-icon>
+                  </v-avatar>
+                  <v-btn
+                    v-if="profile.is_owner"
+                    variant="text"
+                    color="primary"
+                    size="small"
+                    prepend-icon="mdi-camera"
+                    @click="avatarDialogOpen = true"
+                  >
+                    変更
+                  </v-btn>
+                </div>
 
                 <div class="flex-grow-1">
                   <h1 class="text-h5 font-weight-bold mb-2">
@@ -215,6 +238,12 @@ const goToTag = (tagName: string) => {
                 </div>
               </div>
             </v-card>
+
+            <AvatarEditDialog
+              v-if="profile.is_owner"
+              v-model="avatarDialogOpen"
+              @uploaded="reloadProfile"
+            />
 
             <v-tabs v-model="activeTab" color="primary" class="mb-4">
               <v-tab value="articles">投稿した記事</v-tab>
