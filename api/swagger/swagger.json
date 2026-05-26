@@ -1025,6 +1025,9 @@
                 "name"
             ],
             "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

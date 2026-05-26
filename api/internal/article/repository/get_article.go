@@ -20,6 +20,8 @@ func (r *Repository) FindArticleByID(ctx context.Context, id int64, userID int64
 			a.content,
 			u.id,
 			u.name,
+			up.object_key,
+			COALESCE(up.is_uploaded, false),
 			a.created_at,
 			a.updated_at,
 			COALESCE((SELECT COUNT(*) FROM likes WHERE article_id = a.id), 0),
@@ -28,6 +30,7 @@ func (r *Repository) FindArticleByID(ctx context.Context, id int64, userID int64
 			EXISTS(SELECT 1 FROM likes WHERE article_id = a.id AND user_id = $2)
 		FROM articles a
 		JOIN users u ON u.id = a.user_id
+		LEFT JOIN user_profiles up ON up.user_id = u.id
 		LEFT JOIN LATERAL (
 			SELECT
 				array_agg(t.id ORDER BY t.name, t.id) AS tag_ids,
@@ -48,6 +51,8 @@ func (r *Repository) FindArticleByID(ctx context.Context, id int64, userID int64
 		&item.Content,
 		&item.Author.ID,
 		&item.Author.Name,
+		&item.Author.AvatarObjectKey,
+		&item.Author.AvatarUploaded,
 		&item.CreatedAt,
 		&item.UpdatedAt,
 		&item.LikesCount,
