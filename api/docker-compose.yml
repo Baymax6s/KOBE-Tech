@@ -51,6 +51,8 @@ services:
     image: minio/mc@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
     depends_on:
       - minio
+    volumes:
+      - ./minio-seed/avatar:/avatar
     entrypoint: >
       /bin/sh -c '
       retries=0;
@@ -66,6 +68,11 @@ services:
         sleep 2;
       done &&
       mc mb -p local/kobe-tech-avatar || echo "bucket kobe-tech-avatar already exists or created";
+      
+      mc anonymous set download local/kobe-tech-avatar;
+
+      echo "Uploading seed images...";
+      mc cp -r /avatar local/kobe-tech-avatar/;
       '
 
 volumes:
