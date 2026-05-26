@@ -3,7 +3,6 @@ package minio
 import (
 	"context"
 	"log"
-	"os"
 )
 
 // ResolveAvatarURL はアバターがアップロード済みのときだけ presigned GET URL を返す。
@@ -20,7 +19,7 @@ func ResolveAvatarURL(ctx context.Context, objectKey string, isUploaded bool) st
 		return ""
 	}
 
-	url, err := GeneratePresignedGetURL(ctx, client, os.Getenv("MINIO_BUCKET_NAME"), objectKey)
+	url, err := GeneratePresignedGetURL(ctx, client, bucketName, objectKey)
 	if err != nil {
 		log.Printf("avatar url: presign: %v", err)
 		return ""
