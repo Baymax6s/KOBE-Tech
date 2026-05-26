@@ -68,10 +68,8 @@ services:
         sleep 2;
       done &&
       mc mb -p local/kobe-tech-avatar || echo "bucket kobe-tech-avatar already exists or created";
-      # 1. バケットを作成（動いていた元のコード）
       mc mb -p local/kobe-tech-avatar || echo "bucket kobe-tech-avatar already exists or created";
       
-      # 2. バケットを一般公開にする
       mc anonymous set download local/kobe-tech-avatar;
 
       echo "Uploading seed images...";

@@ -68,7 +68,7 @@ make swagger
 ```
 または
 ```sh
-swag init -q -g ./cmd/api/main.go -d .,./internal --parseInternal -o ./swagger --ot json,yaml
+swag init -q -g ./cmd/api/main.go -d . --parseInternal -o ./swagger --ot json,yaml
 mv ./swagger/swagger.yaml ./swagger/openapi.yml
 ```
 
@@ -107,8 +107,35 @@ make migrate-down
 | user_id | name   | password |
 | ------- | ------ | -------- |
 | 1       | admin  | Password |
-| 2       | user01 | Password |
-| 3       | user02 | Password |
-| 4       | user03 | Password |
+| 2       | 田中太郎 | Password |
+| 3       | 山田花子 | Password |
+| 4       | 佐藤次郎 | Password |
 
 
+## MinIOの環境設定変更
+
+### MinIO 管理コンソール
+
+URL : http://localhost:9001
+
+Username : minio
+
+Password : password
+
+### MinIO の設定変更
+ログイン情報やバケット名など、環境に合わせて設定を変更したい場合は `.env` の以下の項目を書き換えてください。
+
+MinIOのルートアカウント（管理画面のログインに使用）
+
+```env
+MINIO_ROOT_USER=minio
+MINIO_ROOT_PASSWORD=password
+```
+
+アプリケーションからの接続設定（エンドポイント、バケット名、暗号化）
+
+```env
+MINIO_ENDPOINT=localhost:9000
+MINIO_BUCKET_NAME=kobe-tech-avatar
+MINIO_USE_SSL=false
+```
