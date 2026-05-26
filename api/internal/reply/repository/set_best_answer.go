@@ -19,52 +19,64 @@ func (r *Repository) SetBestAnswer(ctx context.Context, replyID, userID int64) e
 	}
 	defer tx.Rollback()
 
-	const fetchReplyQuery = `
-		SELECT kind, parent_id
-		FROM replies
-		WHERE id = $1
+	// 1. 指定された reply が存在し、answer であることを確認し、同時にルートの質問者を特定する。
+	// クエリ数を削減するため、Recursive CTE でターゲットの kind を引き継ぎつつルート（parent_id IS NULL）を特定する。
+	const findRootQuery = `
+		WITH RECURSIVE root_path AS (
+			SELECT id, parent_id, kind, user_id, kind as target_kind
+			FROM replies
+			WHERE id = $1
+			UNION ALL
+			SELECT r.id, r.parent_id, r.kind, r.user_id, rp.target_kind
+			FROM replies r
+			JOIN root_path rp ON r.id = rp.parent_id
+		)
+		SELECT target_kind, id, kind, user_id FROM root_path WHERE parent_id IS NULL
 	`
-	var kind reply.Kind
-	var parentID sql.NullInt64
-	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kind, &parentID)
+
+	var targetKind reply.Kind
+	var rootID int64
+	var rootKind reply.Kind
+	var questionUserID int64
+
+	err = tx.QueryRowContext(ctx, findRootQuery, replyID).Scan(&targetKind, &rootID, &rootKind, &questionUserID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrReplyNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if kind != reply.KindAnswer {
-		return ErrNotAnswer
-	}
-	if !parentID.Valid {
+
+	// ターゲットが回答であることをチェック
+	if targetKind != reply.KindAnswer {
 		return ErrNotAnswer
 	}
 
-	const fetchParentQuery = `
-		SELECT kind, user_id
-		FROM replies
-		WHERE id = $1
-	`
-	var parentKind reply.Kind
-	var questionUserID int64
-	err = tx.QueryRowContext(ctx, fetchParentQuery, parentID.Int64).Scan(&parentKind, &questionUserID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return ErrParentNotFound
-	}
-	if err != nil {
-		return err
-	}
-	if parentKind != reply.KindQuestion {
-		return ErrNotAnswer
+	// ルートが質問であることをチェック
+	if rootKind != reply.KindQuestion {
+		return ErrNotAnswer // 質問スレッド以外でのベストアンサーは不可
 	}
 
+	// 権限チェック
 	if questionUserID != userID {
 		return ErrNotQuestionAuthor
 	}
 
-	const checkBestQuery = `SELECT EXISTS(SELECT 1 FROM replies WHERE parent_id = $1 AND is_best = TRUE)`
+	// 2. スレッド内のいずれかの返信にすでにベストアンサーが設定されていないか確認する。
+	// ルート質問 ID を起点に、その配下の全子孫（再帰）の中で is_best = TRUE のものを探す。
+	const checkThreadBestQuery = `
+		WITH RECURSIVE thread_members AS (
+			SELECT id FROM replies WHERE id = $1
+			UNION ALL
+			SELECT r.id FROM replies r
+			JOIN thread_members tm ON r.parent_id = tm.id
+		)
+		SELECT EXISTS (
+			SELECT 1 FROM replies WHERE id IN (SELECT id FROM thread_members) AND is_best = TRUE
+		)
+	`
 	var hasBest bool
-	err = tx.QueryRowContext(ctx, checkBestQuery, parentID.Int64).Scan(&hasBest)
+	err = tx.QueryRowContext(ctx, checkThreadBestQuery, rootID).Scan(&hasBest)
 	if err != nil {
 		return err
 	}

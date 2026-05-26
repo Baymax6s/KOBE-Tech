@@ -19,49 +19,45 @@ func (r *Repository) UnsetBestAnswer(ctx context.Context, replyID, userID int64)
 	}
 	defer tx.Rollback()
 
-	const fetchReplyQuery = `
-		SELECT kind, parent_id, is_best
-		FROM replies
-		WHERE id = $1
+	// 1. 指定された reply が存在し、ルートの質問者を特定して権限チェックを行う。
+	// クエリ数を削減するため、Recursive CTE でターゲットの情報を引き継ぎつつルート（parent_id IS NULL）を特定する。
+	const findRootQuery = `
+		WITH RECURSIVE root_path AS (
+			SELECT id, parent_id, kind, user_id, kind as target_kind, is_best as target_is_best
+			FROM replies
+			WHERE id = $1
+			UNION ALL
+			SELECT r.id, r.parent_id, r.kind, r.user_id, rp.target_kind, rp.target_is_best
+			FROM replies r
+			JOIN root_path rp ON r.id = rp.parent_id
+		)
+		SELECT target_kind, target_is_best, kind, user_id FROM root_path WHERE parent_id IS NULL
 	`
-	var kind reply.Kind
-	var parentID sql.NullInt64
-	var isBest bool
-	err = tx.QueryRowContext(ctx, fetchReplyQuery, replyID).Scan(&kind, &parentID, &isBest)
+
+	var targetKind reply.Kind
+	var targetIsBest bool
+	var rootKind reply.Kind
+	var questionUserID int64
+	err = tx.QueryRowContext(ctx, findRootQuery, replyID).Scan(&targetKind, &targetIsBest, &rootKind, &questionUserID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrReplyNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if kind != reply.KindAnswer {
+
+	// ターゲットの状態チェック
+	if targetKind != reply.KindAnswer {
 		return ErrNotAnswer
 	}
-	if !isBest {
+	if !targetIsBest {
 		return ErrNotBestAnswer
 	}
-	if !parentID.Valid {
+
+	// ルートの整合性と権限チェック
+	if rootKind != reply.KindQuestion {
 		return ErrNotAnswer
 	}
-
-	const fetchParentQuery = `
-		SELECT kind, user_id
-		FROM replies
-		WHERE id = $1
-	`
-	var parentKind reply.Kind
-	var questionUserID int64
-	err = tx.QueryRowContext(ctx, fetchParentQuery, parentID.Int64).Scan(&parentKind, &questionUserID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return ErrParentNotFound
-	}
-	if err != nil {
-		return err
-	}
-	if parentKind != reply.KindQuestion {
-		return ErrNotAnswer
-	}
-
 	if questionUserID != userID {
 		return ErrNotQuestionAuthor
 	}
