@@ -82,7 +82,7 @@ func (h *Handler) ListArticles(ctx context.Context, userID int64, tagNames []str
 		return ListArticlesJSONResponse{}, err
 	}
 
-	return newListArticlesJSONResponse(articles), nil
+	return NewListArticlesJSONResponse(articles), nil
 }
 
 // normalizeFilterTagNames は ?tag=... のクエリパラメータを SQL の LOWER(t.name) 比較に揃える。
@@ -109,7 +109,7 @@ func normalizeFilterTagNames(raw []string) ([]string, error) {
 	return normalized, nil
 }
 
-func newListArticlesJSONResponse(articles []article.Article) ListArticlesJSONResponse {
+func NewListArticlesJSONResponse(articles []article.Article) ListArticlesJSONResponse {
 	response := ListArticlesJSONResponse{
 		Articles: make([]ArticleListItemJSON, 0, len(articles)),
 	}

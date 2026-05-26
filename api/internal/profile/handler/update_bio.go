@@ -76,5 +76,5 @@ func (h *Handler) UpdateBio(ctx context.Context, userID int64, req UpdateBioRequ
 		return ProfileJSON{}, err
 	}
 
-	return newProfileJSON(p, true), nil
+	return newProfileJSON(p, true, resolveAvatarURL(ctx, p)), nil
 }
