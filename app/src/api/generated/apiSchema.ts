@@ -155,6 +155,7 @@ export interface ServerProfileErrorResponse {
 
 export interface ServerProfileJSON {
   avatar_url?: string;
+  best_answer_count?: number;
   bio?: string;
   id?: number;
   is_owner?: boolean;
@@ -620,6 +621,25 @@ export class Api<
     profileArticlesList: (userId: number, params: RequestParams = {}) =>
       this.request<ServerListArticlesResponse, ServerProfileErrorResponse>({
         path: `/api/profile/${userId}/articles`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 指定ユーザーの回答がベストアンサーに選ばれた記事一覧を新しい順に取得する
+     *
+     * @tags profile
+     * @name ProfileBestAnswerArticlesList
+     * @summary List articles where user's reply was marked as best answer
+     * @request GET:/api/profile/{user_id}/best-answer-articles
+     */
+    profileBestAnswerArticlesList: (
+      userId: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<ServerListArticlesResponse, ServerProfileErrorResponse>({
+        path: `/api/profile/${userId}/best-answer-articles`,
         method: "GET",
         format: "json",
         ...params,
