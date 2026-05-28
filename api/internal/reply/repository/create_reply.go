@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 )
 
-const maxReplyDepth = 2
+const maxReplyDepth = 3
 
 func (r *Repository) Create(ctx context.Context, articleID int64, userID int64, parentID *int64, kind reply.Kind, body string) (reply.Reply, error) {
 	if r == nil || r.db == nil {
