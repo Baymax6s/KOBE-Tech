@@ -266,6 +266,8 @@ definitions:
     properties:
       avatar_url:
         type: string
+      best_answer_count:
+        type: integer
       bio:
         type: string
       id:
