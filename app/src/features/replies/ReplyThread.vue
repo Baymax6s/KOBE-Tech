@@ -79,7 +79,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
 <template>
   <div class="d-flex flex-column ga-3">
     <!-- 
-      ✨ 変更箇所: depth が 3 (4階層目) のときは、
+      ✨ 変更箇所: depth が 3 以上 (4階層目以降) のときは、
       ログイン状態に関わらず can-reply を強制的に false にして返信ボタンを消します。
     -->
     <ReplyItem
@@ -92,7 +92,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       @best-updated="handleBestUpdated"
     />
 
-    <!-- 安全対策: depth が 3 の時は入力フォーム自体も絶対に表示されないようにガード -->
+    <!-- 安全対策: depth が 3 以上 (4階層目以降) の時は入力フォーム自体も絶対に表示されないようにガード -->
     <div v-if="showReplyForm && depth < 3" class="ms-8">
       <ReplyForm
         :article-id="articleId"
