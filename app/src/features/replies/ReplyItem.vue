@@ -14,6 +14,7 @@ const props = defineProps<{
   replying: boolean
   currentUserId: number | null
   questionAuthorByReplyId: Map<number, number>
+  threadHasBestByReplyId: Map<number, boolean>
 }>()
 
 const emit = defineEmits<{
@@ -42,7 +43,12 @@ const canMarkBest = computed(() => {
   if (props.reply.kind !== 'answer') return false
   if (props.currentUserId == null) return false
   const questionUserId = props.questionAuthorByReplyId.get(props.reply.id)
-  return questionUserId != null && questionUserId === props.currentUserId
+  if (questionUserId == null || questionUserId !== props.currentUserId)
+    return false
+  const threadHasBest =
+    props.threadHasBestByReplyId.get(props.reply.id) ?? false
+  if (threadHasBest && !props.reply.is_best) return false
+  return true
 })
 
 const submittingBest = ref(false)

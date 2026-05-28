@@ -21,6 +21,7 @@ const props = defineProps<{
   articleId: number
   currentUserId: number | null
   questionAuthorByReplyId: Map<number, number>
+  threadHasBestByReplyId: Map<number, boolean>
 }>()
 
 const emit = defineEmits<{
@@ -88,6 +89,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
       :replying="showReplyForm"
       :current-user-id="currentUserId"
       :question-author-by-reply-id="questionAuthorByReplyId"
+      :thread-has-best-by-reply-id="threadHasBestByReplyId"
       @toggle-reply="toggleReplyForm"
       @best-updated="handleBestUpdated"
     />
@@ -121,6 +123,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
           :article-id="articleId"
           :current-user-id="currentUserId"
           :question-author-by-reply-id="questionAuthorByReplyId"
+          :thread-has-best-by-reply-id="threadHasBestByReplyId"
           @submitted="emit('submitted', $event)"
           @best-updated="handleBestUpdated"
         />

@@ -116,6 +116,38 @@ const bestAnswerPathIds = computed(() => {
   return set
 })
 
+const rootQuestionIdByReplyId = computed(() => {
+  const replyMap = new Map(replies.value.map((r) => [r.id, r]))
+  const map = new Map<number, number>()
+  for (const r of replies.value) {
+    let current = r
+    while (current.parent_id != null) {
+      const parent = replyMap.get(current.parent_id)
+      if (!parent) break
+      current = parent
+    }
+    if (current.kind === 'question') {
+      map.set(r.id, current.id)
+    }
+  }
+  return map
+})
+
+const threadHasBestByReplyId = computed(() => {
+  const bestQuestionIds = new Set<number>()
+  for (const r of replies.value) {
+    if (!r.is_best) continue
+    const rootId = rootQuestionIdByReplyId.value.get(r.id)
+    if (rootId != null) bestQuestionIds.add(rootId)
+  }
+  const map = new Map<number, boolean>()
+  for (const r of replies.value) {
+    const rootId = rootQuestionIdByReplyId.value.get(r.id)
+    map.set(r.id, rootId != null && bestQuestionIds.has(rootId))
+  }
+  return map
+})
+
 const effectiveBestAnswerPathIds = computed(() => {
   // フィルター時も「すべて」と同じ表示ロジック（ベストアンサー経路のみ表示し、他は隠す）
   // を適用する。
@@ -287,6 +319,7 @@ watch(
         :article-id="articleId"
         :current-user-id="currentUserId"
         :question-author-by-reply-id="questionAuthorByReplyId"
+        :thread-has-best-by-reply-id="threadHasBestByReplyId"
         @submitted="handleSubmitted"
         @best-updated="handleBestUpdated"
       />
