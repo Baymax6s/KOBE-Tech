@@ -792,6 +792,47 @@
                 }
             }
         },
+        "/api/profile/{user_id}/best-answer-articles": {
+            "get": {
+                "description": "指定ユーザーの回答がベストアンサーに選ばれた記事一覧を新しい順に取得する",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "List articles where user's reply was marked as best answer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.listArticlesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.profileErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/profile/{user_id}/liked-articles": {
             "get": {
                 "description": "指定ユーザーがいいねした記事一覧をいいねした順に取得する",
@@ -1375,6 +1416,9 @@
             "properties": {
                 "avatar_url": {
                     "type": "string"
+                },
+                "best_answer_count": {
+                    "type": "integer"
                 },
                 "bio": {
                     "type": "string"

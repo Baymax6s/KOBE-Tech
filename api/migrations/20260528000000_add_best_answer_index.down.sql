@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS idx_replies_user_best;

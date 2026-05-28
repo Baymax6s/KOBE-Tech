@@ -23,7 +23,12 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
             user_profiles.object_key,
             COALESCE(user_profiles.is_uploaded, false),
             user_profiles.created_at,
-            user_profiles.updated_at
+            user_profiles.updated_at,
+            COALESCE(
+                (SELECT COUNT(*) FROM replies
+                 WHERE replies.is_best = TRUE AND replies.user_id = $1),
+                0
+            )
         FROM users
         LEFT JOIN user_profiles
             ON user_profiles.user_id = users.id
@@ -38,6 +43,7 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (profile.Profile, e
 		&p.UserProfile.IsUploaded,
 		&p.UserProfile.CreatedAt,
 		&p.UserProfile.UpdatedAt,
+		&p.BestAnswerCount,
 	)
 
 	if err != nil {

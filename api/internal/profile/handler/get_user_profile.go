@@ -19,6 +19,7 @@ type ProfileJSON struct {
 	Name             string     `json:"name"`
 	Bio              string     `json:"bio"`
 	AvatarURL        string     `json:"avatar_url"`
+	BestAnswerCount  int64      `json:"best_answer_count"`
 	ProfileCreatedAt *time.Time `json:"profile_created_at"`
 	ProfileUpdatedAt *time.Time `json:"profile_updated_at"`
 	IsOwner          bool       `json:"is_owner"`
@@ -96,6 +97,7 @@ func newProfileJSON(p profile.Profile, isOwner bool, avatarURL string) ProfileJS
 		Name:             p.User.Name,
 		Bio:              p.UserProfile.Bio.String,
 		AvatarURL:        avatarURL,
+		BestAnswerCount:  p.BestAnswerCount,
 		ProfileCreatedAt: profileCreatedAt,
 		ProfileUpdatedAt: profileUpdatedAt,
 		IsOwner:          isOwner,

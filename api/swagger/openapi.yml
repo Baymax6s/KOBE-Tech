@@ -266,6 +266,8 @@ definitions:
     properties:
       avatar_url:
         type: string
+      best_answer_count:
+        type: integer
       bio:
         type: string
       id:
@@ -756,6 +758,33 @@ paths:
           schema:
             $ref: '#/definitions/server.profileErrorResponse'
       summary: List articles posted by a user
+      tags:
+      - profile
+  /api/profile/{user_id}/best-answer-articles:
+    get:
+      description: 指定ユーザーの回答がベストアンサーに選ばれた記事一覧を新しい順に取得する
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.listArticlesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.profileErrorResponse'
+      summary: List articles where user's reply was marked as best answer
       tags:
       - profile
   /api/profile/{user_id}/liked-articles:

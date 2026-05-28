@@ -28,6 +28,30 @@ func (r *Repository) ListArticlesByAuthor(ctx context.Context, authorID int64, v
 	return scanArticleList(rows)
 }
 
+// ListBestAnswerArticles は userID の回答がベストアンサーに選ばれた記事を新しい順に返す。
+// viewerID は閲覧者で、各記事の liked_by_me 判定に使う（userID とは別概念）。
+func (r *Repository) ListBestAnswerArticles(ctx context.Context, userID int64, viewerID int64) ([]article.Article, error) {
+	if r == nil || r.db == nil {
+		return nil, errors.New("article repository is not configured")
+	}
+
+	query := articleListSelectFrom + `
+		WHERE EXISTS (
+			SELECT 1 FROM replies r
+			WHERE r.article_id = a.id AND r.user_id = $2 AND r.is_best = TRUE
+		)
+		ORDER BY a.created_at DESC, a.id DESC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, viewerID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return scanArticleList(rows)
+}
+
 // ListLikedArticles は likerID がいいねした記事を「いいねした順」で返す。
 // viewerID は閲覧者で、各記事の liked_by_me 判定に使う（likerID とは別概念）。
 func (r *Repository) ListLikedArticles(ctx context.Context, likerID int64, viewerID int64) ([]article.Article, error) {

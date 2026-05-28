@@ -19,6 +19,7 @@ func (h *Handler) RegisterRoutes(router gin.IRouter, authRouter gin.IRouter) {
 	router.GET("/profile/:user_id", h.getUserProfileHandler)
 	router.GET("/profile/:user_id/articles", h.getUserArticlesHandler)
 	router.GET("/profile/:user_id/liked-articles", h.getUserLikedArticlesHandler)
+	router.GET("/profile/:user_id/best-answer-articles", h.getUserBestAnswerArticlesHandler)
 	authRouter.PUT("/profile/bio", h.updateBioHandler)
 	authRouter.POST("/profile/avatar/presign", h.presignAvatarHandler)
 	authRouter.POST("/profile/avatar/complete", h.avatarUploadCompleteHandler)
