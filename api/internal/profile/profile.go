@@ -23,9 +23,9 @@ type UserProfile struct {
 }
 
 type Profile struct {
-	User             User
-	UserProfile      UserProfile
-	BestAnswerCount  int64
+	User            User
+	UserProfile     UserProfile
+	BestAnswerCount int64
 }
 
 const maxBioLength = 200
