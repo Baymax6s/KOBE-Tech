@@ -136,7 +136,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
         返信 {{ hiddenCount }} 件を表示
       </v-btn>
       <v-btn
-        v-else-if="depth === 0 && localReveal"
+        v-else-if="depth === 0 && localReveal && (props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0) > 0"
         variant="text"
         size="small"
         color="primary"
