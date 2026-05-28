@@ -100,7 +100,7 @@ watch(selectedTags, () => void fetchArticles(), { immediate: true })
   <v-container class="py-8">
     <v-row justify="center">
       <v-col cols="12" sm="10">
-        <div class="d-flex align-center mb-4">
+        <div class="d-flex align-center mb-2">
           <h1 class="text-h4 font-weight-bold">記事一覧</h1>
           <v-spacer />
           <v-btn

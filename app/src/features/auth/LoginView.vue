@@ -45,11 +45,13 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <v-container class="py-8">
+  <v-container class="py-10">
     <v-row justify="center" align="center">
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card class="pa-6">
-          <v-card-title class="text-h6 text-center">ログイン</v-card-title>
+          <v-card-title class="text-h5 font-weight-bold text-center mb-4">
+            ログイン
+          </v-card-title>
 
           <v-card-text>
             <v-alert
@@ -64,25 +66,28 @@ const onSubmit = async () => {
 
             <v-form @submit.prevent="onSubmit">
               <v-text-field
+                density="comfortable"
                 v-model="name"
                 label="ユーザー名"
                 variant="outlined"
                 required
-                class="mb-4"
+                class="mb-2"
                 :disabled="submitting"
               />
 
               <v-text-field
+                density="comfortable"
                 v-model="password"
                 label="パスワード"
                 type="password"
                 variant="outlined"
                 required
-                class="mb-4"
+                class="mb-2"
                 :disabled="submitting"
               />
 
               <v-btn
+                class="mt-2"
                 type="submit"
                 color="primary"
                 block

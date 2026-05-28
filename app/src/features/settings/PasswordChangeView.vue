@@ -68,13 +68,13 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <v-container class="py-8">
+  <v-container class="py-10">
     <v-row justify="center" align="center">
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card class="pa-6">
-          <v-card-title class="text-h6 text-center"
-            >パスワード変更</v-card-title
-          >
+          <v-card-title class="text-h5 font-weight-bold text-center mb-4">
+            パスワード変更
+          </v-card-title>
 
           <v-card-text>
             <v-alert
@@ -99,29 +99,32 @@ const onSubmit = async () => {
 
             <v-form @submit.prevent="onSubmit">
               <v-text-field
+                density="comfortable"
                 v-model="currentPassword"
                 label="現在のパスワード"
                 type="password"
                 variant="outlined"
                 required
-                class="mb-4"
+                class="mb-2"
                 :disabled="submitting"
                 autocomplete="current-password"
               />
 
               <v-text-field
+                density="comfortable"
                 v-model="newPassword"
                 label="新しいパスワード"
                 type="password"
                 variant="outlined"
                 required
-                class="mb-4"
+                class="mb-2"
                 :disabled="submitting"
                 :rules="newPasswordRules"
                 autocomplete="new-password"
               />
 
               <v-btn
+                class="mt-2"
                 type="submit"
                 color="primary"
                 block
