@@ -210,20 +210,20 @@ const goToTag = (tagName: string) => {
                 </div>
 
                 <div class="flex-grow-1">
-                  <div class="d-flex align-center ga-2 mb-2">
-                    <h1 class="text-h5 font-weight-bold">
-                      {{ profile.name }}
-                    </h1>
-                    <v-chip
-                      v-if="profile.best_answer_count"
-                      color="amber-darken-2"
-                      size="small"
-                      prepend-icon="mdi-trophy"
-                      class="font-weight-bold"
-                    >
-                      ベストアンサー {{ profile.best_answer_count }}
-                    </v-chip>
-                  </div>
+                  <h1 class="text-h5 font-weight-bold mb-2">
+                    {{ profile.name }}
+                  </h1>
+
+                  <v-chip
+                    v-if="profile.best_answer_count"
+                    color="amber-darken-2"
+                    size="small"
+                    variant="flat"
+                    class="mb-2"
+                  >
+                    <v-icon start size="small">mdi-trophy</v-icon>
+                    ベストアンサー {{ profile.best_answer_count }}回
+                  </v-chip>
 
                   <p v-if="!isEditing" class="text-body-2 text-medium-emphasis">
                     {{ profile.bio || '自己紹介はまだありません' }}
