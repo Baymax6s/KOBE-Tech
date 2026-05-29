@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
@@ -74,6 +74,15 @@ const handleSubmitted = (newReply: ServerReplyJSONResponse) => {
 const handleBestUpdated = (replyId: number, isBest: boolean) => {
   emit('best-updated', replyId, isBest)
 }
+
+watch(
+  () => props.revealAll,
+  (revealing) => {
+    if (!revealing) {
+      localReveal.value = false
+    }
+  },
+)
 </script>
 
 <template>
