@@ -44,12 +44,13 @@ const maxLength = 200
 
 // 記事一覧の絞り込みと同じ思想で、開いているタブを URL に持たせる。
 // リロード・共有でタブ状態を再現できるようにするため。
-const activeTab = computed<'articles' | 'likes' | 'best-answers'>({
+const VALID_TABS = ['articles', 'likes', 'best-answers'] as const
+type TabType = (typeof VALID_TABS)[number]
+
+const activeTab = computed<TabType>({
   get() {
-    const tab = route.query.tab
-    if (tab === 'likes') return 'likes'
-    if (tab === 'best-answers') return 'best-answers'
-    return 'articles'
+    const tab = route.query.tab as string
+    return VALID_TABS.includes(tab as TabType) ? (tab as TabType) : 'articles'
   },
   set(next) {
     void router.replace({
@@ -215,7 +216,7 @@ const goToTag = (tagName: string) => {
                   </h1>
 
                   <v-chip
-                    v-if="profile.best_answer_count"
+                    v-if="(profile.best_answer_count ?? 0) > 0"
                     color="amber-darken-2"
                     size="small"
                     variant="flat"
