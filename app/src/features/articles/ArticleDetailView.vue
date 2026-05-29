@@ -107,7 +107,7 @@ watch(
 
 <template>
   <v-sheet color="grey-lighten-4" min-height="100%">
-    <v-container class="py-8">
+    <v-container class="py-6">
       <v-row justify="center">
         <v-col cols="12" sm="10">
           <div v-if="loading" class="d-flex justify-center py-12">
@@ -166,14 +166,14 @@ watch(
               {{ likeError }}
             </v-alert>
 
-            <v-card flat rounded="lg" class="pa-8">
+            <v-card flat rounded="lg" class="pa-6">
               <MarkdownContent
                 class="text-body-1"
                 :source="article.content ?? ''"
               />
             </v-card>
 
-            <div class="d-flex align-center ga-3 my-6">
+            <div class="d-flex align-center ga-3 my-4">
               <v-btn
                 variant="text"
                 :color="isLiked ? 'red' : undefined"
@@ -183,14 +183,14 @@ watch(
               >
                 <v-icon
                   :icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'"
-                  size="large"
+                  size="x-large"
                   start
                 />
                 {{ article.likes_count ?? 0 }}
               </v-btn>
             </div>
 
-            <div class="mt-10">
+            <div class="mt-2">
               <ReplySection :article-id="article.id" />
             </div>
           </template>

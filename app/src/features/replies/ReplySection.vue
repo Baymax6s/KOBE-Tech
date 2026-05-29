@@ -232,7 +232,7 @@ watch(
 </script>
 
 <template>
-  <section class="d-flex flex-column ga-6">
+  <section class="d-flex flex-column ga-2">
     <h2 class="text-h6 font-weight-bold">
       リプライ
       <span v-if="!loading" class="text-medium-emphasis text-body-2 ml-1">
