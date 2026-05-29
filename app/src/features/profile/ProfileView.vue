@@ -32,6 +32,7 @@ const error = ref<string | null>(null)
 
 const postedArticles = ref<ServerArticleJSONResponse[]>([])
 const likedArticles = ref<ServerArticleJSONResponse[]>([])
+const bestAnswerArticles = ref<ServerArticleJSONResponse[]>([])
 const listsLoading = ref(false)
 const listsError = ref<string | null>(null)
 
@@ -43,13 +44,17 @@ const maxLength = 200
 
 // 記事一覧の絞り込みと同じ思想で、開いているタブを URL に持たせる。
 // リロード・共有でタブ状態を再現できるようにするため。
-const activeTab = computed<'articles' | 'likes'>({
+const VALID_TABS = ['articles', 'likes', 'best-answers'] as const
+type TabType = (typeof VALID_TABS)[number]
+
+const activeTab = computed<TabType>({
   get() {
-    return route.query.tab === 'likes' ? 'likes' : 'articles'
+    const tab = route.query.tab as string
+    return VALID_TABS.includes(tab as TabType) ? (tab as TabType) : 'articles'
   },
   set(next) {
     void router.replace({
-      query: { ...route.query, tab: next === 'likes' ? 'likes' : undefined },
+      query: { ...route.query, tab: next === 'articles' ? undefined : next },
     })
   },
 })
@@ -64,12 +69,14 @@ const fetchLists = async (targetId: number) => {
   listsLoading.value = true
   listsError.value = null
   try {
-    const [posted, liked] = await Promise.all([
+    const [posted, liked, bestAnswers] = await Promise.all([
       api.api.profileArticlesList(targetId),
       api.api.profileLikedArticlesList(targetId),
+      api.api.profileBestAnswerArticlesList(targetId),
     ])
     postedArticles.value = posted.data.articles ?? []
     likedArticles.value = liked.data.articles ?? []
+    bestAnswerArticles.value = bestAnswers.data.articles ?? []
   } catch {
     listsError.value = '記事一覧の取得に失敗しました'
   } finally {
@@ -85,6 +92,7 @@ const fetchProfile = async () => {
   profile.value = null
   postedArticles.value = []
   likedArticles.value = []
+  bestAnswerArticles.value = []
   listsError.value = null
   isEditing.value = false
   try {
@@ -207,6 +215,17 @@ const goToTag = (tagName: string) => {
                     {{ profile.name }}
                   </h1>
 
+                  <v-chip
+                    v-if="(profile.best_answer_count ?? 0) > 0"
+                    color="amber-darken-2"
+                    size="small"
+                    variant="flat"
+                    class="mb-2"
+                  >
+                    <v-icon start size="small">mdi-trophy</v-icon>
+                    ベストアンサー {{ profile.best_answer_count }}回
+                  </v-chip>
+
                   <p v-if="!isEditing" class="text-body-2 text-medium-emphasis">
                     {{ profile.bio || '自己紹介はまだありません' }}
                   </p>
@@ -263,6 +282,7 @@ const goToTag = (tagName: string) => {
             <v-tabs v-model="activeTab" color="primary" class="mb-4">
               <v-tab value="articles">投稿した記事</v-tab>
               <v-tab value="likes">いいねした記事</v-tab>
+              <v-tab value="best-answers">ベストアンサー獲得記事</v-tab>
             </v-tabs>
 
             <div v-if="listsLoading" class="d-flex justify-center py-12">
@@ -308,6 +328,25 @@ const goToTag = (tagName: string) => {
                     variant="tonal"
                   >
                     まだいいねした記事がありません
+                  </v-alert>
+                </div>
+              </v-window-item>
+
+              <v-window-item value="best-answers">
+                <div class="d-flex flex-column ga-4">
+                  <ArticleCard
+                    v-for="article in bestAnswerArticles"
+                    :key="article.id"
+                    :article="article"
+                    :selected-tags="[]"
+                    @select-tag="goToTag"
+                  />
+                  <v-alert
+                    v-if="bestAnswerArticles.length === 0"
+                    type="info"
+                    variant="tonal"
+                  >
+                    まだベストアンサーを獲得した記事がありません
                   </v-alert>
                 </div>
               </v-window-item>
