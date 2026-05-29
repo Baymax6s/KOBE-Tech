@@ -116,6 +116,45 @@ const bestAnswerPathIds = computed(() => {
   return set
 })
 
+const rootQuestionInfoByReplyId = computed(() => {
+  const replyMap = new Map(replies.value.map((r) => [r.id, r]))
+  const map = new Map<number, { rootId: number; authorId: number }>()
+  for (const r of replies.value) {
+    let current = r
+    while (current.parent_id != null) {
+      const parent = replyMap.get(current.parent_id)
+      if (!parent) break
+      current = parent
+    }
+    if (current.kind === 'question') {
+      map.set(r.id, { rootId: current.id, authorId: current.user_id })
+    }
+  }
+  return map
+})
+
+const rootQuestionIdByReplyId = computed(
+  () =>
+    new Map(
+      [...rootQuestionInfoByReplyId.value].map(([k, v]) => [k, v.rootId]),
+    ),
+)
+
+const threadHasBestByReplyId = computed(() => {
+  const bestQuestionIds = new Set<number>()
+  for (const r of replies.value) {
+    if (!r.is_best) continue
+    const rootId = rootQuestionIdByReplyId.value.get(r.id)
+    if (rootId != null) bestQuestionIds.add(rootId)
+  }
+  const map = new Map<number, boolean>()
+  for (const r of replies.value) {
+    const rootId = rootQuestionIdByReplyId.value.get(r.id)
+    map.set(r.id, rootId != null && bestQuestionIds.has(rootId))
+  }
+  return map
+})
+
 const effectiveBestAnswerPathIds = computed(() => {
   // フィルター時も「すべて」と同じ表示ロジック（ベストアンサー経路のみ表示し、他は隠す）
   // を適用する。
@@ -150,26 +189,12 @@ const hiddenDescendantCountByReplyId = computed(() => {
 // 2階層目以降の回答に対しても「ベストアンサーに選ぶ」権限を確認できるようにするため、
 // 親だけでなくルートまで遡って判定する。
 // key = 子の reply.id, value = 質問の user_id。
-const questionAuthorByReplyId = computed(() => {
-  const map = new Map<number, number>()
-  const replyMap = new Map(replies.value.map((r) => [r.id, r]))
-
-  for (const r of replies.value) {
-    let current = r
-    // 親を辿ってルート（parent_id == null）を探す
-    while (current.parent_id != null) {
-      const parent = replyMap.get(current.parent_id)
-      if (!parent) break
-      current = parent
-    }
-
-    // ルートが質問であれば、その投稿者 ID を保持する
-    if (current.kind === 'question') {
-      map.set(r.id, current.user_id)
-    }
-  }
-  return map
-})
+const questionAuthorByReplyId = computed(
+  () =>
+    new Map(
+      [...rootQuestionInfoByReplyId.value].map(([k, v]) => [k, v.authorId]),
+    ),
+)
 
 const fetchReplies = async (id: number) => {
   loading.value = true
@@ -287,6 +312,7 @@ watch(
         :article-id="articleId"
         :current-user-id="currentUserId"
         :question-author-by-reply-id="questionAuthorByReplyId"
+        :thread-has-best-by-reply-id="threadHasBestByReplyId"
         @submitted="handleSubmitted"
         @best-updated="handleBestUpdated"
       />
