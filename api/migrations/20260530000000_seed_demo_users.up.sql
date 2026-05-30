@@ -28,9 +28,9 @@ ON CONFLICT (name) DO NOTHING;
 INSERT INTO user_profiles (user_id, object_key, bio, is_uploaded)
 SELECT u.id, v.object_key, v.bio, v.is_uploaded
 FROM (VALUES
-    ('鈴木健一',  'avatar/5.jpg', '神戸電子で講師をしています。Web開発とチーム開発の基礎を担当。質問は気軽にどうぞ！', TRUE),
-    ('高橋美咲',  'avatar/6.jpg', 'フロントエンド志望の学生です。Vue と TypeScript を勉強中。最近は型パズルにハマっています。', TRUE),
-    ('渡辺翔太',  'avatar/7.jpg', 'サーバーサイドに興味があります。Go と個人開発でアウトプット中。蔵書管理アプリを作りました。', TRUE),
+    ('鈴木健一',  'avatar/5.png', '神戸電子で講師をしています。Web開発とチーム開発の基礎を担当。質問は気軽にどうぞ！', TRUE),
+    ('高橋美咲',  'avatar/6.png', 'フロントエンド志望の学生です。Vue と TypeScript を勉強中。最近は型パズルにハマっています。', TRUE),
+    ('渡辺翔太',  'avatar/7.png', 'サーバーサイドに興味があります。Go と個人開発でアウトプット中。蔵書管理アプリを作りました。', TRUE),
     ('伊藤さくら', '',             'デザインとコーディングの両方をやりたい学生です。CSS と UI 設計を勉強しています。', FALSE),
     ('中村大輔',  '',             'プログラミングを始めて半年の初心者です。毎日コツコツ続けています。', FALSE)
 ) AS v(user_name, object_key, bio, is_uploaded)
