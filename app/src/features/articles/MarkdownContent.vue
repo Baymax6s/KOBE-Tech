@@ -12,23 +12,31 @@ const previewId = useId()
 </script>
 
 <template>
-  <MdPreview
-    :id="previewId"
-    :model-value="source"
-    class="markdown-content"
-    language="en-US"
-    theme="light"
-    preview-theme="github"
-    code-theme="github"
-    :show-code-row-number="false"
-    no-katex
-    no-mermaid
-  />
+  <div class="markdown-content">
+    <MdPreview
+      :id="previewId"
+      :model-value="source"
+      language="en-US"
+      theme="light"
+      preview-theme="github"
+      code-theme="github"
+      :show-code-row-number="false"
+      :code-foldable="false"
+      no-katex
+      no-mermaid
+    />
+  </div>
 </template>
 
 <style scoped>
 /* リンク色を Vuetify テーマの primary に合わせる */
 .markdown-content :deep(a) {
   color: rgb(var(--v-theme-primary));
+}
+
+/* コードブロック左上の Mac 風 3 色ドットを非表示にする。
+   md-editor-v3 側が詳細度の高い (クラス 5 個) セレクタで表示しているため !important で上書きする */
+.markdown-content :deep(.md-editor-code-flag span) {
+  display: none !important;
 }
 </style>
