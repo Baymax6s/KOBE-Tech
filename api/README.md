@@ -102,14 +102,9 @@ make migrate-create NAME=create_users
 make migrate-down
 ```
 
-### seed_users_データ
+### seed データ・ログインアカウント
 
-| user_id | name   | password |
-| ------- | ------ | -------- |
-| 1       | admin  | Password |
-| 2       | 田中太郎 | Password |
-| 3       | 山田花子 | Password |
-| 4       | 佐藤次郎 | Password |
+seed で投入されるデモユーザー一覧、おすすめのログインアカウント、機能ごとの見どころは、リポジトリルートの [README](../README.md#デモデータとログインアカウント) に集約しています（情報の二重管理を避けるため）。デモユーザーのパスワードは全員 `Password` です。
 
 
 ## MinIOの環境設定変更
