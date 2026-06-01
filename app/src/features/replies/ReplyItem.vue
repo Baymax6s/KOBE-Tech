@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useTimeAgo, type UseTimeAgoMessages } from '@vueuse/core'
 import { api } from '@/api/client'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
+import MarkdownContent from '@/features/articles/MarkdownContent.vue'
 
 defineOptions({
   name: 'ReplyItem',
@@ -150,9 +151,7 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
       </span>
     </div>
 
-    <div class="text-body-2 mb-2" style="white-space: pre-wrap">
-      {{ reply.body }}
-    </div>
+    <MarkdownContent :source="reply.body" class="mb-2" />
 
     <v-alert
       v-if="bestError"
