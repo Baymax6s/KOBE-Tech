@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useTimeAgo, type UseTimeAgoMessages } from '@vueuse/core'
 import { api } from '@/api/client'
 import type { ServerReplyJSONResponse } from '@/api/generated/apiSchema'
+import MarkdownContent from '@/features/articles/MarkdownContent.vue'
 
 defineOptions({
   name: 'ReplyItem',
@@ -119,7 +120,7 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
     flat
     rounded="lg"
     class="pa-4"
-    :class="reply.is_best ? 'bg-yellow-lighten-4' : 'bg-grey-lighten-5'"
+    :class="reply.is_best ? 'bg-yellow-lighten-4' : 'bg-white'"
   >
     <div class="d-flex align-center ga-2 mb-2">
       <v-chip :color="kindBadge.color" size="small" variant="tonal" label>
@@ -150,9 +151,7 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
       </span>
     </div>
 
-    <div class="text-body-2 mb-2" style="white-space: pre-wrap">
-      {{ reply.body }}
-    </div>
+    <MarkdownContent :source="reply.body" class="mt-4" />
 
     <v-alert
       v-if="bestError"
