@@ -1,70 +1,51 @@
 <script setup lang="ts">
-import { shallowRef, watch } from 'vue'
-import {
-  extractFenceLanguages,
-  isLanguageReady,
-  loadLanguage,
-  md,
-} from './markdownIt'
-
-// markdown-it 自身は CSS を持たないため、レンダリング後の HTML
-// (見出し / 表 / リスト / コードブロック等) のタイポグラフィは
-// github-markdown-css に委ねる。prefers-color-scheme で
-// light/dark を自動切替するバリアントを採用。
-// コードハイライトの配色は main.ts で highlight.js/styles/github.css を
-// 読み込み済み (.hljs クラスに対する着色)。
-import 'github-markdown-css/github-markdown.css'
+import { useId } from 'vue'
+import { MdPreview, type CustomIcon } from 'md-editor-v3'
+import 'md-editor-v3/lib/preview.css'
 
 defineOptions({ name: 'MarkdownContent' })
 
-const props = defineProps<{ source: string }>()
+defineProps<{ source: string }>()
 
-const html = shallowRef('')
+// 同一ページに複数マウントしても DOM (アンカー id 等) が衝突しないよう一意な id を振る
+const previewId = useId()
 
-const render = (src: string) => {
-  html.value = md.render(src)
+// コピーボタンをテキスト「Copy」からアイコンに置き換える。customIcon.copy を渡すと
+// md-editor-v3 が data-is-icon モードに切り替わり、クリック時の「Copied!」は
+// ツールチップ (data-tips / language の successTips) として表示される。
+// サイズは md-editor-icon クラスに対する既定 CSS (15x15) に委ねる。
+const customIcon: CustomIcon = {
+  copy: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="md-editor-icon"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>',
 }
-
-watch(
-  () => props.source,
-  async (src) => {
-    const source = src ?? ''
-    render(source)
-
-    const pending = extractFenceLanguages(source).filter(
-      (l) => !isLanguageReady(l),
-    )
-    if (!pending.length) return
-
-    await Promise.all(pending.map(loadLanguage))
-
-    // 後から register された言語を反映するため再レンダリングする。
-    // props.source が再度切り替わっていた場合は古い結果で上書きしない。
-    if (props.source === src) render(source)
-  },
-  { immediate: true },
-)
 </script>
 
 <template>
-  <div class="markdown-body markdown-content" v-html="html" />
+  <div class="markdown-content">
+    <MdPreview
+      :id="previewId"
+      :model-value="source"
+      language="en-US"
+      theme="light"
+      preview-theme="github"
+      code-theme="github"
+      :show-code-row-number="false"
+      :code-foldable="false"
+      :custom-icon="customIcon"
+      no-katex
+      no-mermaid
+    />
+  </div>
 </template>
 
 <style scoped>
-/*
- * markdown-it が生成した HTML を v-html で挿入しているため、個々の要素に
- * ビルド時 class を付与できず Vuetify / Tailwind のユーティリティが当たらない。
- * タイポグラフィ全般は github-markdown-css (.markdown-body) に委譲し、
- * ここでは Vuetify テーマと統一したい箇所のみを :deep() で上書きする。
- */
-
-/* 本文フォントを Vuetify アプリ全体のフォントへ揃える */
-.markdown-content {
-  font-family: inherit;
-}
-
-/* リンク色を Vuetify テーマの primary に合わせる (github-markdown-css の青より優先) */
+/* リンク色を Vuetify テーマの primary に合わせる */
 .markdown-content :deep(a) {
   color: rgb(var(--v-theme-primary));
+}
+
+/* コードブロック左上の Mac 風 3 色ドットを非表示にする。
+   md-editor-v3 側が詳細度の高い (クラス 5 個) セレクタで表示しているため !important で上書きする */
+.markdown-content :deep(.md-editor-code-flag span) {
+  display: none !important;
 }
 </style>
