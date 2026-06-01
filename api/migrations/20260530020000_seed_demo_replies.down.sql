@@ -36,3 +36,15 @@ WHERE article_id IN (
         '私もいつも迷うので、この方針メモ助かります！',
         'grid-template-columns の auto-fit と auto-fill って、何が違うんでしょうか？'
     );
+
+-- 学内課題記事(C言語課題36 / C#課題24 / Java課題11)配下の返信は本マイグレーションで
+-- 全て作成したものなので、コード本文を列挙せず記事単位でまとめて削除する。
+DELETE FROM replies
+WHERE article_id IN (
+    SELECT id FROM articles
+    WHERE title IN (
+        'C言語課題36：ポインタのイメージを掴む',
+        'C#課題24：例外処理でよくある詰まり',
+        'Java課題11：継承とインターフェースの使い分け'
+    )
+);
