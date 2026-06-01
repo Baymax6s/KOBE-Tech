@@ -120,7 +120,7 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
     flat
     rounded="lg"
     class="pa-4"
-    :class="reply.is_best ? 'bg-yellow-lighten-4' : 'bg-grey-lighten-5'"
+    :class="reply.is_best ? 'bg-yellow-lighten-4' : 'bg-white'"
   >
     <div class="d-flex align-center ga-2 mb-2">
       <v-chip :color="kindBadge.color" size="small" variant="tonal" label>
@@ -151,7 +151,7 @@ const formattedDate = useTimeAgo(() => props.reply.created_at, {
       </span>
     </div>
 
-    <MarkdownContent :source="reply.body" class="mb-2" />
+    <MarkdownContent :source="reply.body" class="mt-4" />
 
     <v-alert
       v-if="bestError"

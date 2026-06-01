@@ -38,6 +38,14 @@ const customIcon: CustomIcon = {
 </template>
 
 <style scoped>
+/* md-editor 既定の白背景・内側パディングを外し、面の色と余白は親カードに委ねる。*/
+.markdown-content :deep(.md-editor) {
+  background-color: transparent;
+}
+.markdown-content :deep(.md-editor-preview) {
+  padding: 0;
+}
+
 /* リンク色を Vuetify テーマの primary に合わせる */
 .markdown-content :deep(a) {
   color: rgb(var(--v-theme-primary));
