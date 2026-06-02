@@ -53,10 +53,13 @@ const visibleChildren = computed(() => {
 
 // 隠れている件数はサブツリー全体で集計済みのものを参照する。
 // ネストの奥（例: ベストアンサーの下の返信）も合算したうえで、ボタン 1 つで全部開けるようにするため。
+const totalHiddenCount = computed(
+  () => props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0,
+)
+const hasHiddenReplies = computed(() => totalHiddenCount.value > 0)
+
 const hiddenCount = computed(() =>
-  effectiveReveal.value
-    ? 0
-    : (props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0),
+  effectiveReveal.value ? 0 : totalHiddenCount.value,
 )
 
 const showReplyForm = ref(false)
@@ -136,11 +139,7 @@ const handleBestUpdated = (replyId: number, isBest: boolean) => {
         返信 {{ hiddenCount }} 件を表示
       </v-btn>
       <v-btn
-        v-else-if="
-          depth === 0 &&
-          localReveal &&
-          (props.hiddenDescendantCountByReplyId.get(props.reply.id) ?? 0) > 0
-        "
+        v-else-if="depth === 0 && localReveal && hasHiddenReplies"
         variant="text"
         size="small"
         color="primary"
